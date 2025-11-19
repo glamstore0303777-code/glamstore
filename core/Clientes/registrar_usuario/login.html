@@ -1,22 +1,87 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <title>Iniciar Sesión — Glam Store</title>
   <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@1,700&display=swap" rel="stylesheet">
+  <link rel="icon" href="{% static 'img/logoglam.png' %}">
   <style>
     body {
       margin: 0;
-      font-family: 'Comic Neue', cursive;
-      background: linear-gradient(to bottom right, #fffafc, #fdf0f7);
+      font-family: 'Comic Neue', cursive, Arial, sans-serif;
+      background-color: #fffafc;
+      display: flex;
+    }
+
+    .sidebar {
+      background-color: #fce4ec;
+      padding: 2rem;
+      width: 240px;
+      height: 100vh;
+      position: fixed;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      border-right: 2px solid #f8bbd0;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+    }
+
+    .logo {
+      width: 100px;
+      border-radius: 50%;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 1rem;
+    }
+
+    .sidebar h1 {
+      color: #ad1457;
+      font-size: 1.8rem;
+      margin: 0.5rem 0;
+    }
+
+    .sidebar p {
+      color: #d81b60;
+      font-size: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .sidebar nav ul {
+      list-style: none;
+      padding: 0;
+      width: 100%;
+    }
+
+    .sidebar nav a {
+      display: block;
+      padding: 0.8rem 1.5rem;
+      margin-bottom: 0.8rem;
+      text-decoration: none;
+      color: #880e4f;
+      font-weight: bold;
+      border-radius: 25px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .sidebar nav a:hover {
+      background-color: #f8bbd0;
+      color: #fff;
+    }
+
+    .main-content {
+      margin-left: 240px;
+      padding: 2rem 5rem;
+      width: calc(100% - 240px - 10rem);
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      overflow: hidden;
     }
 
+    /* Estilos específicos del Login */
     .login-container {
       background-color: #fff0f6;
       padding: 2.5rem 3rem;
@@ -25,28 +90,31 @@
       width: 100%;
       max-width: 420px;
       text-align: center;
-      opacity: 0;
-      transform: translateY(30px);
       animation: fadeInUp 1s ease-out forwards;
     }
 
     @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
       to {
         opacity: 1;
         transform: translateY(0);
       }
     }
 
-    .logo-glam {
-      width: 100px;
+    .logo-glam-login {
+      width: 80px;
       height: auto;
       margin-bottom: 1rem;
-      border-radius: 20px;
+      border-radius: 50%;
       box-shadow: 0 2px 6px rgba(213, 143, 191, 0.3);
     }
 
-    .login-container h1 {
-      font-size: 2.2rem;
+    .login-container h2 {
+      font-size: 2rem;
       color: #c026d3;
       margin-bottom: 1.2rem;
       text-shadow: 1px 1px 2px #f3e8ff;
@@ -71,6 +139,8 @@
       color: #7e22ce;
       font-weight: bold;
       box-shadow: 0 1px 4px rgba(213, 143, 191, 0.1);
+      box-sizing: border-box;
+      /* Asegura que el padding no rompa el ancho */
     }
 
     .btn-login {
@@ -84,6 +154,7 @@
       border: none;
       cursor: pointer;
       transition: background 0.3s ease;
+      width: 100%;
     }
 
     .btn-login:hover {
@@ -104,53 +175,66 @@
     .extra-links a:hover {
       text-decoration: underline;
     }
-    .btn-volver {
-  margin-top: 1rem;
-  background: #f9a8d4;
-  color: white;
-  padding: 0.6rem 1.2rem;
-  border-radius: 10px;
-  font-weight: bold;
-  font-size: 0.95rem;
-  border: none;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
 
-.btn-volver:hover {
-  background: #ec4899;
-}
+    .btn-volver {
+      margin-top: 1rem;
+      background: #f9a8d4;
+      color: white;
+      padding: 0.6rem 1.2rem;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 0.95rem;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      width: 100%;
+    }
+
+    .btn-volver:hover {
+      background: #ec4899;
+    }
   </style>
 </head>
+
 <body>
-  <div class="login-container">
-    <img src="{% static 'img/logoglam.png' %}" alt="Logo Glam Store" class="logo-glam">
-    <h1>Bienvenida a Glam Store </h1>
-    <form method="POST" action="{% url 'login' %}">
-      {% csrf_token %}
-      <label for="usuario">Correo electrónico</label>
-      <input type="text" id="usuario" name="usuario" required>
 
-      <label for="password">Contraseña</label>
-      <input type="password" id="password" name="password" required>
+  <!-- Barra lateral -->
+  <aside class="sidebar">
+    <img src="{% static 'img/logoglam.png' %}" alt="Logo GlamStore" class="logo">
+    <h1>Bienvenida a GlamStore</h1>
+    <p>Tu espacio de moda, color y alegría</p>
+    <nav>
+      <ul>
+        <li><a href="{% url 'tienda' %}">← Volver a Tienda</a></li>
+        <li><a href="{% url 'registro' %}">Registrarse</a></li>
+        <li><a href="{% url 'contacto' %}">Contáctanos</a></li>
+      </ul>
+    </nav>
+  </aside>
 
-      <button type="submit" class="btn-login">Iniciar Sesión</button>
+  <!-- Contenido principal -->
+  <main class="main-content">
+    <div class="login-container">
+      <img src="{% static 'img/logoglam.png' %}" alt="Logo Glam Store" class="logo-glam-login">
+      <h2>Iniciar Sesión</h2>
+      <form method="POST" action="{% url 'login' %}">
+        {% csrf_token %}
+        <label for="usuario">Correo electrónico</label>
+        <input type="text" id="usuario" name="usuario" required>
 
-      <button type="button" class="btn-volver" onclick="history.back()">← Volver atrás</button>
-    </form>
-    
-    <div class="extra-links">
-      <p>¿Olvidaste tu contraseña? <a href="{% url 'recuperar_password' %}">Recupérala aquí</a></p>
-      <p>¿No tienes cuenta? <a href="{% url 'registro' %}">Regístrate</a></p>
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" name="password" required>
+
+        <button type="submit" class="btn-login">Iniciar Sesión</button>
+      </form>
+
+      <div class="extra-links">
+        <p>¿Olvidaste tu contraseña? <a href="{% url 'recuperar_password' %}">Recupérala aquí</a></p>
+        <p>¿No tienes cuenta? <a href="{% url 'registro' %}">Regístrate</a></p>
+      </div>
     </div>
-  </div>
+  </main>
 
-  <script>
-    // Animación de entrada ya incluida con CSS
-    // Puedes agregar validación visual aquí si lo deseas
-    document.querySelector("form").addEventListener("submit", () => {
-      document.querySelector(".btn-login").textContent = "Cargando glam...";
-    });
-  </script>
 </body>
+
 </html>
