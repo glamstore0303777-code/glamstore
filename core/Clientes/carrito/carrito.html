@@ -1,0 +1,344 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <style>
+  /* Importa la fuente Comic Neue */
+@import url('https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@1,700&display=swap');
+
+/* Aplica Comic Neue a todo el sitio */
+body {
+  font-family: 'Comic Neue', cursive;
+  background: linear-gradient(to bottom right, #fffafc, #fdf0f7);
+  color: #4b006e;
+  padding: 2rem;
+}
+
+/* Encabezado pastel-glam */
+.encabezado-glam {
+  background: linear-gradient(to right, #f3e8ff, #fde2f3);
+  padding: 1.5rem 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(213, 143, 191, 0.2);
+  margin-bottom: 2rem;
+}
+
+.encabezado-contenido {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo-titulo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logo-glam {
+  width: 100px;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(213, 143, 191, 0.3);
+}
+
+.titulo-glam {
+  font-size: 2.8rem;
+  font-family: 'Comic Neue', cursive;
+  font-style: italic;
+  color: #c026d3;
+  text-shadow: 1px 1px 2px #f3e8ff;
+  letter-spacing: 1px;
+}
+
+/* Botón volver */
+.iconos-derecha {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.volver-tienda {
+  color: #a855f7;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 1rem;
+  transition: color 0.3s;
+}
+
+.volver-tienda:hover {
+  color: #9333ea;
+}
+ /* Selector de cantidad */
+select {
+  padding: 0.4rem;
+  border-radius: 6px;
+  border: 1px solid #d8b4fe;
+  background-color: #faf5ff;
+  color: #7e22ce;
+  font-weight: bold;
+}
+
+/* Botón actualizar cantidad */
+.btn-actualizar {
+  background: #fbcfe8;
+  color: #831843;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 0.4rem;
+  transition: background 0.3s;
+}
+
+.btn-actualizar:hover {
+  background: #f472b6;
+}
+
+/* Botón vaciar carrito */
+.btn-vaciar {
+  background: #fda4af;
+  color: #7f1d1d;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  transition: background 0.3s;
+}
+
+.btn-vaciar:hover {
+  background: #fb7185;
+}
+
+/* Código de descuento */
+.descuento {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.descuento label {
+  font-weight: bold;
+  color: #7e22ce;
+}
+
+.descuento input {
+  padding: 0.4rem;
+  border-radius: 6px;
+  border: 1px solid #d8b4fe;
+  background-color: #faf5ff;
+  color: #7e22ce;
+  font-weight: bold;
+}
+
+.btn-descuento {
+  background: #c4b5fd;
+  color: #4c1d95;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.btn-descuento:hover {
+  background: #a78bfa;
+}
+
+/* Resumen total */
+.resumen-total {
+  background: #fdf4ff;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(213, 143, 191, 0.2);
+  margin-bottom: 1rem;
+}
+
+.resumen-total p {
+  font-size: 1.1rem;
+  color: #c026d3;
+  margin: 0.4rem 0;
+}
+
+/* Términos y condiciones */
+.terminos {
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  color: #6b21a8;
+}
+
+.terminos a {
+  color: #9333ea;
+  text-decoration: underline;
+}
+
+.terminos input[type="checkbox"] {
+  accent-color: #c084fc;
+  margin-right: 0.5rem;
+}
+
+/* Botón comprar ahora */
+.btn-finalizar {
+  display: inline-block;
+  background: #c084fc;
+  color: white;
+  padding: 0.8rem 1.6rem;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 1rem;
+  transition: background 0.3s;
+}
+
+.btn-finalizar:hover {
+  background: #a855f7;
+}
+.tabla-carrito {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 12px;
+}
+
+.tabla-carrito th {
+  background-color: #f3e8ff;
+  color: #7e22ce;
+  font-weight: bold;
+  padding: 0.8rem;
+  border-radius: 8px 8px 0 0;
+}
+
+.tabla-carrito td {
+  background-color: #fff;
+  padding: 1rem;
+  vertical-align: middle;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 2px 6px rgba(213, 143, 191, 0.1);
+}
+
+.fila-producto:hover {
+  background-color: #fdf4ff;
+}
+
+.col-img img {
+  width: 80px;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(213, 143, 191, 0.2);
+}
+
+.col-cantidad select {
+  margin-bottom: 0.4rem;
+}
+
+</style>
+  <meta charset="UTF-8">
+  <title>Resumen de compra — GlamStore</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@1,700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="encabezado-glam">
+    <div class="encabezado-contenido">
+      <div class="logo-titulo">
+        <img src="{% static 'img/logoglam.png' %}" alt="Logo GlamStore" class="logo-glam">
+        <h1 class="titulo-glam">RESUMEN DE COMPRA</h1>
+      </div>
+      <div class="iconos-derecha">
+        {% if categoria_id %}
+          <a href="{% url 'productos_categoria' categoria_id %}" class="volver-tienda">← Seguir comprando</a>
+        {% else %}
+          <a href="{% url 'tienda' %}" class="volver-tienda">← Seguir comprando</a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  <main class="contenido-carrito">
+    {% if carrito %}
+      <table class="tabla-carrito">
+  <thead>
+    <tr class="encabezado-tabla">
+      <th class="col-producto">Producto</th>
+      <th class="col-ref">Referencia</th>
+      <th class="col-img">Imagen</th>
+      <th class="col-envio">Envío</th>
+      <th class="col-precio">Precio</th>
+      <th class="col-cantidad">Cantidad</th>
+      <th class="col-total">Total</th>
+      <th class="col-acciones">Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in carrito %}
+      <tr class="fila-producto">
+        <td class="col-producto">{{ item.producto.nombreProducto }}</td>
+        <td class="col-ref">{{ item.producto.referencia }}</td>
+        <td class="col-img">
+          <img src="{{ item.producto.imagen.url }}" alt="{{ item.producto.nombreProducto }}" class="img-carrito">
+        </td>
+        <td class="col-envio">a calcular</td>
+        <td class="col-precio">${{ item.producto.precio }}</td>
+        <td class="col-cantidad">
+          <form method="POST" action="{% url 'agregar_al_carrito' %}">
+            {% csrf_token %}
+            <input type="hidden" name="idProducto" value="{{ item.producto.idProducto }}">
+            <select name="cantidad">
+              {% for i in item.producto.rango_cantidad %}
+                <option value="{{ i }}" {% if i == item.cantidad %}selected{% endif %}>{{ i }}</option>
+              {% endfor %}
+            </select>
+            <button type="submit" class="btn-actualizar">Actualizar</button>
+          </form>
+        </td>
+        <td class="col-total">${{ item.subtotal }}</td>
+        <td class="col-acciones">
+          <form method="POST" action="{% url 'eliminar_del_carrito' %}">
+            {% csrf_token %}
+            <input type="hidden" name="idProducto" value="{{ item.producto.idProducto }}">
+            <button type="submit" class="btn-eliminar">🗑️</button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+
+      <div class="acciones-carrito">
+        <form method="POST" action="{% url 'vaciar_carrito' %}">
+          {% csrf_token %}
+          <button type="submit" class="btn-vaciar">🗑️ Vaciar todo el carrito</button>
+        </form>
+
+        <div class="descuento">
+          <label for="codigo">Código de descuento</label>
+          <input type="text" name="codigo" id="codigo" placeholder="Código">
+          <button type="button" class="btn-descuento">Añadir</button>
+        </div>
+
+        <div class="resumen-total">
+          <p>Subtotal: <strong>${{ total }}</strong></p>
+          <p>Total: <strong>${{ total }}</strong></p>
+        </div>
+
+        <div class="terminos">
+          <label>
+            <input type="checkbox" required checked>
+            He leído y acepto los <a href="#">Términos y Condiciones</a> y la <a href="#">Política de Privacidad</a>.
+          </label>
+        </div>
+<a href="{% url 'checkout' %}" class="btn-finalizar">Comprar ahora ✨</a>
+
+
+      </div>
+    {% else %}
+      <p class="carrito-vacio">Tu carrito está vacío. ¡Agrega productos pastel-glam!</p>
+    {% endif %}
+  </main>
+</body>
+</html>

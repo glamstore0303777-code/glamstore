@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalle de Pedido</title>
+    <style>
+        @page {
+            size: letter;
+            margin: 1.5cm;
+        }
+        body {
+            font-family: "Helvetica", "Arial", sans-serif;
+            font-size: 11pt;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #f7c5dd;
+            padding-bottom: 15px;
+        }
+        .header h1 {
+            color: #c0392b;
+            margin: 0;
+        }
+        .header p {
+            margin: 5px 0;
+            font-size: 12pt;
+        }
+        .info-section {
+            margin-bottom: 25px;
+            padding: 15px;
+            background-color: #fdf6f9;
+            border-radius: 8px;
+        }
+        .info-section h2 {
+            font-size: 14pt;
+            color: #c0392b;
+            margin-top: 0;
+            border-bottom: 1px solid #f7c5dd;
+            padding-bottom: 5px;
+        }
+        .info-section p {
+            margin: 6px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #e0cce3;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #fceef5;
+            font-weight: bold;
+        }
+        .total-row td {
+            font-weight: bold;
+            font-size: 13pt;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Glam Store</h1>
+        <p>Detalle de Pedido #{{ pedido.idPedido }}</p>
+    </div>
+
+    <div class="info-section">
+        <h2>Información del Cliente y Entrega</h2>
+        <p><strong>Cliente:</strong> {{ pedido.idCliente.nombre }}</p>
+        <p><strong>Dirección de Entrega:</strong> {{ pedido.idCliente.direccion }}</p>
+        <p><strong>Teléfono:</strong> {{ pedido.idCliente.telefono }}</p>
+        <p><strong>Repartidor Asignado:</strong> {{ pedido.idRepartidor.nombreRepartidor }} (Tel: {{ pedido.idRepartidor.telefono }})</p>
+    </div>
+
+    <div class="info-section">
+        <h2>Detalles del Pedido</h2>
+        <p><strong>Estado del Pago:</strong> {{ pedido.estado }}</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Precio Unitario</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for detalle in detalles %}
+                <tr>
+                    <td>{{ detalle.idProducto.nombreProducto }}</td>
+                    <td>{{ detalle.cantidad }}</td>
+                    <td>${{ detalle.precio_unitario|floatformat:0 }}</td>
+                    <td>${{ detalle.subtotal|floatformat:0 }}</td>
+                </tr>
+                {% endfor %}
+                <tr class="total-row">
+                    <td colspan="3">Total del Pedido:</td>
+                    <td>${{ pedido.total|floatformat:0 }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

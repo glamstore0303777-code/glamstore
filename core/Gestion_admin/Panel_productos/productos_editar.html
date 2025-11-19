@@ -1,0 +1,178 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Producto | Glam Store</title>
+    <style>
+        body {
+            font-family: "Comic Sans MS", cursive, sans-serif;
+            margin: 0;
+            background-color: #fdf6f9;
+            display: flex;
+        }
+        .sidebar {
+            width: 240px;
+            background-color: #f7c5dd;
+            color: #4a4a4a;
+            height: 100vh;
+            position: fixed;
+            padding: 30px 20px;
+            box-shadow: 2px 0 6px rgba(0,0,0,0.1);
+        }
+        .sidebar h2 {
+            font-size: 22px;
+            margin-bottom: 25px;
+        }
+        .sidebar a {
+            display: block;
+            margin-bottom: 16px;
+            text-decoration: none;
+            color: #4a4a4a;
+            font-weight: bold;
+        }
+        .main-content {
+            margin-left: 240px;
+            width: calc(100% - 240px);
+        }
+        header {
+            background-color: #f7c5dd;
+            color: #4a4a4a;
+            padding: 20px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        header h1 {
+            margin: 0;
+        }
+        header img {
+            height: 90px;
+        }
+        main {
+            padding: 40px;
+        }
+        form {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            max-width: 600px;
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+            color: #4a4a4a;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 6px;
+            border: 1px solid #e0cce3;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        .current-image {
+            margin-top: 10px;
+        }
+        .current-image img {
+            max-width: 100px;
+            border-radius: 6px;
+        }
+        button, .btn-cancelar {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        button {
+            background-color: #a8e6cf;
+            color: #333;
+        }
+        .btn-cancelar {
+            background-color: #ffaaa5;
+            color: #333;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <h2>Admin Glam</h2>
+        <div class="sidebar-user">
+            <p>{{ request.session.usuario_nombre }}</p>
+            <p class="rol">Perfil: Administrador</p>
+        </div>
+        <h2>Menú</h2>
+        <a href="{% url 'lista_clientes' %}">💄 Panel Cliente</a>
+        <a href="{% url 'lista_pedidos' %}">📋 Panel Pedidos</a>
+        <a href="{% url 'lista_productos' %}">🛍️ Panel Productos</a>
+        <a href="{% url 'lista_repartidores' %}">🛵 Panel Repartidores</a>
+        <a href="{% url 'lista_admin' %}">🛠️ Panel Administradores</a>
+        <a href="{% url 'logout' %}">🔓 Cerrar sesión</a>
+    </aside>
+
+    <div class="main-content">
+        <header>
+            <h1>Editar Producto</h1>
+            <img src="{% static 'img/logoglam.png' %}" alt="Logo Glam Store" class="logo">
+        </header>
+
+        <main>
+            <form method="post" enctype="multipart/form-data" action="{% url 'producto_editar' producto.idProducto %}">
+                {% csrf_token %}
+                
+                <label for="nombreProducto">Nombre del Producto:</label>
+                <input type="text" id="nombreProducto" name="nombreProducto" value="{{ producto.nombreProducto }}" required>
+
+                <label for="descripcion">Descripción:</label>
+                <textarea id="descripcion" name="descripcion" required>{{ producto.descripcion|default:'' }}</textarea>
+
+                <label for="precio">Precio:</label>
+                <input type="number" step="0.01" id="precio" name="precio" value="{{ producto.precio|default:'' }}" required>
+
+                <label for="stock">Stock:</label>
+                <input type="number" id="stock" name="stock" value="{{ producto.stock|default:'' }}" required>
+
+                <label for="idCategoria">Categoría:</label>
+                <select id="idCategoria" name="idCategoria" required>
+                    {% for categoria in categorias %}
+                        <option value="{{ categoria.idCategoria }}" {% if producto.idCategoria.idCategoria == categoria.idCategoria %}selected{% endif %}>{{ categoria.nombreCategoria }}</option>
+                    {% endfor %}
+                </select>
+
+                <label for="idSubcategoria">Subcategoría:</label>
+                <select id="idSubcategoria" name="idSubcategoria">
+                    <option value="">Selecciona una subcategoría (opcional)</option>
+                    {% for subcategoria in subcategorias %}
+                        <option value="{{ subcategoria.idSubcategoria }}" {% if producto.idSubcategoria and producto.idSubcategoria.idSubcategoria == subcategoria.idSubcategoria %}selected{% endif %}>{{ subcategoria.nombreSubcategoria }}</option>
+                    {% endfor %}
+                </select>
+
+                <label for="imagen">Imagen del Producto:</label>
+                {% if producto.imagen %}
+                    <div class="current-image">
+                        <p>Imagen actual:</p>
+                        <img src="{{ producto.imagen.url }}" alt="{{ producto.nombreProducto }}">
+                    </div>
+                {% endif %}
+                <input type="file" id="imagen" name="imagen" accept="image/*">
+                <small>Deja en blanco para no cambiar la imagen.</small>
+
+                <button type="submit">Guardar Cambios</button>
+                <a href="{% url 'lista_productos' %}" class="btn-cancelar">Cancelar</a>
+            </form>
+        </main>
+    </div>
+
+</body>
+</html>

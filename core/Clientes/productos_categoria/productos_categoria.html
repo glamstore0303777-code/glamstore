@@ -1,0 +1,95 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ categoria.nombreCategoria }} — GlamStore</title>
+  <link rel="stylesheet" href="{% static 'css/productos_categoria.css' %}">
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@1,700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Encabezado pastel-glam -->
+  <header class="encabezado-glam">
+    <div class="encabezado-contenido">
+      <div class="logo-titulo">
+        <img src="{% static 'img/logoglam.png' %}" alt="Logo GlamStore" class="logo-glam">
+        <h1 class="titulo-glam">TIENDA GLAMSTORE</h1>
+      </div>
+      <div class="iconos-derecha">
+        <a href="{% url 'ver_carrito' %}" class="icono-carrito" title="Ver carrito">🛒</a>
+        <a href="{% url 'tienda' %}" class="volver-tienda">← Volver a la tienda</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="contenedor-principal">
+    <!-- Barra lateral con botones de subcategoría -->
+    <aside class="barra-lateral">
+      <h2>Subcategorías</h2>
+      {% if subcategorias %}
+        <form method="GET" action="{% url 'productos_categoria' categoria.idCategoria %}">
+          <div class="botones-subcategorias">
+            {% for sub in subcategorias %}
+              <button type="submit" name="subcategoria" value="{{ sub.idSubcategoria }}"
+                      class="btn-sub {% if subcategoria and sub.idSubcategoria == subcategoria.idSubcategoria %}activo{% endif %}">
+                {{ sub.nombreSubcategoria }}
+              </button>
+            {% endfor %}
+          </div>
+        </form>
+      {% else %}
+        <p class="sin-subcategorias">No hay subcategorías disponibles.</p>
+      {% endif %}
+    </aside>
+
+    <!-- Contenido principal -->
+    <main class="contenido-productos">
+      {% if messages %}
+        <div class="mensajes pastel-glam">
+          {% for message in messages %}
+            <p class="{{ message.tags }}">{{ message }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      {% if productos %}
+        <div class="productos">
+          {% for producto in productos %}
+            <div class="tarjeta-producto">
+              <img src="{{ producto.imagen.url }}" alt="{{ producto.nombreProducto }}">
+              <h3>{{ producto.nombreProducto }}</h3>
+              <p class="precio">${{ producto.precio }}</p>
+              <p class="descripcion">{{ producto.descripcion }}</p>
+
+              {% if producto.disponible > 0 %}
+                <form method="POST" action="{% url 'agregar_al_carrito' %}" class="form-agregar" data-producto="{{ producto.idProducto }}">
+                  {% csrf_token %}
+                  <input type="hidden" name="idProducto" value="{{ producto.idProducto }}">
+                  <label for="cantidad-{{ producto.idProducto }}">Cantidad:</label>
+                <select name="cantidad" id="cantidad-{{ producto.idProducto }}">
+  {% for i in producto.rango_cantidad %}
+    <option value="{{ i }}">{{ i }}</option>
+  {% endfor %}
+</select>
+
+                  <button type="submit" class="btn-agregar">Añadir al carrito 🛒</button>
+                </form>
+              {% else %}
+                <p class="agotado">Stock agotado o ya en carrito</p>
+              {% endif %}
+
+              <div class="ver-carrito" id="ver-carrito-{{ producto.idProducto }}" style="display: none;">
+                <a href="{% url 'ver_carrito' %}" class="btn-ver-carrito">Ver carrito ➝</a>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="sin-productos">No hay productos en esta subcategoría.</p>
+      {% endif %}
+    </main>
+  </div>
+
+  <script src="{% static 'js/productos_categoria.js' %}"></script>
+</body>
+</html>

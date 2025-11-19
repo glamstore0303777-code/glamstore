@@ -1,0 +1,207 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel de Pedidos</title>
+  <link rel="stylesheet" href="{% static 'css/pedidos_panel.css' %}">
+  <style>
+    body {
+      font-family: "Comic Sans MS", cursive, sans-serif;
+      background-color: #fdf6f9;
+      margin: 0;
+      padding: 0;
+      display: flex;
+    }
+    .sidebar {
+      width: 220px;
+      background-color: #f7c5dd;
+      color: #4a4a4a;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      padding: 20px;
+      box-shadow: 2px 0 6px rgba(0,0,0,0.1);
+    }
+    .sidebar h2 {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+    .sidebar a {
+      display: block;
+      margin-bottom: 12px;
+      text-decoration: none;
+      color: #4a4a4a;
+      font-weight: bold;
+    }
+    .sidebar a:hover {
+      text-decoration: underline;
+    }
+    .main-content {
+      margin-left: 240px;
+      width: calc(100% - 240px);
+    }
+    header {
+      background-color: #f7c5dd;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      color: #4a4a4a;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+    header img {
+      height: 100px;
+    }
+    main {
+      padding: 40px;
+    }
+    .volver-btn, .btn-agregar {
+      margin-bottom: 20px;
+      padding: 10px 20px;
+      background-color: #fbb1c8;
+      border: none;
+      border-radius: 6px;
+      color: #333;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none; /* Para el botón de agregar */
+      display: inline-block;
+    }
+    .volver-btn:hover, .btn-agregar:hover {
+      background-color: #f98aa7;
+      transform: scale(1.03);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #fff;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 12px;
+      border: 1px solid #e0cce3;
+      text-align: left;
+    }
+    th {
+      background-color: #fceef5;
+      color: #5a5a5a;
+    }
+    .acciones a, .acciones button {
+      margin-right: 6px;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+    .btn-detalle {
+      background-color: #a8e6cf;
+      color: #333;
+    }
+    .btn-editar {
+      background-color: #a8e6cf;
+      color: #333;
+    }
+    .btn-eliminar {
+      background-color: #ffaaa5;
+      color: #333;
+    }
+    .acciones a:hover, .acciones button:hover {
+      opacity: 0.9;
+      transform: scale(1.05);
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+  </style>
+  <script>
+    function eliminarPedido(id) {
+      if (confirm("¿Estás seguro de que deseas eliminar este pedido?")) {
+        // Usamos un formulario para enviar como POST por seguridad
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/gestion/dashboard/admin/pedidos/eliminar/${id}/`;
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = '{{ csrf_token }}'; // Django insertará el token aquí
+        form.appendChild(csrfInput);
+        document.body.appendChild(form);
+        form.submit();
+      }
+    }
+    function volverDashboard() {
+      window.location.href = "/gestion/dashboard/admin/";
+    }
+  </script>
+</head>
+<body>
+  <div class="sidebar">
+    <h2>Menú</h2>
+    <h2>Admin Glam</h2>
+    <div class="sidebar-user">
+      <p>{{ request.session.usuario_nombre }}</p>
+      <p class="rol">Perfil: Administrador</p>
+    </div>
+    <a href="{% url 'lista_admin' %}">👤 Mi Perfil</a>
+    <a href="{% url 'lista_clientes' %}">💄 Panel Cliente</a>
+    <a href="{% url 'lista_distribuidores' %}">🚚 Panel Distribuidores</a>
+    <a href="{% url 'lista_pedidos' %}">📋 Panel Pedidos</a>
+    <a href="{% url 'lista_productos' %}">🛍️ Panel Productos</a>
+      <a href="{% url 'lista_categorias' %}">🎨 Panel Categorías</a>
+    <a href="{% url 'lista_subcategorias' %}">✨ Panel Subcategorías</a>
+    <a href="{% url 'lista_repartidores' %}">🛵 Panel Repartidores</a>
+    <a href="{% url 'logout' %}">🔓 Cerrar sesión</a>
+  </div>
+
+  <div class="main-content">
+    <header>
+      <h1>Panel de Pedidos</h1>
+      <img src="{% static 'img/logoglam.png' %}" alt="Logo GlamStore">
+    </header>
+    <main>
+      <button class="volver-btn" onclick="volverDashboard()">← Volver al Dashboard</button>
+      <a href="{% url 'agregar_pedido' %}" class="btn-agregar">➕ Agregar Pedido</a>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Cliente</th>
+            <th>Estado</th>
+            <th>Fecha Creación</th>
+            <th>Total</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for pedido in pedidos %}
+          <tr>
+            <td>{{ pedido.idPedido }}</td>
+            <td>{{ pedido.idCliente.nombre }}</td>
+            <td>{{ pedido.estado }}</td>
+            <td>{{ pedido.fechaCreacion|date:"Y-m-d H:i" }}</td>
+            <td>${{ pedido.total }}</td>
+            <td class="acciones">
+              <a href="{% url 'detalle_pedido' pedido.idPedido %}" class="btn-detalle">Ver Detalle</a>
+              <a href="{% url 'editar_pedido' pedido.idPedido %}" class="btn-editar">Editar</a>
+              <button class="btn-eliminar" onclick="eliminarPedido('{{ pedido.idPedido }}')">Eliminar</button>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6">No hay pedidos registrados.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </main>
+  </div>
+</body>
+</html>

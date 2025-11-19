@@ -1,0 +1,117 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Distribuidor | Panel Administrador</title>
+    <link rel="stylesheet" href="{% static 'css/distribuidores_panel.css' %}">
+    <style>
+        body {
+            font-family: "Comic Sans MS", cursive, sans-serif;
+            margin: 0;
+            background-color: #fdf6f9;
+        }
+        header {
+            background-color: #f7c5dd;
+            color: #4a4a4a;
+            padding: 20px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+        header img.logo {
+            height: 90px;
+        }
+        main {
+            padding: 40px;
+            max-width: 600px;
+            margin: auto;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        form {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #4a4a4a;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #e0cce3;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        .btn-guardar {
+            background-color: #a8e6cf;
+            color: #333;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-guardar:hover {
+            background-color: #81d4b2;
+            transform: scale(1.03);
+        }
+        .volver-link {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+            text-decoration: none;
+            color: #4a4a4a;
+            font-weight: bold;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #f7c5dd;
+            color: #4a4a4a;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Editar Distribuidor</h1>
+        <img src="{% static 'img/logoglam.png' %}" alt="Logo Glam Store" class="logo">
+    </header>
+
+    <main>
+        <h2>Modifica los datos del distribuidor</h2>
+        <form method="post">
+    {% csrf_token %}
+    
+    <label for="nombreDistribuidor">Nombre del Distribuidor</label>
+    <input type="text" id="nombreDistribuidor" name="nombreDistribuidor" value="{{ distribuidor.nombreDistribuidor }}" required>
+
+    <label for="contacto">Contacto</label>
+    <input type="text" id="contacto" name="contacto" value="{{ distribuidor.contacto }}" required>
+
+    <button type="submit" class="btn-guardar">💾 Guardar Cambios</button>
+</form>
+
+        <a href="{% url 'lista_distribuidores' %}" class="volver-link">← Volver al Panel de Distribuidores</a>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Glam Store. Todos los derechos reservados.</p>
+    </footer>
+</body>
+</html>

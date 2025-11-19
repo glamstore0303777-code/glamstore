@@ -1,0 +1,67 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ action }} Subcategoría | Glam Store</title>
+    <style>
+        body { font-family: "Comic Sans MS", cursive, sans-serif; margin: 0; background-color: #fdf6f9; display: flex; }
+        .sidebar { width: 240px; background-color: #f7c5dd; color: #4a4a4a; height: 100vh; position: fixed; padding: 30px 20px; box-shadow: 2px 0 6px rgba(0,0,0,0.1); }
+        .sidebar h2 { font-size: 22px; margin-bottom: 25px; }
+        .sidebar a { display: block; margin-bottom: 16px; text-decoration: none; color: #4a4a4a; font-weight: bold; }
+        .main-content { margin-left: 240px; width: calc(100% - 240px); }
+        header { background-color: #f7c5dd; color: #4a4a4a; padding: 20px 40px; display: flex; align-items: center; justify-content: space-between; }
+        header h1 { margin: 0; }
+        header img { height: 90px; }
+        main { padding: 40px; }
+        form { background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); max-width: 500px; margin: auto; }
+        label { display: block; margin-top: 15px; font-weight: bold; color: #4a4a4a; }
+        input, select { width: 100%; padding: 10px; margin-top: 6px; border: 1px solid #e0cce3; border-radius: 6px; box-sizing: border-box; }
+        button, .btn-cancelar { display: inline-block; margin-top: 20px; padding: 10px 20px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; text-decoration: none; }
+        button { background-color: #a8e6cf; color: #333; }
+        .btn-cancelar { background-color: #ffaaa5; color: #333; margin-left: 10px; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <h2>Admin Glam</h2>
+        <a href="{% url 'lista_admin' %}">👤 Panel Administradores</a>
+        <a href="{% url 'lista_clientes' %}">💄 Panel Cliente</a>
+        <a href="{% url 'lista_distribuidores' %}">🚚 Panel Distribuidores</a>
+        <a href="{% url 'lista_pedidos' %}">📋 Panel Pedidos</a>
+        <a href="{% url 'lista_productos' %}">🛍️ Panel Productos</a>
+        <a href="{% url 'lista_repartidores' %}">🛵 Panel Repartidores</a>
+        <a href="{% url 'lista_categorias' %}">🎨 Panel Categorías</a>
+        <a href="{% url 'lista_subcategorias' %}">✨ Panel Subcategorías</a>
+        <a href="{% url 'logout' %}">🔓 Cerrar sesión</a>
+    </aside>
+    <div class="main-content">
+        <header>
+            <h1>{{ action }} Subcategoría</h1>
+            <img src="{% static 'img/logoglam.png' %}" alt="Logo Glam Store">
+        </header>
+        <main>
+            <form method="post">
+                {% csrf_token %}
+                
+                <label for="nombreSubcategoria">Nombre de la Subcategoría:</label>
+                <input type="text" id="nombreSubcategoria" name="nombreSubcategoria" value="{{ form_object.nombreSubcategoria }}" required>
+
+                <label for="idCategoria">Categoría Padre:</label>
+                <select id="idCategoria" name="idCategoria" required>
+                    <option value="">Selecciona una categoría</option>
+                    {% for categoria in categorias %}
+                        <option value="{{ categoria.idCategoria }}" 
+                                {% if form_object.categoria.idCategoria == categoria.idCategoria %}selected{% endif %}>
+                            {{ categoria.nombreCategoria }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+                <button type="submit">Guardar</button>
+                <a href="{% url 'lista_subcategorias' %}" class="btn-cancelar">Cancelar</a>
+            </form>
+        </main>
+    </div>
+</body>
+</html>

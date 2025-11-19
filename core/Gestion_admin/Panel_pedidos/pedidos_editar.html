@@ -1,0 +1,111 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Pedido | Glam Store</title>
+    <style>
+        body { font-family: "Comic Sans MS", cursive, sans-serif; margin: 0; background-color: #fdf6f9; display: flex; }
+        .sidebar { width: 240px; background-color: #f7c5dd; color: #4a4a4a; height: 100vh; position: fixed; padding: 30px 20px; box-shadow: 2px 0 6px rgba(0,0,0,0.1); }
+        .sidebar h2 { font-size: 22px; margin-bottom: 25px; }
+        .sidebar a { display: block; margin-bottom: 16px; text-decoration: none; color: #4a4a4a; font-weight: bold; }
+        .main-content { margin-left: 240px; width: calc(100% - 240px); }
+        header { background-color: #f7c5dd; color: #4a4a4a; padding: 20px 40px; display: flex; align-items: center; justify-content: space-between; }
+        header h1 { margin: 0; }
+        header img { height: 90px; }
+        main { padding: 40px; display: flex; gap: 30px; flex-wrap: wrap; }
+        .panel { background-color: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 0 15px rgba(0,0,0,0.07); flex: 1; min-width: 350px; }
+        .panel h2 { margin-top: 0; color: #c026d3; }
+        label { display: block; margin-top: 15px; font-weight: bold; color: #4a4a4a; }
+        input, select { width: 100%; padding: 10px; margin-top: 6px; border: 1px solid #e0cce3; border-radius: 6px; box-sizing: border-box; }
+        button, .btn-cancelar { display: inline-block; margin-top: 20px; padding: 10px 20px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; text-decoration: none; }
+        button { background-color: #a8e6cf; color: #333; }
+        .btn-cancelar { background-color: #ffaaa5; color: #333; margin-left: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 10px; border: 1px solid #e0cce3; text-align: left; }
+        th { background-color: #fceef5; }
+        .btn-asignar { background-color: #fbb1c8; color: #333; width: 100%; }
+        .repartidor-asignado { background-color: #dcfce7; padding: 10px; border-radius: 8px; border: 1px solid #4ade80; color: #166534; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <h2>Admin Glam</h2>
+        <a href="{% url 'lista_clientes' %}">💄 Panel Cliente</a>
+        <a href="{% url 'lista_pedidos' %}">📋 Panel Pedidos</a>
+        <a href="{% url 'lista_productos' %}">🛍️ Panel Productos</a>
+        <a href="{% url 'lista_repartidores' %}">🛵 Panel Repartidores</a>
+        <a href="{% url 'lista_categorias' %}">🎨 Panel Categorías</a>
+        <a href="{% url 'lista_subcategorias' %}">✨ Panel Subcategorías</a>
+        <a href="{% url 'logout' %}">🔓 Cerrar sesión</a>
+    </aside>
+    <div class="main-content">
+        <header>
+            <h1>Editar Pedido #{{ pedido.idPedido }}</h1>
+            <img src="{% static 'img/logoglam.png' %}" alt="Logo Glam Store">
+        </header>
+        <main>
+            <div class="panel">
+                <h2>Editar Estado del Pedido</h2>
+                <form method="post">
+                    {% csrf_token %}
+                    <p><strong>Cliente:</strong> {{ pedido.idCliente.nombre }}</p>
+                    <p><strong>Total:</strong> ${{ pedido.total }}</p>
+                    <label for="estado">Estado del Pago:</label>
+                    <select id="estado" name="estado" required>
+                        <option value="Pago Parcial" {% if pedido.estado == 'Pago Parcial' %}selected{% endif %}>Pago Parcial</option>
+                        <option value="Pago Completo" {% if pedido.estado == 'Pago Completo' %}selected{% endif %}>Pago Completo</option>
+                    </select>
+                    <button type="submit">Guardar Cambios</button>
+                    <a href="{% url 'lista_pedidos' %}" class="btn-cancelar">Volver</a>
+                </form>
+            </div>
+
+            <div class="panel">
+                <h2>Asignar Repartidor</h2>
+                {% if pedido.idRepartidor %}
+                    <div class="repartidor-asignado">
+                        Repartidor Asignado: {{ pedido.idRepartidor.nombreRepartidor }}
+                    </div>
+                {% else %}
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Teléfono</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for repartidor in repartidores %}
+                            <tr>
+                                <td>{{ repartidor.nombreRepartidor }}</td>
+                                <td>{{ repartidor.telefono }}</td>
+                                <td>
+                                    <form method="post">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="repartidor_id" value="{{ repartidor.idRepartidor }}">
+                                        <button type="submit" name="asignar_repartidor" class="btn-asignar">Asignar</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="3">No hay repartidores disponibles.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+</body>
+</html>
+```
+
+### **2. Actualización de la Vista (`views.py`)**
+
+He completado la lógica de la vista `pedido_editar_view` para que busque el pedido, muestre el formulario con sus datos y guarde los cambios que realices.
+
+```diff
+--- a/c:/ProyectoF/glamstore/glamstore/core/Gestion_admin/views.py
++++ b/c:/ProyectoF/glamstore/glamstore/core/Gestion_admin/views.py

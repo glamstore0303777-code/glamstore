@@ -1,0 +1,83 @@
+from django.urls import path
+from . import views
+from .views import distribuidor_editar_view
+from django.contrib.auth import views as auth_views
+
+urlpatterns = [
+    # Dashboard principal
+     path('', views.index, name='index'),
+    path('dashboard/admin/', views.dashboard_admin_view, name='dashboard_admin'),
+
+    # Paneles específicos
+    path('admin/productos/', views.admin_productos_view, name='admin_productos'),
+    path('admin/pedidos/', views.admin_pedidos_view, name='admin_pedidos'),
+    path('admin/usuarios/', views.admin_usuarios_view, name='admin_usuarios'),
+    path('admin/distribuidores/', views.admin_distribuidores_view, name='admin_distribuidores'),
+    path('admin/repartidores/', views.admin_repartidores_view, name='admin_repartidores'),
+    path('admin/detalles/', views.admin_detalles_view, name='admin_detalles'),
+
+    # Panel Cliente
+
+    path("clientes/", views.lista_clientes_view, name="lista_clientes"),
+    path("clientes/editar/<int:id>/", views.cliente_editar_view, name="cliente_editar"),
+    path("clientes/eliminar/<int:id>/", views.cliente_eliminar_view, name="cliente_eliminar"),
+
+
+
+
+    # Panel Distribuidores
+path("distribuidores/", views.lista_distribuidores_view, name="lista_distribuidores"),
+    path("distribuidores/agregar/", views.distribuidor_agregar_view, name="agregar_distribuidor"),
+    path("distribuidores/editar/<int:id>/", views.distribuidor_editar_view, name="editar_distribuidor"),
+    path("distribuidores/eliminar/<int:id>/", views.distribuidor_eliminar_view, name="eliminar_distribuidor"),
+
+
+
+    
+
+
+    # Panel Productos
+ path("productos/editar/<int:id>/", views.producto_editar_view, name="producto_editar"),
+ path("productos/agregar/", views.producto_agregar_view, name="producto_agregar"),
+path("productos/eliminar/<int:id>/", views.producto_eliminar_view, name="producto_eliminar"),
+path("productos/", views.lista_productos_view, name="lista_productos"),
+path("productos/movimientos/<int:id>/", views.movimientos_producto_view, name="movimientos_producto"),
+path("productos/ajustar_stock/<int:id>/", views.ajustar_stock_view, name="ajustar_stock"),
+ path("productos/eliminar/<int:id>/", views.producto_eliminar_view, name="producto_eliminar"),
+ path("productos/", views.lista_productos_view, name="lista_productos"),
+
+
+    # Panel Pedidos
+    path('dashboard/admin/pedidos/', views.lista_pedidos_view, name='lista_pedidos'),
+    path('dashboard/admin/pedidos/agregar/', views.pedido_agregar_view, name='agregar_pedido'),
+    path('dashboard/admin/pedidos/editar/<int:id>/', views.pedido_editar_view, name='editar_pedido'),
+    path('dashboard/admin/pedidos/detalle/<int:id>/', views.pedido_detalle_view, name='detalle_pedido'),
+    path('dashboard/admin/pedidos/eliminar/<int:id>/', views.pedido_eliminar_view, name='eliminar_pedido'),
+    # Panel Repartidores
+    path('repartidores/', views.lista_repartidores_view, name='lista_repartidores'),
+    path('repartidores/agregar/', views.repartidor_agregar_view, name='repartidor_agregar'),
+    path('repartidores/editar/<int:id>/', views.repartidor_editar_view, name='repartidor_editar'),
+    path('repartidores/eliminar/<int:id>/', views.repartidor_eliminar_view, name='repartidor_eliminar'),
+    path('repartidores/asignar_pedido/', views.asignar_pedido_repartidor_view, name='asignar_pedido_repartidor'),
+    path('repartidores/desasignar_pedido/<int:id_pedido>/', views.desasignar_repartidor_view, name='desasignar_repartidor'),
+    path('pedidos/descargar_pdf/<int:id_pedido>/', views.descargar_pedido_pdf_view, name='descargar_pedido_pdf'),
+
+    # Panel Admin (perfil)
+    path('admin/', views.lista_admin_view, name='lista_admin'), # Esta es la lista principal de administradores
+    path('admin/agregar/', views.admin_agregar_view, name='admin_agregar'),
+    path('admin/editar/<int:id>/', views.admin_editar_view, name='admin_editar'),
+    path('admin/eliminar/<int:id>/', views.admin_eliminar_view, name='admin_eliminar'),
+    path('logout/', views.logout_view, name='logout'), # Usamos tu vista personalizada y la nombramos 'logout'
+
+    # Panel Categorías y Subcategorías
+    path('categorias/', views.lista_categorias_view, name='lista_categorias'),
+    path('categorias/agregar/', views.categoria_agregar_view, name='categoria_agregar'),
+    path('categorias/editar/<int:id>/', views.categoria_editar_view, name='categoria_editar'),
+    path('categorias/eliminar/<int:id>/', views.categoria_eliminar_view, name='categoria_eliminar'),
+    path('subcategorias/', views.lista_subcategorias_view, name='lista_subcategorias'),
+    path('subcategorias/agregar/', views.subcategoria_agregar_view, name='subcategoria_agregar'),
+    path('subcategorias/editar/<int:id>/', views.subcategoria_editar_view, name='subcategoria_editar'),
+    path('subcategorias/eliminar/<int:id>/', views.subcategoria_eliminar_view, name='subcategoria_eliminar'),
+
+]
+  

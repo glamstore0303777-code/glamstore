@@ -1,0 +1,154 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Perfil del Cliente | Glam Store</title>
+  <style>
+    /* Estilo rosa pastel glamoroso */
+
+    :root {
+      --rosa-pastel: #ffe4ec;
+      --rosa-vivo: #f48fb1;
+      --lavanda-claro: #f3e5f5;
+      --lavanda-vivo: #ce93d8;
+      --blanco: #ffffff;
+      --gris-texto: #555;
+      --sombra-suave: rgba(0, 0, 0, 0.06);
+      --fuente: 'Poppins', sans-serif;
+    }
+
+    body {
+      font-family: var(--fuente);
+      background: linear-gradient(to bottom right, var(--rosa-pastel), var(--lavanda-claro));
+      margin: 0;
+      padding: 0;
+      color: var(--gris-texto);
+    }
+
+    header {
+      background: var(--rosa-vivo);
+      color: var(--blanco);
+      padding: 1.5rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 10px var(--sombra-suave);
+      border-bottom-left-radius: 20px;
+      border-bottom-right-radius: 20px;
+    }
+
+    .logo {
+      height: 60px;
+      margin-right: 1rem;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      font-weight: 600;
+      margin: 0;
+      flex-grow: 1;
+    }
+
+    nav a {
+      color: var(--blanco);
+      text-decoration: none;
+      margin-left: 1rem;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+
+    nav a:hover {
+      color: #ffeef5;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 1rem 2rem;
+      background: var(--blanco);
+      border-radius: 16px;
+      box-shadow: 0 4px 12px var(--sombra-suave);
+    }
+
+    section {
+      margin-bottom: 2rem;
+    }
+
+    h2 {
+      color: var(--lavanda-vivo);
+      font-size: 1.6rem;
+      margin-bottom: 1rem;
+      border-bottom: 2px solid var(--rosa-pastel);
+      padding-bottom: 0.5rem;
+    }
+
+    p {
+      font-size: 1rem;
+      margin: 0.5rem 0;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      background: var(--rosa-pastel);
+      margin-bottom: 0.5rem;
+      padding: 0.8rem 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px var(--sombra-suave);
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background: var(--rosa-vivo);
+      color: var(--blanco);
+      font-size: 0.9rem;
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+      margin-top: 3rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="{% static 'img/logoglam.png' %}" alt="Logo Glam Store" class="logo">
+    <h1>Perfil del Cliente</h1>
+    <nav>
+      <a href="{% url 'tienda' %}">🛍️ Ir a la tienda</a>
+      <a href="{% url 'logout' %}">Cerrar sesión</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="info-personal">
+      <h2>Información Personal</h2>
+      <p><strong>Nombre:</strong> {{ cliente.nombre }}</p>
+      <p><strong>Correo:</strong> {{ cliente.email }}</p>
+      <p><strong>Teléfono:</strong> {{ cliente.telefono }}</p>
+      <p><strong>Dirección:</strong> {{ cliente.direccion }}</p>
+      <p><strong>Fecha de registro:</strong> {{ cliente.fechaRegistro|date:"d M Y" }}</p>
+    </section>
+
+    <section class="ultimos-pedidos">
+      <h2>Últimos pedidos</h2>
+      {% if pedidos %}
+        <ul>
+          {% for pedido in pedidos %}
+            <li>Pedido #{{ pedido.idPedido }} — {{ pedido.estado }}</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>No hay pedidos registrados.</p>
+      {% endif %}
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Glam Store. Todos los derechos reservados.</p>
+  </footer>
+</body>
+</html>

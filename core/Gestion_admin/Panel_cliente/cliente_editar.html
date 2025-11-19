@@ -1,0 +1,130 @@
+{% load static %}
+{% block content %}
+<style>
+    .editar-cliente-container {
+        max-width: 650px;
+        margin: 40px auto;
+        background: #fdf6f9; /* rosa muy suave */
+        padding: 40px;
+        border-radius: 15px;
+        box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+        font-family: 'Poppins', sans-serif;
+        position: relative;
+    }
+
+    .logo-container {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .logo-container img {
+        max-width: 120px;
+        border-radius: 50%;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .editar-cliente-container h2 {
+        color: #d48c9c; /* rosa empolvado */
+        text-align: center;
+        margin-bottom: 25px;
+        font-size: 24px;
+    }
+
+    form p {
+        margin-bottom: 18px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 6px;
+        color: #a67c87;
+        font-weight: 500;
+    }
+
+    input, select, textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #e0a7b8;
+        border-radius: 10px;
+        background: #fff;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+
+    input:focus, select:focus, textarea:focus {
+        outline: none;
+        border-color: #d48c9c;
+        box-shadow: 0 0 6px rgba(212,140,156,0.3);
+    }
+
+    .form-buttons {
+        text-align: center;
+        margin-top: 25px;
+    }
+
+    .btn-guardar {
+        background: #f3c5d0; /* pastel rosado */
+        border: none;
+        padding: 12px 25px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: bold;
+        color: #fff;
+        transition: background 0.3s ease;
+    }
+
+    .btn-guardar:hover {
+        background: #e0a7b8;
+    }
+
+    .btn-cancelar {
+        margin-left: 15px;
+        color: #a67c87;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .btn-cancelar:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<div class="editar-cliente-container">
+    <div class="logo-container">
+        <!-- Aquí colocas tu logo Glam Store -->
+        <img src="{% static 'img/logoglam.png' %}" alt="Logo Glam Store">
+    </div>
+
+    <h2>Editar Cliente</h2>
+    <form method="post">
+    {% csrf_token %}
+    <p>
+        <label for="id_cedula">Cédula</label>
+        <input type="text" name="cedula" id="id_cedula" value="{{ cliente.cedula }}">
+    </p>
+    <p>
+        <label for="id_nombre">Nombre</label>
+        <input type="text" name="nombre" id="id_nombre" value="{{ cliente.nombre }}">
+    </p>
+    <p>
+        <label for="id_email">Correo electrónico</label>
+        <input type="email" name="email" id="id_email" value="{{ cliente.email }}">
+    </p>
+    <p>
+        <label for="id_direccion">Dirección</label>
+        <input type="text" name="direccion" id="id_direccion" value="{{ cliente.direccion }}">
+    </p>
+    <p>
+        <label for="id_telefono">Teléfono</label>
+        <input type="text" name="telefono" id="id_telefono" value="{{ cliente.telefono }}">
+    </p>
+
+    <div class="form-buttons">
+        <button type="submit" class="btn-guardar">Guardar cambios</button>
+      <a href="{% url 'lista_clientes' %}" class="btn-cancelar">Cancelar</a>
+
+    </div>
+</form>
+
+</div>
+{% endblock %}

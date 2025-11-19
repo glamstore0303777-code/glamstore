@@ -1,0 +1,201 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel de Clientes</title>
+    <style>
+        body {
+            font-family: "Comic Sans MS", cursive, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #fdf6f9;
+            display: flex;
+        }
+        /* Barra lateral */
+        .sidebar {
+            width: 220px;
+            background-color: #f7c5dd;
+            color: #4a4a4a;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding: 20px;
+            box-shadow: 2px 0 6px rgba(0,0,0,0.1);
+        }
+        .sidebar h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+        .sidebar a {
+            display: block;
+            margin-bottom: 12px;
+            text-decoration: none;
+            color: #4a4a4a;
+            font-weight: bold;
+        }
+        .sidebar a:hover {
+            text-decoration: underline;
+        }
+        /* Contenido principal */
+        .main-content {
+            margin-left: 240px;
+            width: calc(100% - 240px);
+        }
+        header {
+            background-color: #f7c5dd;
+            color: #4a4a4a;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        header img {
+            height: 100px;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+        main {
+            padding: 40px;
+        }
+        .volver-btn {
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background-color: #ffd3e0;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .volver-btn:hover {
+            background-color: #fbb1c8;
+            transform: scale(1.03);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #e0cce3;
+            text-align: left;
+        }
+        th {
+            background-color: #fceef5;
+            color: #5a5a5a;
+        }
+        .acciones button {
+            margin-right: 8px;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+        .editar-btn {
+            background-color: #a8e6cf;
+            color: #333;
+        }
+        .eliminar-btn {
+            background-color: #ffaaa5;
+            color: #333;
+        }
+        .acciones button:hover {
+            opacity: 0.9;
+            transform: scale(1.05);
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+    </style>
+    <script>
+function editarCliente(id) {
+    window.location.href = `/gestion/clientes/editar/${id}/`;
+}
+
+
+function eliminarCliente(id) {
+    if (confirm("¿Estás seguro de que deseas eliminar este cliente?")) {
+        window.location.href = `/gestion/clientes/eliminar/${id}/`;
+    }
+}
+
+        
+function volverDashboard() {
+    window.location.href = "/gestion/dashboard/admin/";
+}
+    </script>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Menú</h2>
+        <h2>Admin Glam</h2>
+     <div class="sidebar-user">
+  <p>{{ request.session.usuario_nombre }}</p>
+  <p class="rol">Perfil: Administrador</p>
+</div>
+        <a href="{% url 'lista_admin' %}">👤 Mi Perfil</a>
+
+        
+         <a href="{% url 'lista_distribuidores' %}">🚚 Panel Distribuidores</a>
+ <a href="{% url 'lista_pedidos' %}">📋 Panel Pedidos</a>
+ <a href="{% url 'lista_productos' %}">🛍️ Panel Productos</a>
+ <a href="{% url 'lista_repartidores' %}">🛵 Panel Repartidores</a>
+   <a href="{% url 'lista_categorias' %}">🎨 Panel Categorías</a>
+    <a href="{% url 'lista_subcategorias' %}">✨ Panel Subcategorías</a>
+    <a href="{% url 'lista_admin' %}">🛠️ Panel Administradores</a>
+        <a href="/logout/">🔓 Cerrar sesión</a>
+    </div>
+
+    <div class="main-content">
+        <header>
+            <h1>Panel de Clientes</h1>
+            <img src="{% static 'img/logoglam.png' %}" alt="Logo GlamStore">
+        </header>
+        <main>
+            <button class="volver-btn" onclick="volverDashboard()">← Volver al Dashboard</button>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Cédula</th>
+                        <th>Nombre</th>
+                        <th>Email</th>
+                        <th>Dirección</th>
+                        <th>Teléfono</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cliente in clientes %}
+                    <tr>
+                        <td>{{ cliente.idCliente }}</td>
+                        <td>{{ cliente.cedula }}</td>
+                        <td>{{ cliente.nombre }}</td>
+                        <td>{{ cliente.email }}</td>
+                        <td>{{ cliente.direccion }}</td>
+                        <td>{{ cliente.telefono }}</td>
+<td class="acciones">
+   <a href="{% url 'cliente_editar' cliente.idCliente %}" class="editar-btn">Editar</a>
+   <button class="eliminar-btn" onclick="eliminarCliente('{{ cliente.idCliente }}')">Eliminar</button>
+</td>
+
+
+
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </main>
+    </div>
+</body>
+</html>
