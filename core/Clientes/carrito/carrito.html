@@ -320,7 +320,7 @@
         <li><a href="{% url 'login' %}">Iniciar Sesión</a></li>
         {% endif %}
         <li><a href="{% url 'ver_carrito' %}">Carrito</a></li>
-      <li><a href="{% url 'perfil' %}">Mi Perfil</a></li>
+        <li><a href="{% url 'perfil' %}">Mi Perfil</a></li>
       </ul>
     </nav>
   </aside>
@@ -362,7 +362,7 @@
               <input type="number" id="cantidad-carrito-{{ item.producto.idProducto }}" value="{{ item.cantidad }}"
                 min="1" max="{{ item.producto.stock }}" readonly>
               <button type="button" class="btn-cantidad"
-                onclick="incrementarCarrito('{{ item.producto.idProducto }}', {{ item.producto.stock }})">+</button>
+                onclick="incrementarCarrito('{{ item.producto.idProducto }}', '{{ item.producto.stock }}')">+</button>
             </div>
           </td>
           <td class="col-total" id="subtotal-{{ item.producto.idProducto }}">${{ item.subtotal }}</td>
@@ -432,13 +432,13 @@
         actualizarCantidadAJAX(id, valor - 1);
       }
     }
-    
+
     function actualizarCantidadAJAX(idProducto, nuevaCantidad) {
       const formData = new FormData();
       formData.append('idProducto', idProducto);
       formData.append('cantidad', nuevaCantidad);
       formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
-      
+
       fetch('{% url "actualizar_cantidad_carrito" %}', {
         method: 'POST',
         body: formData,
@@ -446,30 +446,30 @@
           'X-Requested-With': 'XMLHttpRequest'
         }
       })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          // Actualizar el subtotal del producto
-          const subtotalElement = document.getElementById('subtotal-' + idProducto);
-          if (subtotalElement) {
-            subtotalElement.textContent = '$' + data.subtotal;
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Actualizar el subtotal del producto
+            const subtotalElement = document.getElementById('subtotal-' + idProducto);
+            if (subtotalElement) {
+              subtotalElement.textContent = '$' + data.subtotal;
+            }
+
+            // Actualizar el total del carrito
+            const totalElement = document.getElementById('total-carrito');
+            if (totalElement) {
+              totalElement.textContent = '$' + data.total;
+            }
+          } else {
+            alert(data.message);
+            location.reload(); // Recargar si hay error
           }
-          
-          // Actualizar el total del carrito
-          const totalElement = document.getElementById('total-carrito');
-          if (totalElement) {
-            totalElement.textContent = '$' + data.total;
-          }
-        } else {
-          alert(data.message);
-          location.reload(); // Recargar si hay error
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('Ocurrio un error al actualizar la cantidad.');
-        location.reload();
-      });
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Ocurrio un error al actualizar la cantidad.');
+          location.reload();
+        });
     }
   </script>
 
