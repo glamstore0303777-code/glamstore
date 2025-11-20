@@ -495,73 +495,269 @@
 
     <footer class="pie" style="margin-top: 3rem; text-align: center; color: #888;">
       <p>&copy; 2025 GlamStore — Belleza con estilo</p>
-    </footer>
-  </main>
+      }
+
+      .volver-link:hover {
+      text-decoration: underline;
+      }
 
 
-  <!-- Toast Notification -->
-  <div id="toast" class="toast-notification">
-    function incrementar(id, max) {
-    const input = document.getElementById('cantidad-' + id);
-    let valor = parseInt(input.value);
-    if (valor < max) { input.value=valor + 1; } } function decrementar(id) { const
-      input=document.getElementById('cantidad-' + id); let valor=parseInt(input.value); if (valor> 1) {
-      input.value = valor - 1;
+      /* Toast Notification */
+      .toast-notification {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: linear-gradient(135deg, #f48fb1 0%, #ec407a 100%);
+      color: white;
+      padding: 1.5rem 2rem;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(236, 64, 122, 0.4);
+      display: none;
+      z-index: 10000;
+      min-width: 320px;
+      animation: slideIn 0.4s ease-out;
+      }
+
+      @keyframes slideIn {
+      from {
+      transform: translateX(400px);
+      opacity: 0;
+      }
+
+      to {
+      transform: translateX(0);
+      opacity: 1;
       }
       }
 
-      function showToast(message) {
-      const toast = document.getElementById('toast');
-      const messageEl = document.getElementById('toast-message');
-      messageEl.textContent = message;
-      toast.classList.add('show');
-
-      // Auto-hide after 10 seconds
-      setTimeout(() => {
-      closeToast();
-      }, 10000);
+      .toast-notification.show {
+      display: block;
       }
 
-      function closeToast() {
-      const toast = document.getElementById('toast');
-      toast.classList.remove('show');
+      .toast-content {
+      margin-bottom: 1rem;
       }
 
-      // AJAX form submission
-      document.addEventListener('DOMContentLoaded', function () {
-      const forms = document.querySelectorAll('[data-ajax-form]');
-
-      forms.forEach(form => {
-      form.addEventListener('submit', function (e) {
-      e.preventDefault();
-
-      const formData = new FormData(this);
-      const url = this.action;
-
-      fetch(url, {
-      method: 'POST',
-      body: formData,
-      headers: {
-      'X-Requested-With': 'XMLHttpRequest'
+      .toast-content h3 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1.1rem;
+      font-weight: bold;
       }
-      })
-      .then(response => response.json())
-      .then(data => {
-      if (data.success) {
-      showToast(data.message);
-      } else {
-      alert(data.message);
-      }
-      })
-      .catch(error => {
-      console.error('Error:', error);
-      alert('Ocurrio un error al agregar el producto.');
-      });
-      });
-      });
-      });
-      </script>
 
-</body>
+      .toast-content p {
+      margin: 0;
+      font-size: 0.95rem;
+      opacity: 0.95;
+      }
+
+      .toast-buttons {
+      display: flex;
+      gap: 0.8rem;
+      }
+
+      .toast-btn {
+      flex: 1;
+      padding: 0.7rem 1rem;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: inherit;
+      }
+
+      .toast-btn-primary {
+      background: white;
+      color: #ec407a;
+      }
+
+      .toast-btn-primary:hover {
+      background: #fce4ec;
+      transform: translateY(-2px);
+      }
+
+      .toast-btn-secondary {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      }
+
+      .toast-btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.3);
+      }
+      </style>
+      </head>
+
+      <body>
+
+        <!-- Barra lateral -->
+        <aside class="sidebar">
+          <img src="{% static 'img/logoglam.png' %}" alt="Logo GlamStore" class="logo">
+          {% if request.session.usuario_nombre %}
+          <a href="{% url 'perfil' %}" style="text-decoration: none; color: inherit;">
+            <h1>¡Hola, {{ request.session.usuario_nombre }}!</h1>
+          </a>
+          <p>Qué bueno verte de nuevo ✨</p>
+          {% else %}
+          <h1>Bienvenida a GlamStore</h1>
+          <p>Tu espacio de moda, color y alegría</p>
+          {% endif %}
+
+          <nav>
+            <ul>
+              <li><a href="{% url 'tienda' %}">← Volver a Tienda</a></li>
+              {% if request.session.usuario_nombre %}
+              <li><a href="{% url 'perfil' %}">Mi Perfil</a></li>
+              {% else %}
+              <li><a href="{% url 'login' %}">Iniciar Sesión</a></li>
+              {% endif %}
+              <li><a href="{% url 'ver_carrito' %}">Carrito</a></li>
+              <li><a href="{% url 'perfil' %}">Mi Perfil</a></li>
+            </ul>
+          </nav>
+
+          {% if subcategorias %}
+          <h2>Subcategorías</h2>
+          <form method="GET" action="{% url 'productos_categoria' categoria.idCategoria %}" style="width: 100%;">
+            {% for sub in subcategorias %}
+            <button type="submit" name="subcategoria" value="{{ sub.idSubcategoria }}"
+              class="btn-sub {% if subcategoria and sub.idSubcategoria == subcategoria.idSubcategoria %}activo{% endif %}">
+              {{ sub.nombreSubcategoria }}
+            </button>
+            {% endfor %}
+            {% if subcategoria %}
+            <a href="{% url 'productos_categoria' categoria.idCategoria %}" class="btn-sub"
+              style="text-decoration:none; display:block; box-sizing:border-box;">Ver todas</a>
+            {% endif %}
+          </form>
+          {% endif %}
+        </aside>
+
+        <!-- Contenido principal -->
+        <main class="main-content">
+          <header>
+            <h2 class="titulo-seccion">{{ categoria.nombreCategoria }}</h2>
+          </header>
+
+          {% if messages %}
+          <div class="mensajes">
+            {% for message in messages %}
+            <p>{{ message }}</p>
+            {% endfor %}
+          </div>
+          {% endif %}
+
+          {% if productos %}
+          <section class="product-grid">
+            {% for producto in productos %}
+            <div class="product-card">
+              <div class="product-image">
+                {% if producto.imagen %}
+                <img src="{{ producto.imagen.url }}" alt="{{ producto.nombreProducto }}">
+                {% endif %}
+              </div>
+              <div class="product-info">
+                <h3>{{ producto.nombreProducto }}</h3>
+                <p class="descripcion">{{ producto.descripcion|truncatechars:60 }}</p>
+                <span class="product-price">${{ producto.precio }}</span>
+
+                {% if producto.disponible > 0 %}
+                <form method="POST" action="{% url 'agregar_al_carrito' %}" class="form-agregar" data-ajax-form>
+                  {% csrf_token %}
+                  <input type="hidden" name="idProducto" value="{{ producto.idProducto }}">
+                  <div class="selector-cantidad">
+                    <label>Cant:</label>
+                    <div class="controles-cantidad">
+                      <button type="button" class="btn-cantidad"
+                        onclick="decrementar('{{ producto.idProducto }}')">-</button>
+                      <input type="number" name="cantidad" id="cantidad-{{ producto.idProducto }}" value="1" min="1"
+                        max="{{ producto.stock }}" readonly>
+                      <button type="button" class="btn-cantidad"
+                        onclick="incrementar('{{ producto.idProducto }}', '{{ producto.stock }}')">+</button>
+                    </div>
+                  </div>
+                  <button type="submit" class="btn-agregar">Añadir 🛒</button>
+                </form>
+                {% else %}
+                <p class="agotado">Agotado</p>
+                {% endif %}
+              </div>
+            </div>
+            {% endfor %}
+          </section>
+          {% else %}
+          <p class="sin-productos">No hay productos disponibles en esta categoría por el momento.</p>
+          {% endif %}
+
+          <footer class="pie" style="margin-top: 3rem; text-align: center; color: #888;">
+            <p>&copy; 2025 GlamStore — Belleza con estilo</p>
+          </footer>
+        </main>
+
+
+        <!-- Toast Notification -->
+        <div id="toast" class="toast-notification">
+          function incrementar(id, max) {
+          const input = document.getElementById('cantidad-' + id);
+          let valor = parseInt(input.value);
+          if (valor < max) { input.value=valor + 1; } } function decrementar(id) { const
+            input=document.getElementById('cantidad-' + id); let valor=parseInt(input.value); if (valor> 1) {
+            input.value = valor - 1;
+            }
+            }
+
+            function showToast(message) {
+            const toast = document.getElementById('toast');
+            const messageEl = document.getElementById('toast-message');
+            messageEl.textContent = message;
+            toast.classList.add('show');
+
+            // Auto-hide after 10 seconds
+            setTimeout(() => {
+            closeToast();
+            }, 10000);
+            }
+
+            function closeToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.remove('show');
+            }
+
+            // AJAX form submission
+            document.addEventListener('DOMContentLoaded', function () {
+            const forms = document.querySelectorAll('[data-ajax-form]');
+
+            forms.forEach(form => {
+            form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const url = this.action;
+
+            fetch(url, {
+            method: 'POST',
+            body: formData,
+            headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+            }
+            })
+            .then(response => response.json())
+            .then(data => {
+            if (data.success) {
+            showToast(data.message);
+            } else {
+            alert(data.message);
+            }
+            })
+            .catch(error => {
+            console.error('Error:', error);
+            alert('Ocurrio un error al agregar el producto.');
+            });
+            });
+            });
+            });
+            </script>
+
+      </body>
 
 </html>
