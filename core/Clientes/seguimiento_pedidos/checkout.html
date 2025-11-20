@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <title>Checkout — GlamStore</title>
@@ -20,7 +21,7 @@
       display: flex;
       margin: 0;
     }
-    
+
     .sidebar {
       background-color: #fce4ec;
       padding: 2rem;
@@ -32,36 +33,36 @@
       align-items: center;
       text-align: center;
       border-right: 2px solid #f8bbd0;
-      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
       z-index: 1000;
       overflow-y: auto;
     }
-    
+
     .logo {
       width: 100px;
       border-radius: 50%;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       margin-bottom: 1rem;
     }
-    
+
     .sidebar h1 {
       color: #ad1457;
       font-size: 1.8rem;
       margin: 0.5rem 0;
     }
-    
+
     .sidebar p {
       color: #d81b60;
       font-size: 1rem;
       margin-bottom: 2rem;
     }
-    
+
     .sidebar nav ul {
       list-style: none;
       padding: 0;
       width: 100%;
     }
-    
+
     .sidebar nav a {
       display: block;
       padding: 0.8rem 1.5rem;
@@ -72,12 +73,12 @@
       border-radius: 25px;
       transition: background-color 0.3s, color 0.3s;
     }
-    
+
     .sidebar nav a:hover {
       background-color: #f8bbd0;
       color: #fff;
     }
-    
+
     .main-content {
       margin-left: 240px;
       padding: 2rem;
@@ -93,7 +94,7 @@
       padding-bottom: 0.5rem;
       margin-bottom: 2rem;
     }
-    
+
     .checkout-container {
       display: flex;
       flex-wrap: wrap;
@@ -114,13 +115,14 @@
       background: #fff5f8;
       padding: 2rem;
       border-radius: 16px;
-      position: sticky; /* Hacemos que el resumen sea "pegajoso" */
-      top: 2rem; /* Se pegará a 2rem del borde superior */
-      align-self: flex-start; /* Evita que se estire verticalmente */
+      position: sticky;
+      top: 2rem;
+      align-self: flex-start;
       box-shadow: 0 4px 10px rgba(212, 144, 192, 0.2);
     }
 
-    h2, h3 {
+    h2,
+    h3 {
       font-size: 1.8rem;
       color: #f06292;
       margin-bottom: 1rem;
@@ -140,7 +142,8 @@
       color: #ad1457;
     }
 
-    form input, form select {
+    form input,
+    form select {
       width: 100%;
       padding: 0.6rem;
       margin-top: 0.4rem;
@@ -151,7 +154,8 @@
       font-weight: bold;
     }
 
-    input[type="radio"], input[type="checkbox"] {
+    input[type="radio"],
+    input[type="checkbox"] {
       accent-color: #f48fb1;
       margin-right: 0.5rem;
     }
@@ -202,6 +206,7 @@
       gap: 1rem;
       margin-top: 1rem;
     }
+
     .metodo-pago-opcion {
       background: #fff5f8;
       padding: 1rem;
@@ -210,13 +215,16 @@
       cursor: pointer;
       transition: border-color 0.3s, box-shadow 0.3s;
     }
+
     .metodo-pago-opcion:hover {
       border-color: #f48fb1;
     }
+
     .metodo-pago-opcion.seleccionado {
       border-color: #ec407a;
       box-shadow: 0 0 8px rgba(168, 85, 247, 0.3);
     }
+
     .metodo-pago-opcion label {
       display: flex;
       align-items: center;
@@ -224,6 +232,7 @@
       font-weight: bold;
       color: #ad1457;
     }
+
     .pago-detalles {
       display: none;
       margin-top: 1.5rem;
@@ -232,57 +241,62 @@
       border-radius: 12px;
       border: 1px solid #e0cce3;
     }
+
     .pago-detalles h4 {
       color: #f06292;
       margin-bottom: 1rem;
     }
+
     .pago-detalles p {
       margin-bottom: 1rem;
     }
 
     @media (max-width: 768px) {
       h2.titulo-checkout {
-      font-size: 2.2rem;
-      color: #c2185b;
-      border-bottom: 3px solid #f48fb1;
-      padding-bottom: 0.5rem;
-      margin-bottom: 2rem;
-    }
-    
-    .checkout-container {
+        font-size: 2.2rem;
+        color: #c2185b;
+        border-bottom: 3px solid #f48fb1;
+        padding-bottom: 0.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .checkout-container {
         flex-direction: column;
       }
 
-      .formulario, .resumen {
+      .formulario,
+      .resumen {
         flex: 1 1 100%;
       }
     }
   </style>
 </head>
+
 <body>
 
   <!-- Barra lateral -->
   <aside class="sidebar">
     <img src="{% static 'img/logoglam.png' %}" alt="Logo GlamStore" class="logo">
     {% if request.session.usuario_nombre %}
-      <a href="{% url 'perfil' %}" style="text-decoration: none; color: inherit;">
-        <h1>¡Hola, {{ request.session.usuario_nombre }}!</h1>
-      </a>
-      <p>Qué bueno verte de nuevo ✨</p>
+    <a href="{% url 'perfil' %}" style="text-decoration: none; color: inherit;">
+      <h1>¡Hola, {{ request.session.usuario_nombre }}!</h1>
+    </a>
+    <p>Qué bueno verte de nuevo ✨</p>
     {% else %}
-      <h1>Bienvenida a GlamStore</h1>
-      <p>Tu espacio de moda, color y alegría</p>
+    <h1>Bienvenida a GlamStore</h1>
+    <p>Tu espacio de moda, color y alegría</p>
     {% endif %}
-    
+
     <nav>
       <ul>
         <li><a href="{% url 'tienda' %}">← Volver a Tienda</a></li>
         {% if request.session.usuario_nombre %}
-          <li><a href="{% url 'perfil' %}">Mi Perfil</a></li>
+        <li><a href="{% url 'perfil' %}">Mi Perfil</a></li>
         {% else %}
-          <li><a href="{% url 'login' %}">Iniciar Sesión</a></li>
+        <li><a href="{% url 'login' %}">Iniciar Sesión</a></li>
         {% endif %}
         <li><a href="{% url 'ver_carrito' %}">Carrito</a></li>
+      <li><a href="{% url 'perfil' %}">Mi Perfil</a></li>
       </ul>
     </nav>
   </aside>
@@ -290,127 +304,126 @@
   <!-- Contenido principal -->
   <main class="main-content">
     <h2 class="titulo-checkout">Finalizar Compra</h2>
-    
+
     <div class="checkout-container">
-    <section class="formulario">
-      <form method="POST" action="{% url 'simular_pago' %}">
-        {% csrf_token %}
+      <section class="formulario">
+        <form method="POST" action="{% url 'simular_pago' %}">
+          {% csrf_token %}
 
-        <h3>1. DATOS PERSONALES</h3>
-        <label>Correo</label>
-        <input type="email" name="correo" required>
+          <h3>1. DATOS PERSONALES</h3>
+          <label>Correo</label>
+          <input type="email" name="correo" required>
 
-        <label>Nombre</label>
-        <input type="text" name="nombre" required>
+          <label>Nombre</label>
+          <input type="text" name="nombre" required>
 
-        <label>Apellidos</label>
-        <input type="text" name="apellidos" required>
+          <label>Apellidos</label>
+          <input type="text" name="apellidos" required>
 
-        <label>Tipo de documento</label>
-        <select name="tipo_documento" required>
-          <option value="">Elige una opción...</option>
-          <option value="CC">Cédula</option>
-          <option value="TI">Tarjeta de Identidad</option>
-          <option value="CE">Cédula Extranjera</option>
-        </select>
+          <label>Tipo de documento</label>
+          <input type="text" value="Cédula" readonly style="background-color: #fce4ec; cursor: not-allowed;">
+          <input type="hidden" name="tipo_documento" value="CC">
 
-        <label>Documento</label>
-        <input type="text" name="documento" required>
+          <label>Número de Cédula</label>
+          <input type="text" name="documento" required placeholder="Ingresa tu número de cédula">
 
-        <label>Teléfono / Móvil</label>
-        <input type="tel" name="telefono" required>
+          <label>Teléfono / Móvil</label>
+          <input type="tel" name="telefono" required>
 
-        <h3>2. ENTREGA</h3>
-        <label>Departamento</label>
-        <select name="departamento" required>
-          <option value="">Selecciona tu departamento</option>
-          <option value="Cundinamarca">Cundinamarca</option>
-          <option value="Bogotá D.C.">Bogotá D.C.</option>
-        </select>
+          <h3>2. ENTREGA</h3>
+          <label>Departamento</label>
+          <select name="departamento" id="departamento" required>
+            <option value="">Selecciona tu departamento</option>
+            <option value="Cundinamarca">Cundinamarca</option>
+            <option value="Bogotá D.C.">Bogotá D.C.</option>
+          </select>
 
-        <label>Municipio</label>
-        <select name="municipio" required>
-          <option value="">Selecciona tu municipio</option>
-          <option value="Soacha">Soacha</option>
-          <option value="Bogotá">Bogotá</option>
-        </select>
+          <label>Municipio</label>
+          <select name="municipio" id="municipio" required>
+            <option value="">Primero selecciona un departamento</option>
+          </select>
 
-        <label>Dirección</label>
-        <input type="text" name="direccion" required>
+          <label id="label-comuna">Comuna/Localidad</label>
+          <select name="comuna" id="comuna" required>
+            <option value="">Primero selecciona un municipio</option>
+          </select>
 
-        <label>Información adicional</label>
-        <input type="text" name="info_adicional">
+          <label>Dirección</label>
+          <input type="text" name="direccion" required placeholder="Ej: Calle 123 # 45-67">
 
-        <label>Barrio</label>
-        <input type="text" name="barrio" required>
+          <label>Información adicional</label>
+          <input type="text" name="info_adicional" placeholder="Ej: Apartamento 301, Torre B">
 
-        <label>Nombre de quien recibe</label>
-        <input type="text" name="nombre_receptor" required>
+          <label>Nombre de quien recibe</label>
+          <input type="text" name="nombre_receptor" required>
 
-        <h3>3. MÉTODO DE ENTREGA</h3>
+          <h3>3. MÉTODO DE ENTREGA</h3>
 
-        <label><input type="radio" name="pago_envio" value="ahora" checked> Pagar envío ahora (Total + $10.000)</label>
-        <label><input type="radio" name="pago_envio" value="contra_entrega"> Pagar envío contra entrega</label>
-        <h3>4. PAGO</h3>
-        <div class="metodos-pago">
-          <div class="metodo-pago-opcion">
-            <label><input type="radio" name="metodo_pago" value="nequi_daviplata" required> 📱 Pagar con Nequi / Daviplata</label>
+          <label><input type="radio" name="pago_envio" value="ahora" checked> Pagar envío ahora (Total +
+            $10.000)</label>
+          <label><input type="radio" name="pago_envio" value="contra_entrega"> Pagar envío contra entrega</label>
+          <h3>4. PAGO</h3>
+          <div class="metodos-pago">
+            <div class="metodo-pago-opcion">
+              <label><input type="radio" name="metodo_pago" value="nequi_daviplata" required> 📱 Pagar con Nequi /
+                Daviplata</label>
+            </div>
+            <div class="metodo-pago-opcion">
+              <label><input type="radio" name="metodo_pago" value="consignacion"> 🏦 Consignación Bancaria</label>
+            </div>
+            <div class="metodo-pago-opcion">
+              <label><input type="radio" name="metodo_pago" value="efecty"> 💵 Pago en Efecty</label>
+            </div>
           </div>
-          <div class="metodo-pago-opcion">
-            <label><input type="radio" name="metodo_pago" value="consignacion"> 🏦 Consignación Bancaria</label>
+
+          <!-- Detalles para Nequi/Daviplata -->
+          <div id="detalles_nequi_daviplata" class="pago-detalles">
+            <h4>Pagar con Nequi / Daviplata</h4>
+            <label for="celular_pago">Número de celular:</label>
+            <input type="tel" id="celular_pago" name="celular_pago" placeholder="Tu número de Nequi o Daviplata">
+            <label for="clave_dinamica">Clave dinámica:</label>
+            <input type="text" id="clave_dinamica" name="clave_dinamica" placeholder="Ingresa tu clave dinámica">
           </div>
-          <div class="metodo-pago-opcion">
-            <label><input type="radio" name="metodo_pago" value="efecty"> 💵 Pago en Efecty</label>
+
+          <!-- Detalles para Consignación -->
+          <div id="detalles_consignacion" class="pago-detalles">
+            <h4>Pagar con Consignación Bancaria</h4>
+            <p>Realiza la transferencia a la siguiente cuenta y adjunta el comprobante:</p>
+            <p><strong>Cuenta de Ahorros Bancolombia:</strong> 123-456789-00 a nombre de Glam Store.</p>
+            <label for="referencia_pago">Código de referencia de pago:</label>
+            <input type="text" id="referencia_pago" name="referencia_pago"
+              placeholder="Ingresa el número de referencia">
           </div>
-        </div>
 
-        <!-- Detalles para Nequi/Daviplata -->
-        <div id="detalles_nequi_daviplata" class="pago-detalles">
-          <h4>Pagar con Nequi / Daviplata</h4>
-          <label for="celular_pago">Número de celular:</label>
-          <input type="tel" id="celular_pago" name="celular_pago" placeholder="Tu número de Nequi o Daviplata">
-          <label for="clave_dinamica">Clave dinámica:</label>
-          <input type="text" id="clave_dinamica" name="clave_dinamica" placeholder="Ingresa tu clave dinámica">
-        </div>
+          <!-- Detalles para Efecty -->
+          <div id="detalles_efecty" class="pago-detalles">
+            <h4>Pagar en Efecty</h4>
+            <p>Dirígete a tu punto Efecty más cercano y presenta el siguiente código para realizar el pago:</p>
+            <p><strong>Código de pago:</strong> 987-654-321</p>
+          </div>
 
-        <!-- Detalles para Consignación -->
-        <div id="detalles_consignacion" class="pago-detalles">
-          <h4>Pagar con Consignación Bancaria</h4>
-          <p>Realiza la transferencia a la siguiente cuenta y adjunta el comprobante:</p>
-          <p><strong>Cuenta de Ahorros Bancolombia:</strong> 123-456789-00 a nombre de Glam Store.</p>
-          <label for="referencia_pago">Código de referencia de pago:</label>
-          <input type="text" id="referencia_pago" name="referencia_pago" placeholder="Ingresa el número de referencia">
-        </div>
+          <!-- Botón final -->
+          <button type="submit" class="btn-finalizar">Continuar y hacer el pago ✨</button>
+        </form>
+      </section>
 
-        <!-- Detalles para Efecty -->
-        <div id="detalles_efecty" class="pago-detalles">
-          <h4>Pagar en Efecty</h4>
-          <p>Dirígete a tu punto Efecty más cercano y presenta el siguiente código para realizar el pago:</p>
-          <p><strong>Código de pago:</strong> 987-654-321</p>
-        </div>
-
-        <!-- Botón final -->
-        <button type="submit" class="btn-finalizar">Continuar y hacer el pago ✨</button>
-      </form>
-    </section>
-
-    <section class="resumen">
-      <h2>RESUMEN DE LA COMPRA</h2>
-      {% for item in carrito %}
+      <section class="resumen">
+        <h2>RESUMEN DE LA COMPRA</h2>
+        {% for item in carrito %}
         <div class="producto-resumen">
           <p><strong>{{ item.producto.nombreProducto }}</strong></p>
           <p>{{ item.cantidad }} unidad(es)</p>
           <p>${{ item.subtotal }}</p>
         </div>
-      {% endfor %}
-      <hr>
-      <p>Subtotal: <strong id="subtotal-valor">${{ total }}</strong></p>
-      <p id="costo-envio-resumen" style="display: block;">Envío: <strong>$10.000</strong></p>
-      <p>Total: <strong id="total-valor">${{ total|add:10000 }}</strong></p>
-      <a href="{% url 'tienda' %}" class="btn-volver">← Seguir comprando</a>
-    </section>
+        {% endfor %}
+        <hr>
+        <p>Subtotal: <strong id="subtotal-valor">${{ total }}</strong></p>
+        <p id="costo-envio-resumen" style="display: block;">Envío: <strong>$10.000</strong></p>
+        <p>Total: <strong id="total-valor">${{ total|add:10000 }}</strong></p>
+        <a href="{% url 'tienda' %}" class="btn-volver">← Seguir comprando</a>
+      </section>
     </div>
-    
+
     <footer class="pie" style="margin-top: 3rem; text-align: center; color: #888;">
       <p>&copy; 2025 GlamStore — Belleza con estilo</p>
     </footer>
@@ -418,28 +431,99 @@
 
   <!-- JS para mostrar secciones progresivamente -->
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    // Datos de municipios y comunas/localidades
+    const datosUbicacion = {
+      'Cundinamarca': {
+        municipios: ['Soacha'],
+        comunas: {
+          'Soacha': ['Comuna 1 - Compartir', 'Comuna 2 - La Despensa', 'Comuna 3 - Ciudad Verde', 'Comuna 4 - Cazucá', 'Comuna 5 - San Mateo', 'Comuna 6 - San Humberto']
+        }
+      },
+      'Bogotá D.C.': {
+        municipios: ['Bogotá'],
+        comunas: {
+          'Bogotá': [
+            'Usaquén', 'Chapinero', 'Santa Fe', 'San Cristóbal', 'Usme',
+            'Tunjuelito', 'Bosa', 'Kennedy', 'Fontibón', 'Engativá',
+            'Suba', 'Barrios Unidos', 'Teusaquillo', 'Los Mártires', 'Antonio Nariño',
+            'Puente Aranda', 'La Candelaria', 'Rafael Uribe Uribe', 'Ciudad Bolívar', 'Sumapaz'
+          ]
+        }
+      }
+    };
+
+    // Actualizar municipios cuando cambia el departamento
+    document.getElementById('departamento').addEventListener('change', function () {
+      const departamento = this.value;
+      const municipioSelect = document.getElementById('municipio');
+      const comunaSelect = document.getElementById('comuna');
+      const labelComuna = document.getElementById('label-comuna');
+
+      // Limpiar selects
+      municipioSelect.innerHTML = '<option value="">Selecciona tu municipio</option>';
+      comunaSelect.innerHTML = '<option value="">Primero selecciona un municipio</option>';
+
+      if (departamento && datosUbicacion[departamento]) {
+        // Agregar municipios
+        datosUbicacion[departamento].municipios.forEach(municipio => {
+          const option = document.createElement('option');
+          option.value = municipio;
+          option.textContent = municipio;
+          municipioSelect.appendChild(option);
+        });
+
+        // Cambiar label según departamento
+        if (departamento === 'Bogotá D.C.') {
+          labelComuna.textContent = 'Localidad';
+        } else {
+          labelComuna.textContent = 'Comuna';
+        }
+      }
+    });
+
+    // Actualizar comunas/localidades cuando cambia el municipio
+    document.getElementById('municipio').addEventListener('change', function () {
+      const departamento = document.getElementById('departamento').value;
+      const municipio = this.value;
+      const comunaSelect = document.getElementById('comuna');
+
+      // Limpiar select de comunas
+      comunaSelect.innerHTML = '<option value="">Selecciona una opción</option>';
+
+      if (departamento && municipio && datosUbicacion[departamento].comunas[municipio]) {
+        // Agregar comunas/localidades
+        datosUbicacion[departamento].comunas[municipio].forEach(comuna => {
+          const option = document.createElement('option');
+          option.value = comuna;
+          option.textContent = comuna;
+          comunaSelect.appendChild(option);
+        });
+      }
+    });
+
+    // Métodos de pago
+    document.addEventListener('DOMContentLoaded', function () {
       const metodosPago = document.querySelectorAll('input[name="metodo_pago"]');
       const detallesPago = document.querySelectorAll('.pago-detalles');
       const opcionesPago = document.querySelectorAll('.metodo-pago-opcion');
 
       metodosPago.forEach(radio => {
-  radio.addEventListener('change', function() {
-    // Ocultar todos los detalles y quitar la clase 'seleccionado'
-    detallesPago.forEach(detalle => detalle.style.display = 'none');
-    opcionesPago.forEach(opcion => opcion.classList.remove('seleccionado'));
+        radio.addEventListener('change', function () {
+          // Ocultar todos los detalles y quitar la clase 'seleccionado'
+          detallesPago.forEach(detalle => detalle.style.display = 'none');
+          opcionesPago.forEach(opcion => opcion.classList.remove('seleccionado'));
 
-    // Mostrar el detalle correspondiente y marcar como seleccionado
-    if (this.checked) {
-      const idDetalle = 'detalles_' + this.value;
-      const detalleSeleccionado = document.getElementById(idDetalle);
-      if (detalleSeleccionado) {
-        detalleSeleccionado.style.display = 'block';
-        this.closest('.metodo-pago-opcion').classList.add('seleccionado');
-      }
-    }
-  }); 
-});
+          // Mostrar el detalle correspondiente y marcar como seleccionado
+          if (this.checked) {
+            const idDetalle = 'detalles_' + this.value;
+            const detalleSeleccionado = document.getElementById(idDetalle);
+            if (detalleSeleccionado) {
+              detalleSeleccionado.style.display = 'block';
+              this.closest('.metodo-pago-opcion').classList.add('seleccionado');
+            }
+          }
+        });
+      });
 
       // Lógica para actualizar el total con el envío
       const radiosEnvio = document.querySelectorAll('input[name="pago_envio"]');
@@ -450,7 +534,7 @@
 
       function actualizarTotal() {
         const pagoAhora = document.querySelector('input[name="pago_envio"][value="ahora"]').checked;
-        
+
         if (pagoAhora) {
           costoEnvioResumen.style.display = 'block';
           totalValor.textContent = '$' + (subtotal + costoEnvio).toLocaleString('es-CO');
@@ -464,7 +548,8 @@
         radio.addEventListener('change', actualizarTotal);
       });
 
- });
+    });
   </script>
 </body>
+
 </html>

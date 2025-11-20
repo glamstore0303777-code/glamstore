@@ -261,6 +261,7 @@
         {% endif %}
         <li><a href="{% url 'contacto' %}">Contáctanos</a></li>
         <li><a href="{% url 'ver_carrito' %}">Carrito</a></li>
+        <li><a href="{% url 'perfil' %}">Mi Perfil</a></li>
         {% if request.session.usuario_nombre %}
         <li><a href="{% url 'logout' %}">Cerrar sesión</a></li>
         {% endif %}

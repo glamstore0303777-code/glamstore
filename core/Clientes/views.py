@@ -40,24 +40,42 @@ def tienda(request):
         'categorias': categorias,
         'productos_destacados': productos_destacados
     })
-# ✅ Vista del perfil del usuario (puedes expandirla luego)
+# ✅ Vista del perfil del usuario
 def perfil(request):
+    # Verificar si hay un usuario logueado o un cliente invitado
     usuario_id = request.session.get('usuario_id')
-    if not usuario_id:
-        messages.error(request, "Debes iniciar sesión para ver tu perfil.")
-        return redirect('login')
+    cliente_id = request.session.get('cliente_id')
+    
+    # Caso 1: Sin sesión - mostrar mensaje con opciones
+    if not usuario_id and not cliente_id:
+        context = {
+            'sin_sesion': True
+        }
+        return render(request, 'perfil.html', context)
 
     try:
-        usuario = get_object_or_404(Usuario, idUsuario=usuario_id)
-        cliente = get_object_or_404(Cliente, idCliente=usuario.idCliente)
+        # Caso 2: Usuario logueado - obtener el cliente desde el usuario
+        if usuario_id:
+            usuario = get_object_or_404(Usuario, idUsuario=usuario_id)
+            cliente = get_object_or_404(Cliente, idCliente=usuario.idCliente)
+            tiene_usuario = True
+        # Caso 3: Cliente invitado - obtener el cliente directamente
+        else:
+            cliente = get_object_or_404(Cliente, idCliente=cliente_id)
+            tiene_usuario = False
+        
+        # Obtener los pedidos del cliente
         pedidos = Pedido.objects.filter(idCliente=cliente.idCliente).order_by('-fechaCreacion')
+        
     except (Usuario.DoesNotExist, Cliente.DoesNotExist, Http404):
         messages.error(request, "No se pudo encontrar tu perfil de cliente.")
         return redirect('tienda')
 
     context = {
         'cliente': cliente,
-        'pedidos': pedidos
+        'pedidos': pedidos,
+        'tiene_usuario': tiene_usuario,  # Para mostrar opción de crear usuario en el template
+        'sin_sesion': False
     }
     return render(request, 'perfil.html', context)
 
@@ -270,16 +288,59 @@ def simular_pago(request):
         messages.error(request, "Tu carrito está vacío.")
         return redirect('ver_carrito')
 
-    usuario_id = request.session.get('usuario_id')
-    if not usuario_id:
-        messages.error(request, "Debes iniciar sesión para completar la compra.")
-        return redirect('login')
-
     try:
         with transaction.atomic():
-            # 1. Obtener el cliente a partir del usuario en sesión
-            usuario = Usuario.objects.get(idUsuario=usuario_id)
-            cliente = Cliente.objects.get(idCliente=usuario.idCliente)
+            # 1. Obtener o crear el cliente con los datos del formulario
+            correo = request.POST.get('correo')
+            nombre = request.POST.get('nombre')
+            apellidos = request.POST.get('apellidos')
+            documento = request.POST.get('documento')
+            telefono = request.POST.get('telefono')
+            
+            # DEBUG: Imprimir datos recibidos
+            print(f"DEBUG - Datos recibidos:")
+            print(f"  Correo: {correo}")
+            print(f"  Nombre: {nombre} {apellidos}")
+            print(f"  Documento: {documento}")
+            print(f"  Teléfono: {telefono}")
+            
+            # Datos de entrega
+            departamento = request.POST.get('departamento')
+            municipio = request.POST.get('municipio')
+            comuna = request.POST.get('comuna')
+            direccion = request.POST.get('direccion')
+            info_adicional = request.POST.get('info_adicional', '')
+            
+            # Construir dirección completa
+            direccion_completa = f"{direccion}, {comuna}, {municipio}, {departamento}"
+            if info_adicional:
+                direccion_completa += f" ({info_adicional})"
+            
+            print(f"  Dirección completa: {direccion_completa}")
+            print(f"  Longitud dirección: {len(direccion_completa)} caracteres")
+            
+            # Buscar si ya existe un cliente con ese email
+            try:
+                cliente = Cliente.objects.get(email=correo)
+                print(f"DEBUG - Cliente existente encontrado: ID {cliente.idCliente}")
+                # Actualizar datos del cliente
+                cliente.nombre = f"{nombre} {apellidos}"
+                cliente.cedula = documento
+                cliente.telefono = telefono
+                cliente.direccion = direccion_completa
+                cliente.save()
+                print(f"DEBUG - Cliente actualizado exitosamente")
+            except Cliente.DoesNotExist:
+                print(f"DEBUG - Creando nuevo cliente...")
+                # Crear nuevo cliente
+                cliente = Cliente.objects.create(
+                    email=correo,
+                    nombre=f"{nombre} {apellidos}",
+                    cedula=documento,
+                    telefono=telefono,
+                    direccion=direccion_completa
+                )
+                print(f"DEBUG - Cliente creado exitosamente: ID {cliente.idCliente}")
 
             # 2. Calcular el total y preparar los detalles del pedido
             total_pedido = 0
@@ -294,15 +355,17 @@ def simular_pago(request):
                 detalles_para_crear.append((producto, cantidad, subtotal))
 
             # Decidir el estado y el total final basado en el pago del envío
-            pago_envio = request.POST.get('pago_envio', 'ahora') # Default a 'ahora'
+            pago_envio = request.POST.get('pago_envio', 'ahora')
             costo_envio = 10000
             
             if pago_envio == 'ahora':
                 estado_pedido = 'Pago Completo'
                 total_final = total_pedido + costo_envio
-            else: # contra_entrega
+            else:
                 estado_pedido = 'Pago Parcial'
                 total_final = total_pedido
+
+            print(f"DEBUG - Creando pedido: Total {total_final}, Estado: {estado_pedido}")
 
             # 3. Crear el Pedido principal en la base de datos
             nuevo_pedido = Pedido.objects.create(
@@ -311,6 +374,8 @@ def simular_pago(request):
                 total=total_final,
                 fechaCreacion=datetime.now()
             )
+            
+            print(f"DEBUG - Pedido creado exitosamente: ID {nuevo_pedido.idPedido}")
 
             # 4. Crear los Detalles del Pedido y actualizar el stock de productos
             for producto, cantidad, subtotal in detalles_para_crear:
@@ -334,12 +399,21 @@ def simular_pago(request):
                 )
                 producto.save()
 
-        # 5. Limpiar el carrito y redirigir al perfil para ver el nuevo pedido
+        # 5. Guardar el cliente_id en sesión (no como usuario logueado, sino como cliente invitado)
+        request.session['cliente_id'] = cliente.idCliente
+        request.session['cliente_nombre'] = cliente.nombre
+        
+        print(f"DEBUG - Sesión actualizada: cliente_id={cliente.idCliente}")
+        
+        # 6. Limpiar el carrito y redirigir al perfil
         request.session['carrito'] = {}
-        messages.success(request, f"¡Pago exitoso! Tu pedido #{nuevo_pedido.idPedido} ha sido registrado.")
+        messages.success(request, f"¡Pedido exitoso! Tu pedido #{nuevo_pedido.idPedido} ha sido registrado.")
         return redirect('perfil')
 
     except Exception as e:
+        print(f"ERROR - Excepción capturada: {type(e).__name__}: {str(e)}")
+        import traceback
+        traceback.print_exc()
         messages.error(request, f"Ocurrió un error al procesar tu pedido: {e}")
         return redirect('ver_carrito')
 
@@ -600,4 +674,68 @@ def contacto(request):
         return redirect('contacto')
 
     return render(request, 'contacto.html')
+
+def crear_usuario_desde_cliente(request):
+    """
+    Vista para que un cliente invitado cree su usuario/contraseña
+    """
+    if request.method == 'POST':
+        cliente_id = request.session.get('cliente_id')
+        
+        if not cliente_id:
+            messages.error(request, "No se encontró información de cliente.")
+            return redirect('login')
+        
+        try:
+            cliente = Cliente.objects.get(idCliente=cliente_id)
+            
+            # Verificar si ya tiene un usuario
+            if Usuario.objects.filter(idCliente=cliente_id).exists():
+                messages.warning(request, "Ya tienes un usuario creado. Puedes iniciar sesión.")
+                return redirect('login')
+            
+            password = request.POST.get('password')
+            password_confirm = request.POST.get('password_confirm')
+            
+            # Validar que las contraseñas coincidan
+            if password != password_confirm:
+                messages.error(request, "Las contraseñas no coinciden.")
+                return redirect('perfil')
+            
+            # Validar longitud mínima
+            if len(password) < 6:
+                messages.error(request, "La contraseña debe tener al menos 6 caracteres.")
+                return redirect('perfil')
+            
+            # Crear el usuario
+            nuevo_usuario = Usuario.objects.create(
+                nombre=cliente.nombre,
+                email=cliente.email,
+                password=make_password(password),
+                id_rol=2,  # Rol de Cliente
+                idCliente=cliente.idCliente
+            )
+            
+            # Loguear automáticamente al usuario
+            request.session['usuario_id'] = nuevo_usuario.idUsuario
+            request.session['usuario_nombre'] = nuevo_usuario.nombre
+            request.session['usuario_rol'] = 2
+            
+            # Limpiar el cliente_id de invitado
+            if 'cliente_id' in request.session:
+                del request.session['cliente_id']
+            if 'cliente_nombre' in request.session:
+                del request.session['cliente_nombre']
+            
+            messages.success(request, "¡Cuenta creada exitosamente! Ahora puedes iniciar sesión cuando quieras.")
+            return redirect('perfil')
+            
+        except Cliente.DoesNotExist:
+            messages.error(request, "Cliente no encontrado.")
+            return redirect('tienda')
+        except Exception as e:
+            messages.error(request, f"Error al crear la cuenta: {e}")
+            return redirect('perfil')
+    
+    return redirect('perfil')
   

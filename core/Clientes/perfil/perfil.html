@@ -1,154 +1,454 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <title>Perfil del Cliente | Glam Store</title>
   <style>
-    /* Estilo rosa pastel glamoroso */
-
-    :root {
-      --rosa-pastel: #ffe4ec;
-      --rosa-vivo: #f48fb1;
-      --lavanda-claro: #f3e5f5;
-      --lavanda-vivo: #ce93d8;
-      --blanco: #ffffff;
-      --gris-texto: #555;
-      --sombra-suave: rgba(0, 0, 0, 0.06);
-      --fuente: 'Poppins', sans-serif;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
     body {
-      font-family: var(--fuente);
-      background: linear-gradient(to bottom right, var(--rosa-pastel), var(--lavanda-claro));
-      margin: 0;
-      padding: 0;
-      color: var(--gris-texto);
+      font-family: 'Poppins', 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #fdfbff 0%, #fef9fc 50%, #fffafd 100%);
+      min-height: 100vh;
+      display: flex;
     }
 
-    header {
-      background: var(--rosa-vivo);
-      color: var(--blanco);
-      padding: 1.5rem 2rem;
+    /* Sidebar - Lavanda muy suave */
+    .sidebar {
+      width: 260px;
+      background: linear-gradient(180deg, #e8dff5 0%, #dfd3e8 100%);
+      color: #6b5b7b;
+      padding: 2rem 0;
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+      box-shadow: 4px 0 15px rgba(200, 190, 210, 0.15);
+    }
+
+    .logo-container {
+      text-align: center;
+      margin-bottom: 3rem;
+      padding: 0 1.5rem;
+    }
+
+    .logo-container img {
+      width: 100px;
+      height: auto;
+      border-radius: 50%;
+      border: 3px solid rgba(255, 255, 255, 0.5);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .logo-container h2 {
+      margin-top: 1rem;
+      font-size: 1.3rem;
+      font-weight: 300;
+      color: #6b5b7b;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .nav-menu {
+      list-style: none;
+    }
+
+    .nav-menu li {
+      margin: 0.2rem 0;
+    }
+
+    .nav-menu a {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 4px 10px var(--sombra-suave);
-      border-bottom-left-radius: 20px;
-      border-bottom-right-radius: 20px;
-    }
-
-    .logo {
-      height: 60px;
-      margin-right: 1rem;
-    }
-
-    header h1 {
-      font-size: 2rem;
-      font-weight: 600;
-      margin: 0;
-      flex-grow: 1;
-    }
-
-    nav a {
-      color: var(--blanco);
+      padding: 1rem 1.5rem;
+      color: #6b5b7b;
       text-decoration: none;
-      margin-left: 1rem;
-      font-weight: 500;
-      transition: color 0.3s ease;
+      transition: all 0.3s ease;
+      font-size: 0.95rem;
+      font-weight: 400;
     }
 
-    nav a:hover {
-      color: #ffeef5;
+    .nav-menu a:hover {
+      background: rgba(255, 255, 255, 0.3);
+      color: #5a4a6a;
     }
 
-    main {
-      max-width: 900px;
-      margin: 2rem auto;
-      padding: 1rem 2rem;
-      background: var(--blanco);
-      border-radius: 16px;
-      box-shadow: 0 4px 12px var(--sombra-suave);
+    .nav-menu a.active {
+      background: rgba(255, 255, 255, 0.4);
+      border-left: 3px solid #c5a3d9;
+      color: #5a4a6a;
     }
 
-    section {
+    /* Main Content */
+    .main-content {
+      margin-left: 260px;
+      flex: 1;
+      padding: 2.5rem;
+    }
+
+    .header {
+      background: white;
+      padding: 2rem 2.5rem;
+      border-radius: 15px;
+      box-shadow: 0 2px 12px rgba(200, 190, 210, 0.1);
       margin-bottom: 2rem;
     }
 
-    h2 {
-      color: var(--lavanda-vivo);
-      font-size: 1.6rem;
-      margin-bottom: 1rem;
-      border-bottom: 2px solid var(--rosa-pastel);
-      padding-bottom: 0.5rem;
+    .header h1 {
+      color: #8b7a9b;
+      font-size: 1.8rem;
+      font-weight: 400;
+      letter-spacing: 0.5px;
     }
 
-    p {
-      font-size: 1rem;
-      margin: 0.5rem 0;
+    .content-card {
+      background: white;
+      padding: 2.5rem;
+      border-radius: 15px;
+      box-shadow: 0 2px 12px rgba(200, 190, 210, 0.1);
+      margin-bottom: 2rem;
     }
 
-    ul {
+    .content-card h2 {
+      color: #8b7a9b;
+      font-size: 1.4rem;
+      margin-bottom: 2rem;
+      border-bottom: 2px solid #f5f0fa;
+      padding-bottom: 0.8rem;
+      font-weight: 400;
+      letter-spacing: 0.5px;
+    }
+
+    .content-card h3 {
+      color: #9d8aad;
+      font-size: 1.2rem;
+      margin-top: 2.5rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid #faf7fc;
+      padding-bottom: 0.6rem;
+      font-weight: 400;
+    }
+
+    .info-row {
+      display: flex;
+      padding: 1rem 0;
+      border-bottom: 1px solid #fdfbff;
+    }
+
+    .info-row:last-of-type {
+      border-bottom: none;
+    }
+
+    .info-row strong {
+      width: 150px;
+      color: #8b7a9b;
+      font-weight: 500;
+    }
+
+    .info-row span {
+      flex: 1;
+      color: #666;
+    }
+
+    .pedidos-list {
       list-style: none;
-      padding: 0;
     }
 
-    li {
-      background: var(--rosa-pastel);
-      margin-bottom: 0.5rem;
-      padding: 0.8rem 1rem;
+    .pedidos-list li {
+      background: linear-gradient(135deg, #fdfbff 0%, #f9f5fc 100%);
+      padding: 1.2rem 1.5rem;
+      margin-bottom: 1rem;
+      border-radius: 10px;
+      border-left: 3px solid #d4c5e0;
+      box-shadow: 0 2px 6px rgba(200, 190, 210, 0.08);
+      transition: all 0.3s ease;
+      color: #555;
+    }
+
+    .pedidos-list li:hover {
+      transform: translateX(5px);
+      box-shadow: 0 4px 10px rgba(200, 190, 210, 0.15);
+    }
+
+    .pedidos-list li strong {
+      color: #8b7a9b;
+    }
+
+    .alert-box {
+      background: linear-gradient(135deg, #fffbf8 0%, #fff5f0 100%);
+      padding: 2.5rem;
+      border-radius: 15px;
+      border-left: 3px solid #e8c4d4;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 12px rgba(232, 196, 212, 0.12);
+    }
+
+    .alert-box h2 {
+      color: #b87a93;
+      margin-top: 0;
+      margin-bottom: 1.5rem;
+      font-weight: 400;
+      font-size: 1.3rem;
+    }
+
+    .warning-box {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      margin-bottom: 1.5rem;
+      border-left: 3px solid #e8c4d4;
+    }
+
+    .warning-box p:first-child {
+      margin: 0;
+      color: #b87a93;
+      font-weight: 500;
+    }
+
+    .warning-box p:last-child {
+      margin: 0.8rem 0 0 0;
+      color: #666;
+      line-height: 1.7;
+    }
+
+    .benefits-list {
+      margin-bottom: 2rem;
+      padding-left: 1.5rem;
+      list-style: none;
+    }
+
+    .benefits-list li {
+      margin: 0.8rem 0;
+      color: #666;
+      line-height: 1.6;
+      position: relative;
+      padding-left: 1.5rem;
+    }
+
+    .benefits-list li:before {
+      content: "•";
+      color: #d4c5e0;
+      font-weight: bold;
+      position: absolute;
+      left: 0;
+      font-size: 1.2rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 0.6rem;
+      color: #b87a93;
+      font-size: 0.95rem;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.9rem;
       border-radius: 8px;
-      box-shadow: 0 2px 6px var(--sombra-suave);
+      border: 1px solid #f5f0fa;
+      font-family: 'Poppins', 'Segoe UI', sans-serif;
+      font-size: 0.95rem;
+      transition: all 0.3s;
+      background: #fdfbff;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #d4c5e0;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(212, 197, 224, 0.1);
+    }
+
+    .form-group input[readonly] {
+      background: #f9f5fc;
+      color: #666;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #d4c5e0 0%, #c5b3d4 100%);
+      color: white;
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(212, 197, 224, 0.25);
+      width: 100%;
+      font-size: 1rem;
+      font-family: 'Poppins', 'Segoe UI', sans-serif;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(212, 197, 224, 0.35);
+      background: linear-gradient(135deg, #c5b3d4 0%, #b6a3c8 100%);
     }
 
     footer {
       text-align: center;
-      padding: 1rem;
-      background: var(--rosa-vivo);
-      color: var(--blanco);
+      padding: 1.5rem;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 2px 12px rgba(200, 190, 210, 0.1);
+      margin-top: 2rem;
+      color: #999;
       font-size: 0.9rem;
-      border-top-left-radius: 20px;
-      border-top-right-radius: 20px;
-      margin-top: 3rem;
     }
   </style>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
+
 <body>
-  <header>
-    <img src="{% static 'img/logoglam.png' %}" alt="Logo Glam Store" class="logo">
-    <h1>Perfil del Cliente</h1>
-    <nav>
-      <a href="{% url 'tienda' %}">🛍️ Ir a la tienda</a>
-      <a href="{% url 'logout' %}">Cerrar sesión</a>
-    </nav>
-  </header>
-
-  <main>
-    <section class="info-personal">
-      <h2>Información Personal</h2>
-      <p><strong>Nombre:</strong> {{ cliente.nombre }}</p>
-      <p><strong>Correo:</strong> {{ cliente.email }}</p>
-      <p><strong>Teléfono:</strong> {{ cliente.telefono }}</p>
-      <p><strong>Dirección:</strong> {{ cliente.direccion }}</p>
-      <p><strong>Fecha de registro:</strong> {{ cliente.fechaRegistro|date:"d M Y" }}</p>
-    </section>
-
-    <section class="ultimos-pedidos">
-      <h2>Últimos pedidos</h2>
-      {% if pedidos %}
-        <ul>
-          {% for pedido in pedidos %}
-            <li>Pedido #{{ pedido.idPedido }} — {{ pedido.estado }}</li>
-          {% endfor %}
-        </ul>
-      {% else %}
-        <p>No hay pedidos registrados.</p>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo-container">
+      <img src="{% static 'img/logoglam.png' %}" alt="Glam Store Logo">
+      <h2>Glam Store</h2>
+    </div>
+    <ul class="nav-menu">
+      <li><a href="{% url 'tienda' %}">Inicio</a></li>
+      <li><a href="{% url 'tienda' %}">Tienda</a></li>
+      <li><a href="{% url 'ver_carrito' %}">Carrito</a></li>
+      <li><a href="{% url 'perfil' %}" class="active">Mi Perfil</a></li>
+      {% if tiene_usuario %}
+      <li><a href="{% url 'logout' %}">Cerrar Sesión</a></li>
       {% endif %}
-    </section>
-  </main>
+    </ul>
+  </aside>
 
-  <footer>
-    <p>&copy; 2025 Glam Store. Todos los derechos reservados.</p>
-  </footer>
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="header">
+      <h1>Perfil del Cliente</h1>
+    </div>
+
+    <!-- Mensaje para usuarios sin sesión -->
+    {% if sin_sesion %}
+    <div class="content-card" style="text-align: center; padding: 3rem 2rem;">
+      <h2 style="margin-bottom: 1.5rem;">Acceso al Perfil</h2>
+      <p style="font-size: 1.1rem; color: #666; margin-bottom: 2rem;">
+        Para acceder a tu perfil, necesitas:
+      </p>
+      <ul
+        style="list-style: none; padding: 0; margin-bottom: 2.5rem; text-align: left; max-width: 500px; margin-left: auto; margin-right: auto;">
+        <li style="padding: 0.8rem 0; border-bottom: 1px solid #f5f0fa;">
+          <strong style="color: #8b7a9b;">Opción 1:</strong> Hacer una compra (puedes comprar sin registrarte)
+        </li>
+        <li style="padding: 0.8rem 0;">
+          <strong style="color: #8b7a9b;">Opción 2:</strong> Crear una cuenta o iniciar sesión
+        </li>
+      </ul>
+      <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <a href="{% url 'tienda' %}"
+          style="background: linear-gradient(135deg, #d4c5e0 0%, #c5b3d4 100%); color: white; padding: 1rem 2rem; border-radius: 8px; text-decoration: none; font-weight: 500; box-shadow: 0 4px 12px rgba(212, 197, 224, 0.25); transition: all 0.3s;">
+          Ir a la Tienda
+        </a>
+        <a href="{% url 'registro' %}"
+          style="background: white; color: #8b7a9b; padding: 1rem 2rem; border-radius: 8px; text-decoration: none; font-weight: 500; border: 2px solid #d4c5e0; transition: all 0.3s;">
+          Registrarse
+        </a>
+        <a href="{% url 'login' %}"
+          style="background: white; color: #8b7a9b; padding: 1rem 2rem; border-radius: 8px; text-decoration: none; font-weight: 500; border: 2px solid #d4c5e0; transition: all 0.3s;">
+          Iniciar Sesión
+        </a>
+      </div>
+    </div>
+    {% else %}
+
+    <!-- Información Personal -->
+    <div class="content-card">
+      <h2>Información Personal</h2>
+      <div class="info-row">
+        <strong>Nombre:</strong>
+        <span>{{ cliente.nombre }}</span>
+      </div>
+      <div class="info-row">
+        <strong>Correo:</strong>
+        <span>{{ cliente.email }}</span>
+      </div>
+      <div class="info-row">
+        <strong>Teléfono:</strong>
+        <span>{{ cliente.telefono }}</span>
+      </div>
+      <div class="info-row">
+        <strong>Dirección:</strong>
+        <span>{{ cliente.direccion }}</span>
+      </div>
+
+      <h3>Últimos Pedidos</h3>
+      {% if pedidos %}
+      <ul class="pedidos-list">
+        {% for pedido in pedidos %}
+        <li>
+          <strong>Pedido #{{ pedido.idPedido }}</strong> —
+          {{ pedido.estado }} —
+          <strong>Total: ${{ pedido.total }}</strong>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p style="color: #999; font-style: italic;">No hay pedidos registrados.</p>
+      {% endif %}
+    </div>
+
+    <!-- Crear Usuario (solo para invitados) -->
+    {% if not tiene_usuario %}
+    <div class="alert-box">
+      <h2>Crea tu cuenta ahora</h2>
+
+      <div class="warning-box">
+        <p>Actualmente eres un cliente invitado</p>
+        <p>
+          Para poder hacer seguimiento de tus pedidos y acceder a tu historial en cualquier momento,
+          necesitas crear una contraseña. Sin una cuenta, no podrás consultar el estado de tus pedidos más adelante.
+        </p>
+      </div>
+
+      <p style="margin-bottom: 1rem; font-weight: 500; color: #666;">Crea tu contraseña ahora y tendrás acceso completo
+        a:</p>
+      <ul class="benefits-list">
+        <li>Seguimiento en tiempo real de tus pedidos</li>
+        <li>Historial completo de compras</li>
+        <li>Acceso desde cualquier dispositivo</li>
+        <li>Gestión de tu información personal</li>
+      </ul>
+
+      <form method="POST" action="{% url 'crear_usuario_desde_cliente' %}">
+        {% csrf_token %}
+        <div class="form-group">
+          <label>Correo (ya registrado):</label>
+          <input type="email" value="{{ cliente.email }}" readonly>
+        </div>
+        <div class="form-group">
+          <label>Crear contraseña:</label>
+          <input type="password" name="password" required minlength="6" placeholder="Mínimo 6 caracteres">
+        </div>
+        <div class="form-group">
+          <label>Confirmar contraseña:</label>
+          <input type="password" name="password_confirm" required minlength="6" placeholder="Repite tu contraseña">
+        </div>
+        <button type="submit" class="btn-primary">Crear mi cuenta ahora</button>
+      </form>
+    </div>
+    {% endif %}
+    {% endif %}
+
+    <footer>
+      <p>&copy; 2025 Glam Store. Todos los derechos reservados.</p>
+    </footer>
+  </div>
 </body>
+
 </html>
