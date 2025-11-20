@@ -501,35 +501,16 @@
 
   <!-- Toast Notification -->
   <div id="toast" class="toast-notification">
-    <div class="toast-content">
-      <h3>✅ ¡Producto agregado!</h3>
-      <p id="toast-message">El producto se ha añadido al carrito.</p>
-    </div>
-    <div class="toast-buttons">
-      <button class="toast-btn toast-btn-primary" onclick="window.location.href='{% url 'ver_carrito' %}'">Ir al
-        Carrito</button>
-      <button class="toast-btn toast-btn-secondary" onclick="closeToast()">Seguir Comprando</button>
-    </div>
-  </div>
-
-  <script>
     function incrementar(id, max) {
-      const input = document.getElementById('cantidad-' + id);
-      let valor = parseInt(input.value);
-      if (valor < max) {
-        input.value = valor + 1;
+    const input = document.getElementById('cantidad-' + id);
+    let valor = parseInt(input.value);
+    if (valor < max) { input.value=valor + 1; } } function decrementar(id) { const
+      input=document.getElementById('cantidad-' + id); let valor=parseInt(input.value); if (valor> 1) {
+      input.value = valor - 1;
       }
-    }
-
-    function decrementar(id) {
-      const input = document.getElementById('cantidad-' + id);
-      let valor = parseInt(input.value);
-      if (valor > 1) {
-        input.value = valor - 1;
       }
-    }
 
-    function showToast(message) {
+      function showToast(message) {
       const toast = document.getElementById('toast');
       const messageEl = document.getElementById('toast-message');
       messageEl.textContent = message;
@@ -537,49 +518,49 @@
 
       // Auto-hide after 10 seconds
       setTimeout(() => {
-        closeToast();
+      closeToast();
       }, 10000);
-    }
+      }
 
-    function closeToast() {
+      function closeToast() {
       const toast = document.getElementById('toast');
       toast.classList.remove('show');
-    }
+      }
 
-    // AJAX form submission
-    document.addEventListener('DOMContentLoaded', function () {
+      // AJAX form submission
+      document.addEventListener('DOMContentLoaded', function () {
       const forms = document.querySelectorAll('[data-ajax-form]');
 
       forms.forEach(form => {
-        form.addEventListener('submit', function (e) {
-          e.preventDefault();
+      form.addEventListener('submit', function (e) {
+      e.preventDefault();
 
-          const formData = new FormData(this);
-          const url = this.action;
+      const formData = new FormData(this);
+      const url = this.action;
 
-          fetch(url, {
-            method: 'POST',
-            body: formData,
-            headers: {
-              'X-Requested-With': 'XMLHttpRequest'
-            }
-          })
-            .then(response => response.json())
-            .then(data => {
-              if (data.success) {
-                showToast(data.message);
-              } else {
-                alert(data.message);
-              }
-            })
-            .catch(error => {
-              console.error('Error:', error);
-              alert('Ocurrio un error al agregar el producto.');
-            });
-        });
+      fetch(url, {
+      method: 'POST',
+      body: formData,
+      headers: {
+      'X-Requested-With': 'XMLHttpRequest'
+      }
+      })
+      .then(response => response.json())
+      .then(data => {
+      if (data.success) {
+      showToast(data.message);
+      } else {
+      alert(data.message);
+      }
+      })
+      .catch(error => {
+      console.error('Error:', error);
+      alert('Ocurrio un error al agregar el producto.');
       });
-    });
-  </script>
+      });
+      });
+      });
+      </script>
 
 </body>
 
