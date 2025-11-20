@@ -322,8 +322,16 @@
       <li><a href="{% url 'tienda' %}">Tienda</a></li>
       <li><a href="{% url 'ver_carrito' %}">Carrito</a></li>
       <li><a href="{% url 'perfil' %}" class="active">Mi Perfil</a></li>
-      {% if tiene_usuario %}
-      <li><a href="{% url 'logout' %}">Cerrar Sesión</a></li>
+      {% if not sin_sesion %}
+      <li>
+        <a href="{% url 'logout' %}">
+          {% if tiene_usuario %}
+          Cerrar Sesión
+          {% else %}
+          Cerrar Sesión de Invitado
+          {% endif %}
+        </a>
+      </li>
       {% endif %}
     </ul>
   </aside>
@@ -339,17 +347,8 @@
     <div class="content-card" style="text-align: center; padding: 3rem 2rem;">
       <h2 style="margin-bottom: 1.5rem;">Acceso al Perfil</h2>
       <p style="font-size: 1.1rem; color: #666; margin-bottom: 2rem;">
-        Para acceder a tu perfil, necesitas:
+        Para ver tu perfil, necesitas hacer un pedido, registrarte o iniciar sesión.
       </p>
-      <ul
-        style="list-style: none; padding: 0; margin-bottom: 2.5rem; text-align: left; max-width: 500px; margin-left: auto; margin-right: auto;">
-        <li style="padding: 0.8rem 0; border-bottom: 1px solid #f5f0fa;">
-          <strong style="color: #8b7a9b;">Opción 1:</strong> Hacer una compra (puedes comprar sin registrarte)
-        </li>
-        <li style="padding: 0.8rem 0;">
-          <strong style="color: #8b7a9b;">Opción 2:</strong> Crear una cuenta o iniciar sesión
-        </li>
-      </ul>
       <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
         <a href="{% url 'tienda' %}"
           style="background: linear-gradient(135deg, #d4c5e0 0%, #c5b3d4 100%); color: white; padding: 1rem 2rem; border-radius: 8px; text-decoration: none; font-weight: 500; box-shadow: 0 4px 12px rgba(212, 197, 224, 0.25); transition: all 0.3s;">
