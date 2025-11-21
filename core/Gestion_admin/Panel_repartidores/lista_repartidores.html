@@ -3,279 +3,318 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Panel de Repartidores</title>
+  <title>Panel de Repartidores | Glam Store</title>
+  <link rel="icon" href="{% static 'img/logoglam.png' %}">
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: "Comic Sans MS", cursive, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #fdf6f9;
-      display: flex;
-    }
-    .sidebar {
-      width: 220px;
-      background-color: #f7c5dd;
-      color: #4a4a4a;
-      height: 100vh;
-      position: fixed;
-      top: 0;
-      left: 0;
-      padding: 20px;
-      box-shadow: 2px 0 6px rgba(0,0,0,0.1);
-    }
-    .sidebar h2 {
-      font-size: 20px;
-      margin-bottom: 20px;
-    }
-    .sidebar a {
-      display: block;
-      margin-bottom: 12px;
-      text-decoration: none;
-      color: #4a4a4a;
-      font-weight: bold;
-    }
-    .main-content {
-      margin-left: 240px;
-      width: calc(100% - 240px);
-    }
-    header {
-      background-color: #f7c5dd;
-      color: #4a4a4a;
-      padding: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    header img {
-      height: 100px;
-    }
-    header h1 {
-      margin: 0;
-      font-size: 28px;
-    }
-    main {
-      padding: 40px;
-    }
-    .volver-btn, .btn-agregar {
-      margin-bottom: 20px;
-      padding: 10px 20px;
-      background-color: #ffd3e0;
-      border: none;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-      text-decoration: none;
-      color: #333;
-      display: inline-block;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background-color: #fff;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    th, td {
-      padding: 12px;
-      border: 1px solid #e0cce3;
-      text-align: left;
-    }
-    th {
-      background-color: #fceef5;
-      color: #5a5a5a;
-    }
-    .acciones a, .acciones button {
-      margin-right: 8px;
-      padding: 6px 12px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-      text-decoration: none;
-    }
-    .editar-btn {
-      background-color: #a8e6cf;
-      color: #333;
-    }
-    .eliminar-btn {
-      background-color: #ffaaa5;
-      color: #333;
-    }
-    .btn-pdf {
-      background-color: #b1d8ff;
-      color: #333;
-    }
-    .panel-container {
-      display: flex;
-      gap: 30px; /* Espacio entre las dos tablas */
-      flex-wrap: wrap; /* Para que se apilen en pantallas pequeñas */
-    }
-    .panel-repartidores, .panel-pedidos-pendientes, .panel-pedidos-asignados {
-      background-color: #a8e6cf;
-      color: #333;
-    }
-    .eliminar-btn {
-      background-color: #ffaaa5;
-      color: #333;
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { margin: 0; font-family: 'Comic Neue', cursive, Arial, sans-serif; background-color: #fffafc; display: flex; min-height: 100vh; }
+    
+    /* SIDEBAR */
+    .sidebar { background-color: #fce4ec; padding: 2rem; width: 240px; height: 100vh; position: fixed; display: flex; flex-direction: column; border-right: 2px solid #f8bbd0; box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1); z-index: 1000; overflow-y: auto; }
+    .sidebar-header { text-align: center; margin-bottom: 2rem; }
+    .sidebar-header h2 { color: #ad1457; font-size: 1.8rem; margin-bottom: 0.5rem; }
+    .sidebar-header p { color: #d81b60; font-size: 0.9rem; }
+    .sidebar-user { background-color: #fff; padding: 1rem; border-radius: 10px; margin-bottom: 1.5rem; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05); text-align: center; border: 2px solid #f8bbd0; }
+    .sidebar-user p { margin: 0.3rem 0; color: #c2185b; font-weight: bold; font-size: 1rem; }
+    .sidebar-user .rol { font-size: 0.85rem; color: #d81b60; font-weight: normal; }
+    .sidebar-nav { flex: 1; }
+    .sidebar a { display: block; margin: 0.5rem 0; color: #880e4f; text-decoration: none; font-weight: bold; padding: 0.8rem 1rem; border-radius: 25px; transition: all 0.3s ease; }
+    .sidebar a:hover, .sidebar a.active { background-color: #f8bbd0; color: #fff; }
+    .sidebar-footer { margin-top: auto; padding-top: 1rem; border-top: 2px solid #f8bbd0; }
+    
+    /* MAIN CONTENT */
+    .main-content { margin-left: 240px; padding: 2rem 3rem; width: calc(100% - 240px); flex: 1; }
+    .page-header { margin-bottom: 2rem; }
+    .page-header h1 { font-size: 2.2rem; color: #c2185b; border-bottom: 3px solid #f48fb1; padding-bottom: 0.5rem; margin-bottom: 1rem; }
+    .action-bar { margin-bottom: 2rem; display: flex; gap: 1rem; align-items: center; }
+    
+    /* BUTTONS */
+    .btn { padding: 0.8rem 1.5rem; border-radius: 25px; text-decoration: none; font-weight: bold; transition: all 0.3s ease; border: none; cursor: pointer; font-family: 'Comic Neue', cursive; font-size: 1rem; display: inline-block; }
+    .btn-primary { background: linear-gradient(135deg, #f48fb1 0%, #ec407a 100%); color: white; box-shadow: 0 4px 12px rgba(244, 143, 177, 0.3); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(244, 143, 177, 0.4); }
+    .btn-secondary { background: white; color: #c2185b; border: 2px solid #f48fb1; }
+    .btn-secondary:hover { background: #fce4ec; }
+    .btn-small { padding: 0.5rem 1rem; font-size: 0.85rem; }
+    
+    /* FILTROS */
+    .filtros { background: white; padding: 1.5rem; border-radius: 15px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07); margin-bottom: 2rem; }
+    .filtros h3 { color: #c2185b; margin-bottom: 1rem; font-size: 1.2rem; }
+    .filtros-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+    .filtro-item { display: flex; flex-direction: column; }
+    .filtro-item label { color: #c2185b; font-weight: bold; margin-bottom: 0.5rem; font-size: 0.9rem; }
+    .filtro-item select { padding: 0.6rem; border: 2px solid #f8bbd0; border-radius: 10px; font-family: 'Comic Neue', cursive; color: #c2185b; font-weight: bold; }
+    
+    /* GRID LAYOUT */
+    .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem; }
+    
+    /* CARDS */
+    .card { background: #fff; border-radius: 15px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07); overflow: hidden; }
+    .card-header { background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%); padding: 1.5rem; border-bottom: 2px solid #f48fb1; }
+    .card-header h2 { color: #ad1457; font-size: 1.5rem; margin: 0; }
+    .card-header .count { font-size: 0.9rem; color: #d81b60; margin-top: 0.3rem; }
+    .card-body { padding: 1.5rem; max-height: 500px; overflow-y: auto; }
+    
+    /* REPARTIDOR ITEM */
+    .repartidor-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem; margin-bottom: 1rem; background: #fffafc; border-radius: 10px; border-left: 4px solid #f48fb1; transition: all 0.3s ease; }
+    .repartidor-item:hover { transform: translateX(5px); box-shadow: 0 4px 15px rgba(244, 143, 177, 0.2); }
+    .repartidor-info { flex: 1; }
+    .repartidor-name { font-weight: bold; color: #c2185b; font-size: 1.1rem; margin-bottom: 0.3rem; }
+    .repartidor-details { font-size: 0.9rem; color: #666; }
+    .repartidor-actions { display: flex; gap: 0.5rem; }
+    
+    /* PEDIDO ITEM */
+    .pedido-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem; margin-bottom: 1rem; background: #fffafc; border-radius: 10px; border-left: 4px solid #4caf50; transition: all 0.3s ease; position: relative; }
+    .pedido-item:hover { transform: translateX(5px); box-shadow: 0 4px 15px rgba(76, 175, 80, 0.2); }
+    .pedido-checkbox { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); }
+    .pedido-checkbox input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; }
+    .pedido-info { flex: 1; margin-left: 2.5rem; }
+    .pedido-id { font-weight: bold; color: #2e7d32; font-size: 1.1rem; margin-bottom: 0.3rem; }
+    .pedido-details { font-size: 0.9rem; color: #666; margin-bottom: 0.2rem; }
+    .pedido-actions { display: flex; gap: 0.5rem; align-items: center; }
+    
+    /* ASIGNACIÓN MÚLTIPLE */
+    .asignacion-multiple { background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); padding: 1.5rem; border-radius: 15px; margin-bottom: 2rem; border-left: 6px solid #4caf50; }
+    .asignacion-multiple h3 { color: #2e7d32; margin-bottom: 1rem; font-size: 1.2rem; }
+    .asignacion-form { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+    .asignacion-form select { padding: 0.8rem; border: 2px solid #4caf50; border-radius: 10px; font-family: 'Comic Neue', cursive; color: #2e7d32; font-weight: bold; min-width: 200px; }
+    .asignacion-form button { padding: 0.8rem 1.5rem; border-radius: 25px; background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%); color: white; border: none; font-weight: bold; cursor: pointer; transition: all 0.3s ease; }
+    .asignacion-form button:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3); }
+    .asignacion-form button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .selected-count { color: #2e7d32; font-weight: bold; padding: 0.8rem; background: white; border-radius: 10px; }
+    
+    /* PEDIDO ASIGNADO */
+    .pedido-asignado { border-left-color: #ff9800; }
+    .pedido-asignado .pedido-id { color: #e65100; }
+    
+    /* BADGES */
+    .badge { display: inline-block; padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.75rem; font-weight: bold; }
+    .badge-success { background: #e8f5e9; color: #2e7d32; }
+    .badge-warning { background: #fff3e0; color: #e65100; }
+    .badge-danger { background: #ffebee; color: #c62828; }
+    
+    /* ACTION BUTTONS */
+    .editar-btn { background: #e8f5e9; color: #2e7d32; padding: 0.5rem 1rem; border-radius: 15px; text-decoration: none; font-weight: bold; font-size: 0.85rem; transition: all 0.3s ease; display: inline-block; }
+    .editar-btn:hover { background: #c8e6c9; transform: translateY(-1px); }
+    .eliminar-btn { background: #ffebee; color: #c62828; padding: 0.5rem 1rem; border-radius: 15px; font-weight: bold; font-size: 0.85rem; border: none; cursor: pointer; transition: all 0.3s ease; }
+    .eliminar-btn:hover { background: #ffcdd2; transform: translateY(-1px); }
+    .desasignar-btn { background: #fff3e0; color: #e65100; padding: 0.5rem 1rem; border-radius: 15px; font-weight: bold; font-size: 0.85rem; border: none; cursor: pointer; transition: all 0.3s ease; }
+    .desasignar-btn:hover { background: #ffe0b2; transform: translateY(-1px); }
+    .btn-pdf { background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); color: white; padding: 0.5rem 1rem; border-radius: 15px; text-decoration: none; font-weight: bold; font-size: 0.85rem; transition: all 0.3s ease; display: inline-block; }
+    .btn-pdf:hover { background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3); }
+    
+    /* EMPTY STATE */
+    .empty-state { text-align: center; padding: 3rem; color: #999; }
+    .empty-state p { font-size: 1.1rem; margin-bottom: 0.5rem; }
+    .empty-state small { font-size: 0.9rem; }
+    
+    /* RESPONSIVE */
+    @media (max-width: 1024px) { .dashboard-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 768px) { 
+      .sidebar { width: 100%; height: auto; position: relative; } 
+      .main-content { margin-left: 0; padding: 2rem; width: 100%; }
+      .repartidor-item, .pedido-item { flex-direction: column; align-items: flex-start; }
+      .repartidor-actions, .pedido-actions { margin-top: 1rem; width: 100%; }
     }
   </style>
-  <style>
-    .panel-repartidores, .panel-pedidos-pendientes, .panel-pedidos-asignados {
-        background-color: #fff; /* Fondo blanco para los paneles */
-    }
-  </style>
-  <script>
-    function volverDashboard() {
-      window.location.href = "/gestion/dashboard/admin/";
-    }
-  </script>
 </head>
 <body>
   <div class="sidebar">
-    <h2>Menú</h2>
-    <h2>Admin Glam</h2>
+    <div class="sidebar-header">
+      <h2>Admin Glam</h2>
+      <p>Panel de Control</p>
+    </div>
     <div class="sidebar-user">
       <p>{{ request.session.usuario_nombre }}</p>
-      <p class="rol">Perfil: Administrador</p>
+      <p class="rol">Administrador</p>
     </div>
-    <a href="{% url 'lista_admin' %}">👤 Mi Perfil</a>
-    <a href="{% url 'lista_clientes' %}">💄 Panel Cliente</a>
-    <a href="{% url 'lista_distribuidores' %}">🚚 Panel Distribuidores</a>
-    <a href="{% url 'lista_pedidos' %}">📋 Panel Pedidos</a>
-    <a href="{% url 'lista_productos' %}">🛍️ Panel Productos</a>
-    <a href="{% url 'lista_repartidores' %}">🛵 Panel Repartidores</a> 
-    <a href="{% url 'lista_categorias' %}">🎨 Panel Categorías</a>
-    <a href="{% url 'lista_subcategorias' %}">✨ Panel Subcategorías</a>
-    <a href="{% url 'lista_admin' %}">🛠️ Panel Administradores</a>
-    <a href="{% url 'logout' %}">🔓 Cerrar sesión</a>
+    <div class="sidebar-nav">
+      <a href="{% url 'dashboard_admin' %}">Dashboard</a>
+      <a href="{% url 'lista_admin' %}">Mi Perfil</a>
+      <a href="{% url 'notificaciones' %}">🔔 Notificaciones</a>
+      <a href="{% url 'lista_clientes' %}">Clientes</a>
+      <a href="{% url 'lista_distribuidores' %}">Distribuidores</a>
+      <a href="{% url 'lista_pedidos' %}">Pedidos</a>
+      <a href="{% url 'lista_productos' %}">Productos</a>
+      <a href="{% url 'lista_repartidores' %}" class="active">Repartidores</a>
+      <a href="{% url 'lista_categorias' %}">Categorías</a>
+      <a href="{% url 'lista_subcategorias' %}">Subcategorías</a>
+    </div>
+    <div class="sidebar-footer">
+      <a href="{% url 'logout' %}">Cerrar Sesión</a>
+    </div>
   </div>
 
   <div class="main-content">
-    <header>
-      <h1>Panel de Repartidores</h1>
-      <img src="{% static 'img/logoglam.png' %}" alt="Logo GlamStore">
-    </header>
-    <main>
-      <div class="top-bar">
-        <button class="volver-btn" onclick="volverDashboard()">← Volver al Dashboard</button>
-        <a href="{% url 'repartidor_agregar' %}" class="btn-agregar">➕ Agregar Repartidor</a>
-      </div>
+    <div class="page-header">
+      <h1>Gestión de Repartidores y Asignación de Pedidos</h1>
+    </div>
 
-      <div class="panel-container">
-        <div class="panel-repartidores" style="flex: 1;">
-          <h2>Lista de Repartidores</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Teléfono</th>
-                <th>Estado del Turno</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for repartidor in repartidores %}
-              <tr>
-                <td>{{ repartidor.idRepartidor }}</td>
-                <td>{{ repartidor.nombreRepartidor }}</td>
-                <td>{{ repartidor.telefono }}</td>
-                <td>{{ repartidor.estado_turno }}</td>
-                <td class="acciones">
-                  <a href="{% url 'repartidor_editar' repartidor.idRepartidor %}" class="editar-btn">Editar</a>
-                  <form method="POST" action="{% url 'repartidor_eliminar' repartidor.idRepartidor %}" style="display:inline;">
-                    {% csrf_token %}
-                    <button type="submit" class="eliminar-btn" onclick="return confirm('¿Estás seguro de que deseas eliminar a este repartidor?');">Eliminar</button>
-                  </form>
-                </td>
-              </tr>
-              {% empty %}
-              <tr><td colspan="5">No hay repartidores registrados.</td></tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
+    <div class="action-bar">
+      <a href="{% url 'dashboard_admin' %}" class="btn btn-secondary">← Volver</a>
+      <a href="{% url 'repartidor_agregar' %}" class="btn btn-primary">+ Agregar Repartidor</a>
+    </div>
 
-        <div class="panel-pedidos-pendientes" style="flex: 1;">
-          <h2>Pedidos Pendientes de Asignación</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>ID Pedido</th>
-                <th>Cliente</th>
-                <th>Total</th>
-                <th>Asignar a</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for pedido in pedidos_pendientes %}
-              <tr>
-                <td>{{ pedido.idPedido }}</td>
-                <td>{{ pedido.idCliente.nombre }}</td>
-                <td>${{ pedido.total }}</td>
-                <td>
-                  <form method="POST" action="{% url 'asignar_pedido_repartidor' %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="pedido_id" value="{{ pedido.idPedido }}">
-                    <select name="repartidor_id" required>
-                      <option value="">Selecciona un repartidor</option>
-                      {% for repartidor in repartidores %} {# Usamos todos los repartidores para el dropdown #}
-                        {% if repartidor.estado_turno == 'Disponible' %}
-                          <option value="{{ repartidor.idRepartidor }}">{{ repartidor.nombreRepartidor }}</option>
-                        {% endif %}
-                      {% endfor %}
-                    </select>
-                    <button type="submit" class="btn-asignar">Asignar</button>
-                  </form>
-                </td>
-              </tr>
-              {% empty %}
-              <tr><td colspan="4">No hay pedidos pendientes de asignación.</td></tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="panel-pedidos-asignados" style="margin-top: 30px;">
-        <h2>Seguimiento de Pedidos Asignados</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>ID Pedido</th>
-              <th>Cliente</th>
-              <th>Repartidor Asignado</th>
-              <th>Estado del Pedido</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for pedido in pedidos_asignados %}
-            <tr>
-              <td>{{ pedido.idPedido }}</td>
-              <td>{{ pedido.idCliente.nombre }}</td>
-              <td>{{ pedido.idRepartidor.nombreRepartidor }}</td>
-              <td>{{ pedido.estado }}</td>
-              <td class="acciones">
-                <a href="{% url 'detalle_pedido' pedido.idPedido %}" class="btn-detalle">Ver Detalle</a>
-                <a href="{% url 'descargar_pedido_pdf' pedido.idPedido %}" class="btn-pdf" target="_blank">Descargar PDF</a>
-                <form method="POST" action="{% url 'desasignar_repartidor' pedido.idPedido %}" style="display:inline;">
-                    {% csrf_token %}
-                    <button type="submit" class="eliminar-btn" onclick="return confirm('¿Estás seguro de que deseas quitar la asignación de este repartidor?');">Quitar Asignación</button>
-                </form>
-              </td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="5">No hay pedidos asignados en este momento.</td>
-            </tr>
+    <!-- FILTROS -->
+    <div class="filtros">
+      <h3>🔍 Filtrar Pedidos</h3>
+      <form method="GET" class="filtros-grid">
+        <div class="filtro-item">
+          <label for="filtro_repartidor">Por Repartidor:</label>
+          <select name="repartidor" id="filtro_repartidor" onchange="this.form.submit()">
+            <option value="">Todos los repartidores</option>
+            {% for repartidor in repartidores %}
+              <option value="{{ repartidor.idRepartidor }}" {% if request.GET.repartidor == repartidor.idRepartidor|stringformat:"s" %}selected{% endif %}>
+                {{ repartidor.nombreRepartidor }} ({{ repartidor.pedidos_count }} pedidos)
+              </option>
             {% endfor %}
-          </tbody>
-        </table>
+          </select>
+        </div>
+        <div class="filtro-item">
+          <label for="filtro_estado">Por Estado:</label>
+          <select name="estado" id="filtro_estado" onchange="this.form.submit()">
+            <option value="">Todos los estados</option>
+            <option value="pendiente" {% if request.GET.estado == 'pendiente' %}selected{% endif %}>Pendientes</option>
+            <option value="asignado" {% if request.GET.estado == 'asignado' %}selected{% endif %}>Asignados</option>
+          </select>
+        </div>
+        {% if request.GET.repartidor or request.GET.estado %}
+        <div class="filtro-item" style="display: flex; align-items: flex-end;">
+          <a href="{% url 'lista_repartidores' %}" class="btn btn-secondary btn-small">Limpiar Filtros</a>
+        </div>
+        {% endif %}
+      </form>
+    </div>
+
+    <div class="dashboard-grid">
+      <!-- REPARTIDORES DISPONIBLES -->
+      <div class="card">
+        <div class="card-header">
+          <h2>Repartidores</h2>
+          <div class="count">Total: {{ repartidores.count }}</div>
+        </div>
+        <div class="card-body">
+          {% for repartidor in repartidores %}
+            <div class="repartidor-item">
+              <div class="repartidor-info">
+                <div class="repartidor-name">{{ repartidor.nombreRepartidor }}</div>
+                <div class="repartidor-details">
+                  📱 {{ repartidor.telefono }} | 
+                  <span class="badge {% if repartidor.estado_turno == 'Disponible' %}badge-success{% elif repartidor.estado_turno == 'En Ruta' %}badge-warning{% else %}badge-danger{% endif %}">
+                    {{ repartidor.estado_turno }}
+                  </span>
+                  | 📦 {{ repartidor.pedidos_count }} pedidos
+                </div>
+              </div>
+              <div class="repartidor-actions">
+                <a href="?repartidor={{ repartidor.idRepartidor }}" class="btn btn-secondary btn-small">Ver Pedidos</a>
+                <a href="{% url 'repartidor_editar' repartidor.idRepartidor %}" class="editar-btn">Editar</a>
+                <form method="POST" action="{% url 'repartidor_eliminar' repartidor.idRepartidor %}" style="display: inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="eliminar-btn" onclick="return confirm('¿Eliminar este repartidor?');">Eliminar</button>
+                </form>
+              </div>
+            </div>
+          {% empty %}
+            <div class="empty-state">
+              <p>No hay repartidores registrados</p>
+              <small>Agrega un repartidor para comenzar</small>
+            </div>
+          {% endfor %}
+        </div>
       </div>
-    </main>
+
+      <!-- PEDIDOS PENDIENTES DE ASIGNACIÓN -->
+      <div class="card">
+        <div class="card-header">
+          <h2>Pedidos Pendientes de Asignación</h2>
+          <div class="count">Pendientes: {{ pedidos_pendientes.count }}</div>
+        </div>
+        <div class="card-body">
+          <!-- ASIGNACIÓN MÚLTIPLE -->
+          {% if pedidos_pendientes %}
+          <div class="asignacion-multiple">
+            <h3>Asignar Múltiples Pedidos</h3>
+            <form method="POST" action="{% url 'asignar_pedidos_multiples' %}" id="formAsignacionMultiple">
+              {% csrf_token %}
+              <div class="asignacion-form">
+                <span class="selected-count">Seleccionados: <span id="countSelected">0</span></span>
+                <select name="repartidor_id" required>
+                  <option value="">Seleccionar Repartidor...</option>
+                  {% for repartidor in repartidores %}
+                    <option value="{{ repartidor.idRepartidor }}">{{ repartidor.nombreRepartidor }}</option>
+                  {% endfor %}
+                </select>
+                <button type="submit" id="btnAsignarMultiple" disabled>Asignar Seleccionados</button>
+              </div>
+            </form>
+          </div>
+          {% endif %}
+          
+          {% for pedido in pedidos_pendientes %}
+            <div class="pedido-item">
+              <div class="pedido-checkbox">
+                <input type="checkbox" name="pedido_ids" value="{{ pedido.idPedido }}" form="formAsignacionMultiple" onchange="updateSelectedCount()">
+              </div>
+              <div class="pedido-info">
+                <div class="pedido-id">Pedido #{{ pedido.idPedido }}</div>
+                <div class="pedido-details">👤 {{ pedido.idCliente.nombre }}</div>
+                <div class="pedido-details">📅 {{ pedido.fechaCreacion|date:"d/m/Y H:i" }} | 💰 ${{ pedido.total }}</div>
+                <div class="pedido-details">Estado: <span class="badge badge-warning">{{ pedido.estado }}</span></div>
+              </div>
+            </div>
+          {% empty %}
+            <div class="empty-state">
+              <p>✅ No hay pedidos pendientes</p>
+              <small>Todos los pedidos están asignados</small>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- PEDIDOS ASIGNADOS -->
+    <div class="card">
+      <div class="card-header">
+        <h2>Pedidos Asignados</h2>
+        <div class="count">Total: {{ pedidos_asignados.count }}</div>
+      </div>
+      <div class="card-body">
+        {% for pedido in pedidos_asignados %}
+          <div class="pedido-item pedido-asignado">
+            <div class="pedido-info">
+              <div class="pedido-id">Pedido #{{ pedido.idPedido }}</div>
+              <div class="pedido-details">👤 Cliente: {{ pedido.idCliente.nombre }}</div>
+              <div class="pedido-details">🚚 Repartidor: <strong>{{ pedido.idRepartidor.nombreRepartidor }}</strong></div>
+              <div class="pedido-details">📅 {{ pedido.fechaCreacion|date:"d/m/Y H:i" }} | 💰 ${{ pedido.total }}</div>
+              <div class="pedido-details">Estado: <span class="badge badge-warning">{{ pedido.estado }}</span></div>
+            </div>
+            <div class="pedido-actions">
+              <a href="{% url 'detalle_pedido' pedido.idPedido %}" class="btn btn-secondary btn-small">Ver Detalle</a>
+              <a href="{% url 'descargar_pdf_asignacion' pedido.idPedido %}" class="btn-pdf" target="_blank">📄 PDF</a>
+              <form method="POST" action="{% url 'desasignar_repartidor' pedido.idPedido %}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="desasignar-btn" onclick="return confirm('¿Desasignar repartidor de este pedido?');">Desasignar</button>
+              </form>
+            </div>
+          </div>
+        {% empty %}
+          <div class="empty-state">
+            <p>No hay pedidos asignados</p>
+            <small>Los pedidos asignados aparecerán aquí</small>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
   </div>
+
+  <script>
+    function updateSelectedCount() {
+      const checkboxes = document.querySelectorAll('input[name="pedido_ids"]:checked');
+      const count = checkboxes.length;
+      document.getElementById('countSelected').textContent = count;
+      document.getElementById('btnAsignarMultiple').disabled = count === 0;
+    }
+  </script>
 </body>
 </html>

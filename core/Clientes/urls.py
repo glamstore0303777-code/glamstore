@@ -29,4 +29,6 @@ urlpatterns = [
     path('crear-usuario-desde-cliente/', views.crear_usuario_desde_cliente, name='crear_usuario_desde_cliente'),
     path('pedido_confirmado/<int:idPedido>/', views.pedido_confirmado, name='pedido_confirmado'),
     path('ver_seguimiento/<int:idPedido>/', views.ver_seguimiento, name='ver_seguimiento'),
+    path('confirmar_recepcion/<int:idPedido>/', views.confirmar_recepcion_pedido, name='confirmar_recepcion'),
+    path('reportar_problema/<int:idPedido>/', views.reportar_problema_entrega, name='reportar_problema'),
 ]

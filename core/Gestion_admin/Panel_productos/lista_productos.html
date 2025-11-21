@@ -3,143 +3,212 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Panel de Productos</title>
+  <title>Panel de Productos — Glam Store</title>
+  <link rel="icon" href="{% static 'img/logoglam.png' %}">
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: "Comic Sans MS", cursive, sans-serif;
+    * {
       margin: 0;
       padding: 0;
-      background-color: #fdf6f9;
-      display: flex;
+      box-sizing: border-box;
     }
+
+    body {
+      margin: 0;
+      font-family: 'Comic Neue', cursive, Arial, sans-serif;
+      background-color: #fffafc;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
     .sidebar {
-      width: 220px;
-      background-color: #f7c5dd;
-      color: #4a4a4a;
+      background-color: #fce4ec;
+      padding: 2rem;
+      width: 240px;
       height: 100vh;
       position: fixed;
-      top: 0;
-      left: 0;
-      padding: 20px;
-      box-shadow: 2px 0 6px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      border-right: 2px solid #f8bbd0;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      overflow-y: auto;
     }
-    .sidebar h2 {
-      font-size: 20px;
-      margin-bottom: 20px;
+
+    .sidebar-header {
+      text-align: center;
+      margin-bottom: 2rem;
     }
+
+    .sidebar-header h2 {
+      color: #ad1457;
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .sidebar-header p {
+      color: #d81b60;
+      font-size: 0.9rem;
+    }
+
+    .sidebar-user {
+      background-color: #fff;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      text-align: center;
+      border: 2px solid #f8bbd0;
+    }
+
+    .sidebar-user p {
+      margin: 0.3rem 0;
+      color: #c2185b;
+      font-weight: bold;
+      font-size: 1rem;
+    }
+
+    .sidebar-user .rol {
+      font-size: 0.85rem;
+      color: #d81b60;
+      font-weight: normal;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+    }
+
     .sidebar a {
       display: block;
-      margin-bottom: 12px;
+      margin: 0.5rem 0;
+      color: #880e4f;
       text-decoration: none;
-      color: #4a4a4a;
       font-weight: bold;
+      padding: 0.8rem 1rem;
+      border-radius: 25px;
+      transition: all 0.3s ease;
     }
-    .sidebar a:hover {
-      text-decoration: underline;
+
+    .sidebar a:hover,
+    .sidebar a.active {
+      background-color: #f8bbd0;
+      color: #fff;
     }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding-top: 1rem;
+      border-top: 2px solid #f8bbd0;
+    }
+
+    /* Main Content */
     .main-content {
       margin-left: 240px;
-      width: calc(100% - 240px);
+      padding: 2rem 5rem;
+      width: calc(100% - 240px - 10rem);
+      flex: 1;
     }
 
-    header {
-      background-color: #f7c5dd;
-      color: #4a4a4a;
-      padding: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    .page-header {
+      margin-bottom: 2rem;
     }
 
-    header img {
-      height: 100px;
+    .page-header h1 {
+      font-size: 2.2rem;
+      color: #c2185b;
+      border-bottom: 3px solid #f48fb1;
+      padding-bottom: 0.5rem;
+      margin-bottom: 1rem;
     }
 
-    header h1 {
-      margin: 0;
-      font-size: 28px;
-    }
-
-    main {
-      padding: 40px;
-    }
-
-    .volver-btn, .btn-agregar {
-      margin-bottom: 20px;
-      padding: 10px 20px;
-      background-color: #ffd3e0;
-      border: none;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      text-decoration: none; /* Para el botón de agregar */
-      color: #333; /* Para el botón de agregar */
-      display: inline-block; /* Para el botón de agregar */
-    }
-
-    .volver-btn:hover, .btn-agregar:hover {
-      background-color: #fbb1c8;
-      transform: scale(1.03);
-    }
-
-    .top-bar {
+    /* Action Bar */
+    .action-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 25px;
+      margin-bottom: 2rem;
       flex-wrap: wrap;
-      gap: 20px;
+      gap: 1rem;
+    }
+
+    .btn {
+      padding: 0.8rem 1.5rem;
+      border-radius: 25px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+      font-family: 'Comic Neue', cursive, Arial, sans-serif;
+      font-size: 1rem;
+      display: inline-block;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #f48fb1 0%, #ec407a 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(244, 143, 177, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(244, 143, 177, 0.4);
+      background: linear-gradient(135deg, #ec407a 0%, #d81b60 100%);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #c2185b;
+      border: 2px solid #f48fb1;
+    }
+
+    .btn-secondary:hover {
+      background: #fce4ec;
+    }
+
+    .filter-form {
+      display: flex;
+      gap: 0.5rem;
     }
 
     .filter-form select {
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px solid #e0cce3;
-      background-color: #fff;
-      font-family: "Comic Sans MS", cursive, sans-serif;
-      font-weight: bold;
-      color: #333;
+      padding: 0.8rem 1rem;
+      border: 2px solid #f8bbd0;
+      border-radius: 25px;
+      font-family: 'Comic Neue', cursive, Arial, sans-serif;
+      font-size: 1rem;
+      background: white;
+      color: #666;
     }
 
-    .filter-form button {
-      padding: 10px 20px;
-      background-color: #a8e6cf;
-      border: none;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    /* Estilos para la cuadrícula de productos */
+    /* Product Grid */
     .product-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 25px;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 2rem;
     }
 
     .product-card {
-      background-color: #fff;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
       overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      transition: all 0.3s ease;
     }
 
     .product-card:hover {
       transform: translateY(-5px);
-      box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+      box-shadow: 0 6px 20px rgba(244, 143, 177, 0.2);
     }
 
     .product-image {
       height: 200px;
-      background-color: #fceef5;
+      background-color: #fffafc;
       display: flex;
       align-items: center;
       justify-content: center;
+      border-bottom: 2px solid #fce4ec;
     }
 
     .product-image img {
@@ -149,171 +218,196 @@
     }
 
     .no-image {
-      color: #b39db1;
+      color: #f48fb1;
       font-weight: bold;
     }
 
     .product-info {
-      padding: 15px;
-      flex-grow: 1;
+      padding: 1.5rem;
     }
 
     .product-info h3 {
-      margin: 0 0 5px 0;
-      font-size: 18px;
-      color: #333;
+      margin: 0 0 0.5rem 0;
+      font-size: 1.2rem;
+      color: #c2185b;
+    }
+
+    .product-category {
+      color: #999;
+      font-size: 0.9rem;
+      margin-bottom: 0.8rem;
     }
 
     .product-details {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 10px;
-      font-size: 16px;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #fce4ec;
     }
 
     .product-price {
       font-weight: bold;
-      color: #d16b8a;
+      color: #ad1457;
+      font-size: 1.2rem;
     }
 
     .product-stock {
-      color: #888;
-    }
-
-    .acciones a, .acciones button {
-      margin-right: 8px;
-      padding: 6px 12px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: all 0.2s ease;
-      text-decoration: none; /* Para los enlaces */
-      flex-grow: 1;
-      text-align: center;
-    }
-    
-    .movimientos-btn {
-      background-color: #e0e7ff; /* Azul-lavanda muy claro */
-      color: #3730a3;
+      color: #666;
+      font-size: 0.9rem;
     }
 
     .product-actions {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
       gap: 1px;
-      border-top: 1px solid #fceef5;
-      background-color: #fffafc;
-      padding: 0;
+      background-color: #fce4ec;
     }
 
-    .product-actions a, .product-actions button {
-      padding: 12px 5px;
+    .product-actions a,
+    .product-actions button {
+      padding: 0.8rem;
       text-align: center;
       text-decoration: none;
       font-weight: bold;
-      font-size: 14px;
+      font-size: 0.9rem;
       border: none;
       cursor: pointer;
-      transition: background-color 0.2s ease-in-out;
+      transition: all 0.3s ease;
+      background: white;
+      color: #666;
+    }
+
+    .product-actions a:hover,
+    .product-actions button:hover {
+      background: #fffafc;
+      color: #c2185b;
+    }
+
+    .detalle-btn {
+      color: #7b1fa2;
     }
 
     .editar-btn {
-      background-color: #dcfce7; /* Verde menta claro */
-      color: #166534;
+      color: #2e7d32;
     }
-    .editar-btn:hover { background-color: #bbf7d0; }
 
     .eliminar-btn {
-      background-color: #fee2e2; /* Rojo muy claro */
-      color: #991b1b;
+      color: #c62828;
     }
-    .eliminar-btn:hover { background-color: #fecaca; }
 
-    .movimientos-btn:hover { background-color: #c7d2fe; }
+    .movimientos-btn {
+      color: #1565c0;
+    }
 
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+
+      .main-content {
+        margin-left: 0;
+        padding: 2rem;
+        width: 100%;
+      }
+
+      .product-grid {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
-  <script>
-    function volverDashboard() {
-      window.location.href = "/gestion/dashboard/admin/";
-    }
-  </script>
 </head>
 <body>
   <div class="sidebar">
-    <h2>Menú</h2>
-    <h2>Admin Glam</h2>
+    <div class="sidebar-header">
+      <h2>Admin Glam</h2>
+      <p>Panel de Control</p>
+    </div>
+
     <div class="sidebar-user">
       <p>{{ request.session.usuario_nombre }}</p>
-      <p class="rol">Perfil: Administrador</p>
+      <p class="rol">Administrador</p>
     </div>
-    <a href="{% url 'lista_admin' %}">👤 Mi Perfil</a>
-    <a href="{% url 'lista_clientes' %}">💄 Panel Cliente</a>
-    <a href="{% url 'lista_distribuidores' %}">🚚 Panel Distribuidores</a>
-    <a href="{% url 'lista_pedidos' %}">📋 Panel Pedidos</a>
-    <a href="{% url 'lista_productos' %}">🛍️ Panel Productos</a>
-      <a href="{% url 'lista_categorias' %}">🎨 Panel Categorías</a>
-    <a href="{% url 'lista_subcategorias' %}">✨ Panel Subcategorías</a>
-    <a href="{% url 'lista_repartidores' %}">🛵 Panel Repartidores</a>
-    <a href="{% url 'logout' %}">🔓 Cerrar sesión</a>
+
+    <div class="sidebar-nav">
+      <a href="{% url 'dashboard_admin' %}">Dashboard</a>
+      <a href="{% url 'lista_admin' %}">Mi Perfil</a>
+      <a href="{% url 'lista_clientes' %}">Clientes</a>
+      <a href="{% url 'lista_distribuidores' %}">Distribuidores</a>
+      <a href="{% url 'lista_pedidos' %}">Pedidos</a>
+      <a href="{% url 'lista_productos' %}" class="active">Productos</a>
+      <a href="{% url 'lista_repartidores' %}">Repartidores</a>
+      <a href="{% url 'lista_categorias' %}">Categorías</a>
+      <a href="{% url 'lista_subcategorias' %}">Subcategorías</a>
+    </div>
+
+    <div class="sidebar-footer">
+      <a href="{% url 'logout' %}">Cerrar Sesión</a>
+    </div>
   </div>
 
   <div class="main-content">
-    <header>
-      <h1>Panel de Productos</h1>
-      <img src="{% static 'img/logoglam.png' %}" alt="Logo GlamStore">
-    </header>
-    <main>
-      <div class="top-bar">
-        <div class="actions-left">
-          <button class="volver-btn" onclick="volverDashboard()">← Volver al Dashboard</button>
-          <a href="{% url 'producto_agregar' %}" class="btn-agregar">➕ Agregar Producto</a>
+    <div class="page-header">
+      <h1>Gestión de Productos</h1>
+    </div>
+
+    <div class="action-bar">
+      <div>
+        <a href="{% url 'dashboard_admin' %}" class="btn btn-secondary">← Volver</a>
+        <a href="{% url 'producto_agregar' %}" class="btn btn-primary">Agregar Producto</a>
+      </div>
+      <form method="GET" action="{% url 'lista_productos' %}" class="filter-form">
+        <select name="categoria">
+          <option value="">Todas las categorías</option>
+          {% for categoria in categorias %}
+            <option value="{{ categoria.idCategoria }}" {% if categoria.idCategoria == categoria_seleccionada_id %}selected{% endif %}>
+              {{ categoria.nombreCategoria }}
+            </option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+      </form>
+    </div>
+
+    <div class="product-grid">
+      {% for producto in productos %}
+      <div class="product-card">
+        <div class="product-image">
+          {% if producto.imagen %}
+            <img src="{{ producto.imagen.url }}" alt="{{ producto.nombreProducto }}">
+          {% else %}
+            <div class="no-image">Sin Imagen</div>
+          {% endif %}
         </div>
-        <div class="actions-right">
-          <form method="GET" action="{% url 'lista_productos' %}" class="filter-form">
-            <select name="categoria">
-              <option value="">Todas las categorías</option>
-              {% for categoria in categorias %}
-                <option value="{{ categoria.idCategoria }}" {% if categoria.idCategoria == categoria_seleccionada_id %}selected{% endif %}>{{ categoria.nombreCategoria }}</option>
-              {% endfor %}
-            </select>
-            <button type="submit">Filtrar</button>
+        <div class="product-info">
+          <h3>{{ producto.nombreProducto }}</h3>
+          <p class="product-category">{{ producto.idCategoria.nombreCategoria }}</p>
+          <div class="product-details">
+            <span class="product-price">${{ producto.precio }}</span>
+            <span class="product-stock">Stock: {{ producto.stock }}</span>
+          </div>
+        </div>
+        <div class="product-actions">
+          <a href="{% url 'producto_detalle' producto.idProducto %}" class="detalle-btn">Ver Detalle</a>
+          <a href="{% url 'producto_editar' producto.idProducto %}" class="editar-btn">Editar</a>
+          <a href="{% url 'movimientos_producto' producto.idProducto %}" class="movimientos-btn">Movimientos</a>
+          <form method="POST" action="{% url 'producto_eliminar' producto.idProducto %}" style="display: contents;">
+            {% csrf_token %}
+            <button type="submit" class="eliminar-btn" onclick="return confirm('¿Estás seguro de eliminar este producto?');">
+              Eliminar
+            </button>
           </form>
         </div>
       </div>
-      <div class="product-grid">
-          {% for producto in productos %}
-          <div class="product-card">
-            <div class="product-image">
-                {% if producto.imagen %}
-                    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombreProducto }}">
-                {% else %}
-                    <div class="no-image">Sin Imagen</div>
-                {% endif %}
-            </div>
-            <div class="product-info">
-                <h3>{{ producto.nombreProducto }}</h3>
-                <p style="color: #999; font-size: 14px; margin: 5px 0;">{{ producto.idCategoria.nombreCategoria }}</p>
-                <div class="product-details">
-                    <span class="product-price">${{ producto.precio }}</span>
-                    <span class="product-stock">Stock: {{ producto.stock }}</span>
-                </div>
-            </div>
-            <div class="product-actions">
-              <a href="{% url 'producto_editar' producto.idProducto %}" class="editar-btn">Editar</a> {# Botón Editar #}
-              <a href="{% url 'movimientos_producto' producto.idProducto %}" class="movimientos-btn">Movimientos</a> {# Botón Movimientos #}
-              <form method="POST" action="{% url 'producto_eliminar' producto.idProducto %}" style="display: contents;"> {# Formulario para Eliminar #}
-                {% csrf_token %}
-                <button type="submit" class="eliminar-btn" onclick="return confirm('¿Estás seguro de que deseas eliminar este producto?');">Eliminar</button>
-              </form>
-            </div>
-          </div>
-          {% empty %}
-          <p>No hay productos registrados.</p>
-          {% endfor %}
+      {% empty %}
+      <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: #999;">
+        <p style="font-size: 1.2rem;">No hay productos registrados</p>
       </div>
-    </main>
+      {% endfor %}
+    </div>
   </div>
 </body>
 </html>

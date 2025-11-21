@@ -90,14 +90,45 @@ def perfil(request):
         else:
             return render(request, 'perfil.html', {'sin_sesion': True})
 
+    # Verificar y actualizar pedidos automáticamente
+    from django.utils import timezone
+    from datetime import timedelta
+    
+    pedidos_en_camino = Pedido.objects.filter(
+        idCliente=cliente.idCliente,
+        estado='En Camino'
+    )
+    
+    ahora = timezone.now()
+    for pedido in pedidos_en_camino:
+        # Calcular fecha de entrega
+        direccion_lower = (cliente.direccion or "").lower()
+        if 'soacha' in direccion_lower:
+            dias_entrega = 3
+        elif 'bogota' in direccion_lower or 'bogotá' in direccion_lower:
+            dias_entrega = 2
+        else:
+            dias_entrega = 3
+        
+        fecha_entrega = pedido.fechaCreacion + timedelta(days=dias_entrega)
+        
+        # Si ya pasó la fecha de entrega, marcar como entregado
+        if ahora >= fecha_entrega:
+            pedido.estado = 'Entregado'
+            pedido.save()
+    
     # Obtener los pedidos del cliente determinado
     pedidos = Pedido.objects.filter(idCliente=cliente.idCliente).order_by('-fechaCreacion')
+    
+    # Verificar si hay pedidos entregados sin confirmar
+    pedidos_entregados_sin_confirmar = pedidos.filter(estado='Entregado')
 
     context = {
         'cliente': cliente,
         'pedidos': pedidos,
         'tiene_usuario': tiene_usuario,
-        'sin_sesion': sin_sesion
+        'sin_sesion': sin_sesion,
+        'pedidos_entregados_sin_confirmar': pedidos_entregados_sin_confirmar
     }
     return render(request, 'perfil.html', context)
 
@@ -848,3 +879,93 @@ def ver_seguimiento(request, idPedido):
     return render(request, 'ver_seguimiento.html', {'pedido': pedido})
 
   
+
+
+def confirmar_recepcion_pedido(request, idPedido):
+    """
+    Vista para que el cliente confirme que recibió su pedido
+    """
+    pedido = get_object_or_404(Pedido, idPedido=idPedido)
+    
+    # Verificar que el pedido pertenece al cliente en sesión
+    usuario_id = request.session.get('usuario_id')
+    cliente_id = request.session.get('cliente_id')
+    
+    if usuario_id:
+        usuario = get_object_or_404(Usuario, idUsuario=usuario_id)
+        if pedido.idCliente.idCliente != usuario.idCliente:
+            messages.error(request, "No tienes permiso para confirmar este pedido.")
+            return redirect('perfil')
+    elif cliente_id:
+        if pedido.idCliente.idCliente != cliente_id:
+            messages.error(request, "No tienes permiso para confirmar este pedido.")
+            return redirect('perfil')
+    else:
+        messages.error(request, "Debes iniciar sesión para confirmar la recepción.")
+        return redirect('login')
+    
+    if request.method == 'POST':
+        confirmacion = request.POST.get('confirmacion')
+        
+        if confirmacion == 'si':
+            # Cliente confirma que recibió el pedido
+            pedido.estado = 'Completado'
+            pedido.save()
+            messages.success(request, f"Gracias por confirmar. El pedido #{pedido.idPedido} ha sido marcado como completado.")
+        elif confirmacion == 'no':
+            # Cliente indica que no recibió el pedido - mostrar formulario
+            return render(request, 'reportar_problema.html', {'pedido': pedido})
+        
+        return redirect('perfil')
+    
+    return render(request, 'confirmar_recepcion.html', {'pedido': pedido})
+
+
+def reportar_problema_entrega(request, idPedido):
+    """
+    Vista para que el cliente reporte el problema de entrega con detalles
+    """
+    from core.models import NotificacionProblema
+    
+    pedido = get_object_or_404(Pedido, idPedido=idPedido)
+    
+    # Verificar que el pedido pertenece al cliente en sesión
+    usuario_id = request.session.get('usuario_id')
+    cliente_id = request.session.get('cliente_id')
+    
+    if usuario_id:
+        usuario = get_object_or_404(Usuario, idUsuario=usuario_id)
+        if pedido.idCliente.idCliente != usuario.idCliente:
+            messages.error(request, "No tienes permiso para reportar este pedido.")
+            return redirect('perfil')
+    elif cliente_id:
+        if pedido.idCliente.idCliente != cliente_id:
+            messages.error(request, "No tienes permiso para reportar este pedido.")
+            return redirect('perfil')
+    else:
+        messages.error(request, "Debes iniciar sesión.")
+        return redirect('login')
+    
+    if request.method == 'POST':
+        motivo = request.POST.get('motivo')
+        foto = request.FILES.get('foto')
+        
+        if not motivo:
+            messages.error(request, "Por favor describe el problema.")
+            return render(request, 'reportar_problema.html', {'pedido': pedido})
+        
+        # Cambiar estado del pedido
+        pedido.estado = 'Problema en Entrega'
+        pedido.save()
+        
+        # Crear notificación
+        NotificacionProblema.objects.create(
+            idPedido=pedido,
+            motivo=motivo,
+            foto=foto
+        )
+        
+        messages.warning(request, f"Hemos registrado el problema con el pedido #{pedido.idPedido}. Nuestro equipo se pondrá en contacto contigo.")
+        return redirect('perfil')
+    
+    return render(request, 'reportar_problema.html', {'pedido': pedido})

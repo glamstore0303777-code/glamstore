@@ -4,194 +4,90 @@
 <head>
     <meta charset="UTF-8">
     <title>Agregar Distribuidor | Glam Store</title>
-    <link rel="stylesheet" href="{% static 'css/distribuidores_panel.css' %}">
-    <style>
-        :root {
-            --rosa-claro: #fdf6f9;
-            --rosa-medio: #f7c5dd;
-            --rosa-fuerte: #fbb1c8;
-            --verde-claro: #a8e6cf;
-            --rojo-claro: #ffaaa5;
-            --gris-texto: #4a4a4a;
-            --gris-borde: #e0cce3;
-        }
-
-        body {
-            font-family: "Comic Sans MS", cursive, sans-serif;
-            margin: 0;
-            background-color: var(--rosa-claro);
-            display: flex;
-        }
-
-        .sidebar {
-            width: 240px;
-            background-color: var(--rosa-medio);
-            color: var(--gris-texto);
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            padding: 30px 20px;
-            box-shadow: 2px 0 6px rgba(0,0,0,0.1);
-        }
-
-        .sidebar h2 {
-            font-size: 22px;
-            margin-bottom: 25px;
-        }
-
-        .sidebar a {
-            display: block;
-            margin-bottom: 16px;
-            text-decoration: none;
-            color: var(--gris-texto);
-            font-weight: bold;
-            font-size: 16px;
-        }
-
-        .sidebar a:hover {
-            color: #000;
-            text-decoration: underline;
-        }
-
-        .main-content {
-            margin-left: 240px;
-            width: calc(100% - 240px);
-        }
-
-        header {
-            background-color: var(--rosa-medio);
-            color: var(--gris-texto);
-            padding: 20px 40px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        }
-
-        header h1 {
-            margin: 0;
-            font-size: 28px;
-        }
-
-        header img.logo {
-            height: 90px;
-        }
-
-        main {
-            padding: 40px;
-        }
-
-        form {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            max-width: 500px;
-        }
-
-        label {
-            display: block;
-            margin-top: 15px;
-            font-weight: bold;
-            color: var(--gris-texto);
-        }
-
-        input {
-            width: 100%;
-            padding: 10px;
-            margin-top: 6px;
-            border: 1px solid var(--gris-borde);
-            border-radius: 6px;
-        }
-
-        button, .btn-cancelar {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            text-decoration: none;
-        }
-
-        button {
-            background-color: var(--rosa-fuerte);
-            color: #333;
-        }
-
-        button:hover {
-            background-color: #f98aa7;
-            transform: scale(1.03);
-        }
-
-        .btn-cancelar {
-            background-color: var(--rojo-claro);
-            color: #333;
-            margin-left: 10px;
-        }
-
-        .btn-cancelar:hover {
-            opacity: 0.9;
-            transform: scale(1.03);
-        }
-
-        footer {
-            text-align: center;
-            padding: 20px;
-            background-color: var(--rosa-medio);
-            color: var(--gris-texto);
-            margin-top: 40px;
-        }
-    </style>
-    <script>
-        function volverDashboard() {
-            window.location.href = "/gestion/dashboard/admin/";
-        }
-    </script>
+    <link rel="icon" href="{% static 'img/logoglam.png' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/admin_panel.css' %}">
 </head>
 <body>
-    <aside class="sidebar">
-        <h2>Admin Glam</h2>
-        <div class="sidebar-user">
-            <p>{{ request.session.usuario_nombre }}</p>
-            <p class="rol">Perfil: Administrador</p>
-        </div>
-        <h2>Menú</h2>
-        <a href="{% url 'lista_clientes' %}">💄 Panel Cliente</a>
-        <a href="{% url 'lista_pedidos' %}">📋 Panel Pedidos</a>
-        <a href="{% url 'lista_productos' %}">🛍️ Panel Productos</a>
-        <a href="{% url 'lista_repartidores' %}">🛵 Panel Repartidores</a>
-        <a href="{% url 'lista_admin' %}">🛠️ Panel Administradores</a>
-        <a href="{% url 'logout' %}">🔓 Cerrar sesión</a>
-    </aside>
-
-    <div class="main-content">
-        <header>
-            <h1>Agregar Distribuidor</h1>
-            <img src="{% static 'img/logoglam.png' %}" alt="Logo Glam Store" class="logo">
-        </header>
-
-        <main>
-            <button class="volver-btn" onclick="volverDashboard()">← Volver al Dashboard</button>
-
-            <form method="post" action="{% url 'agregar_distribuidor' %}">
-                {% csrf_token %}
-                <label for="nombreDistribuidor">Nombre:</label>
-                <input type="text" id="nombreDistribuidor" name="nombreDistribuidor" required>
-
-                <label for="contacto">Contacto:</label>
-                <input type="text" id="contacto" name="contacto" required>
-
-                <button type="submit">Guardar</button>
-                <a href="{% url 'lista_distribuidores' %}" class="btn-cancelar">Cancelar</a>
-            </form>
-        </main>
-
-        <footer>
-            <p>&copy; 2025 Glam Store. Todos los derechos reservados.</p>
-        </footer>
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h2>Admin Glam</h2>
+      <p>Panel de Control</p>
     </div>
+    <div class="sidebar-user">
+      <p>{{ request.session.usuario_nombre }}</p>
+      <p class="rol">Administrador</p>
+    </div>
+    <div class="sidebar-nav">
+      <a href="{% url 'dashboard_admin' %}">Dashboard</a>
+      <a href="{% url 'lista_admin' %}">Mi Perfil</a>
+      <a href="{% url 'lista_clientes' %}">Clientes</a>
+      <a href="{% url 'lista_distribuidores' %}" class="active">Distribuidores</a>
+      <a href="{% url 'lista_pedidos' %}">Pedidos</a>
+      <a href="{% url 'lista_productos' %}">Productos</a>
+      <a href="{% url 'lista_repartidores' %}">Repartidores</a>
+      <a href="{% url 'lista_categorias' %}">Categorías</a>
+      <a href="{% url 'lista_subcategorias' %}">Subcategorías</a>
+    </div>
+    <div class="sidebar-footer">
+      <a href="{% url 'logout' %}">Cerrar Sesión</a>
+    </div>
+  </div>
+  
+  <div class="main-content">
+    <div class="page-header">
+      <h1>Agregar Distribuidor</h1>
+    </div>
+    
+    <div class="card">
+      <div class="form-container">
+        <div class="form-help">
+          <p>Completa todos los campos para agregar un nuevo distribuidor. Los campos marcados con * son obligatorios.</p>
+        </div>
+        
+        <form method="post" action="{% url 'agregar_distribuidor' %}">
+          {% csrf_token %}
+          
+          <div class="form-group required-field">
+            <label for="nombreDistribuidor">Nombre del Distribuidor</label>
+            <input type="text" id="nombreDistribuidor" name="nombreDistribuidor" required placeholder="Ej: Distribuidora Belleza S.A." maxlength="100">
+          </div>
+
+          <div class="form-group required-field">
+            <label for="contacto">Información de Contacto</label>
+            <input type="text" id="contacto" name="contacto" required placeholder="Teléfono, email o persona de contacto">
+            <small>Incluye teléfono, email o nombre de la persona de contacto</small>
+          </div>
+          
+          <div class="form-group">
+            <label for="direccion">Dirección</label>
+            <input type="text" id="direccion" name="direccion" placeholder="Dirección completa del distribuidor">
+            <small>Incluye ciudad, sector y referencias</small>
+          </div>
+          
+          <div class="form-group">
+            <label for="email">Correo Electrónico</label>
+            <input type="email" id="email" name="email" placeholder="contacto@distribuidor.com">
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="telefono">Teléfono</label>
+              <input type="tel" id="telefono" name="telefono" placeholder="Ej: +593 99 123 4567">
+            </div>
+            <div class="form-group">
+              <label for="ruc">RUC/NIT</label>
+              <input type="text" id="ruc" name="ruc" placeholder="Número de identificación fiscal">
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Guardar Distribuidor</button>
+            <a href="{% url 'lista_distribuidores' %}" class="btn btn-secondary">Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

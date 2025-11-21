@@ -4,222 +4,928 @@
 <head>
   <meta charset="UTF-8">
   <title>Panel de Administración — Glam Store</title>
-  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@1,700&display=swap" rel="stylesheet">
+  <link rel="icon" href="{% static 'img/logoglam.png' %}">
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
+    /* ========================================
+       BASE STYLES
+       ======================================== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      font-family: 'Comic Neue', cursive;
-      background: linear-gradient(to right, #fffafc, #fdf0f7);
+      font-family: 'Comic Neue', cursive, Arial, sans-serif;
+      background-color: #fffafc;
       display: flex;
       min-height: 100vh;
     }
 
+    /* ========================================
+       SIDEBAR
+       ======================================== */
     .sidebar {
-      width: 220px;
-      background-color: #f8bbd0;
-      padding: 1.5rem;
-      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+      background-color: #fce4ec;
+      padding: 2rem;
+      width: 240px;
+      height: 100vh;
+      position: fixed;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      border-right: 2px solid #f8bbd0;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      overflow-y: auto;
     }
 
-    .sidebar h2 {
-      color: #880e4f;
-      font-size: 1.4rem;
-      margin-bottom: 1rem;
+    .sidebar-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .sidebar-header h2 {
+      color: #ad1457;
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .sidebar-header p {
+      color: #d81b60;
+      font-size: 0.9rem;
     }
 
     .sidebar-user {
-      background-color: #fce4ec;
-      padding: 0.8rem;
+      background-color: #fff;
+      padding: 1rem;
       border-radius: 10px;
-      margin-bottom: 1rem;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
       text-align: center;
+      border: 2px solid #f8bbd0;
     }
 
     .sidebar-user p {
       margin: 0.3rem 0;
-      color: #6a1b9a;
+      color: #c2185b;
       font-weight: bold;
-      font-size: 0.95rem;
+      font-size: 1rem;
     }
 
     .sidebar-user .rol {
       font-size: 0.85rem;
-      color: #ad1457;
+      color: #d81b60;
+      font-weight: normal;
+    }
+
+    .sidebar-nav {
+      flex: 1;
     }
 
     .sidebar a {
       display: block;
       margin: 0.5rem 0;
-      color: #6a1b9a;
+      color: #880e4f;
       text-decoration: none;
       font-weight: bold;
-      padding: 0.4rem 0.6rem;
-      border-radius: 8px;
-      transition: background 0.3s ease;
+      padding: 0.8rem 1rem;
+      border-radius: 25px;
+      transition: all 0.3s ease;
     }
 
-    .sidebar a:hover {
-      background-color: #fff0f6;
+    .sidebar a:hover,
+    .sidebar a.active {
+      background-color: #f8bbd0;
+      color: #fff;
     }
 
+    .sidebar-footer {
+      margin-top: auto;
+      padding-top: 1rem;
+      border-top: 2px solid #f8bbd0;
+    }
+
+    /* ========================================
+       MAIN CONTENT
+       ======================================== */
     .main-content {
+      margin-left: 240px;
+      padding: 2rem 5rem;
+      width: calc(100% - 240px - 10rem);
       flex: 1;
-      padding: 2rem;
     }
 
-    .main-content h1 {
-      color: #c026d3;
-      font-size: 2rem;
-      margin-bottom: 1rem;
-    }
-
-    .admin-info {
-      background-color: #fff0f6;
-      padding: 1rem;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(212, 144, 192, 0.2);
+    .page-header {
       margin-bottom: 2rem;
     }
 
-    .admin-info p {
-      margin: 0.5rem 0;
-      color: #7e22ce;
+    .page-header h1 {
+      font-size: 2.2rem;
+      color: #c2185b;
+      border-bottom: 3px solid #f48fb1;
+      padding-bottom: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .breadcrumb {
+      color: #999;
+      font-size: 1rem;
+    }
+
+    .breadcrumb strong {
+      color: #c2185b;
+    }
+
+    /* ========================================
+       CARDS
+       ======================================== */
+    .card {
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+      margin-bottom: 2rem;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 20px rgba(244, 143, 177, 0.2);
+    }
+
+    .card-body {
+      padding: 1rem;
+    }
+
+    .card-compact {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    /* ========================================
+       STATISTICS GRID
+       ======================================== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: #fff;
+      padding: 1.5rem;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+      text-align: center;
+      transition: all 0.3s ease;
+      border-top: 4px solid #f48fb1;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 20px rgba(244, 143, 177, 0.2);
+    }
+
+    .stat-number {
+      font-size: 2.5rem;
       font-weight: bold;
+      color: #c2185b;
+      margin: 0.5rem 0;
+    }
+
+    .stat-label {
+      color: #666;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+
+    /* ========================================
+       DASHBOARD SECTIONS - LAYOUT COMPACTO
+       ======================================== */
+    .dashboard-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+      font-size: 1.3rem;
+      color: #c2185b;
+      margin-bottom: 0.8rem;
+      border-bottom: 2px solid #f48fb1;
+      padding-bottom: 0.3rem;
+    }
+
+    .dashboard-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .dashboard-row-three {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .dashboard-compact {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* ========================================
+       CHARTS - COMPACTOS
+       ======================================== */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .chart-container {
+      background: #fff;
+      padding: 1rem;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+      height: 280px;
+    }
+
+    .chart-title {
+      color: #c2185b;
+      font-size: 1rem;
+      margin-bottom: 0.8rem;
+      text-align: center;
+      border-bottom: 2px solid #f8bbd0;
+      padding-bottom: 0.3rem;
+    }
+
+    .chart-container canvas {
+      max-height: 200px !important;
+    }
+
+    /* ========================================
+       PRODUCT ITEMS - COMPACTOS
+       ======================================== */
+    .product-item {
+      display: flex;
+      align-items: center;
+      padding: 0.8rem 0;
+      border-bottom: 1px solid #fce4ec;
+      transition: all 0.3s ease;
+    }
+
+    .product-item:last-child {
+      border-bottom: none;
+    }
+
+    .product-item:hover {
+      background-color: #fffafc;
+      padding-left: 0.5rem;
+      border-radius: 8px;
+    }
+
+    .product-image {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      object-fit: cover;
+      margin-right: 0.8rem;
+      border: 2px solid #f8bbd0;
+      transition: all 0.3s ease;
+    }
+
+    .product-image:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba(244, 143, 177, 0.3);
+    }
+
+    .product-info {
+      flex: 1;
+    }
+
+    .product-name {
+      font-weight: bold;
+      color: #c2185b;
+      margin-bottom: 0.2rem;
+      font-size: 0.9rem;
+    }
+
+    .product-stats {
+      font-size: 0.75rem;
+      color: #666;
+    }
+
+    .product-actions {
+      display: flex;
+      gap: 0.3rem;
+      align-items: center;
+    }
+
+    /* ========================================
+       STOCK ITEMS - COMPACTOS
+       ======================================== */
+    .stock-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid #fce4ec;
+      transition: all 0.3s ease;
+    }
+
+    .stock-item:last-child {
+      border-bottom: none;
+    }
+
+    .stock-item:hover {
+      background-color: #fffafc;
+      padding: 0.6rem;
+      border-radius: 8px;
+      margin: 0 -0.6rem;
+    }
+
+    .stock-info {
+      flex: 1;
+    }
+
+    .stock-name {
+      font-weight: bold;
+      color: #c2185b;
+      margin-bottom: 0.1rem;
+      font-size: 0.9rem;
+    }
+
+    .stock-level {
+      font-size: 0.75rem;
+      color: #666;
+    }
+
+    .stock-actions {
+      display: flex;
+      gap: 0.3rem;
+    }
+
+    /* ========================================
+       ORDER ITEMS
+       ======================================== */
+    .pedido-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      margin-bottom: 0.8rem;
+      background: #fffafc;
+      border-radius: 10px;
+      border-left: 4px solid #f48fb1;
+      transition: all 0.3s ease;
+    }
+
+    .pedido-item:hover {
+      transform: translateX(5px);
+      box-shadow: 0 4px 15px rgba(244, 143, 177, 0.2);
+    }
+
+    .pedido-info {
+      flex: 1;
+    }
+
+    .pedido-id {
+      font-weight: bold;
+      color: #c2185b;
+      margin-bottom: 0.3rem;
+      font-size: 1rem;
+    }
+
+    .pedido-cliente {
+      color: #666;
+      font-size: 0.9rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .pedido-fecha {
+      font-size: 0.8rem;
+      color: #999;
+    }
+
+    .pedido-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    /* ========================================
+       BUTTONS
+       ======================================== */
+    .btn {
+      padding: 0.8rem 1.5rem;
+      border-radius: 25px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+      font-family: 'Comic Neue', cursive, Arial, sans-serif;
+      font-size: 1rem;
+      display: inline-block;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #f48fb1 0%, #ec407a 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(244, 143, 177, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(244, 143, 177, 0.4);
+      background: linear-gradient(135deg, #ec407a 0%, #d81b60 100%);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #c2185b;
+      border: 2px solid #f48fb1;
+    }
+
+    .btn-secondary:hover {
+      background: #fce4ec;
+    }
+
+    .btn-small {
+      padding: 0.5rem 1rem;
+      font-size: 0.8rem;
+    }
+
+    .btn-stock {
+      padding: 0.3rem 0.8rem;
+      border-radius: 15px;
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    .btn-view {
+      background: #e3f2fd;
+      color: #1565c0;
+    }
+
+    .btn-edit {
+      background: #fff3e0;
+      color: #e65100;
+    }
+
+    .btn-restock {
+      background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+      color: white;
+      font-weight: bold;
+    }
+
+    .btn-stock:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-restock:hover {
+      background: linear-gradient(135deg, #388e3c 0%, #2e7d32 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    }
+
+    .btn-pedido {
+      padding: 0.4rem 0.8rem;
+      border-radius: 15px;
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    .btn-details {
+      background: linear-gradient(135deg, #f48fb1 0%, #ec407a 100%);
+      color: white;
+    }
+
+    .btn-details:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(244, 143, 177, 0.3);
+    }
+
+    /* ========================================
+       BADGES
+       ======================================== */
+    .badge {
+      display: inline-block;
+      padding: 0.3rem 0.8rem;
+      border-radius: 15px;
+      font-size: 0.75rem;
+      font-weight: bold;
+    }
+
+    .badge-success {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .badge-danger {
+      background: #ffebee;
+      color: #c62828;
+    }
+
+    .badge-warning {
+      background: #fff3e0;
+      color: #e65100;
+    }
+
+    /* ========================================
+       EMPTY STATE
+       ======================================== */
+    .empty-state {
+      text-align: center;
+      padding: 2rem;
+      color: #999;
+    }
+
+    .empty-state p {
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    /* ========================================
+       RESPONSIVE DESIGN
+       ======================================== */
+    @media (max-width: 1024px) {
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .dashboard-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+
+      .main-content {
+        margin-left: 0;
+        padding: 2rem;
+        width: 100%;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .product-item,
+      .stock-item,
+      .pedido-item {
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+      }
+
+      .product-image {
+        margin: 0 0 1rem 0;
+        align-self: center;
+      }
+
+      .product-actions,
+      .stock-actions,
+      .pedido-actions {
+        margin-top: 1rem;
+        width: 100%;
+        justify-content: center;
+      }
+
+      .btn-stock,
+      .btn-pedido {
+        flex: 1;
+        text-align: center;
+      }
+
+      .stat-number {
+        font-size: 2rem;
+      }
+
+      .chart-container {
+        height: 300px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .stat-number {
+        font-size: 1.8rem;
+      }
+
+      .chart-container {
+        height: 250px;
+        padding: 1rem;
+      }
+
+      .product-item,
+      .stock-item,
+      .pedido-item {
+        padding: 0.8rem;
+        margin-bottom: 0.5rem;
+      }
     }
   </style>
 </head>
 <body>
 
   <div class="sidebar">
-    <div>
+    <div class="sidebar-header">
       <h2>Admin Glam</h2>
-     <div class="sidebar-user">
-  <p>{{ request.session.usuario_nombre }}</p>
-  <p class="rol">Perfil: Administrador</p>
-</div>
-
-<!-- Paneles dinámicos -->
-<a href="{% url 'lista_admin' %}">👤 Mi Perfil</a>
-<a href="{% url 'lista_clientes' %}">💄 Panel Cliente</a>
-<a href="{% url 'lista_distribuidores' %}">🚚 Panel Distribuidores</a>
-<a href="{% url 'lista_pedidos' %}">📋 Panel Pedidos</a>
-<a href="{% url 'lista_productos' %}">🛍️ Panel Productos</a>
-<a href="{% url 'lista_repartidores' %}">🛵 Panel Repartidores</a>
- <a href="{% url 'lista_categorias' %}">🎨 Panel Categorías</a>
-    <a href="{% url 'lista_subcategorias' %}">✨ Panel Subcategorías</a>
-<a href="{% url 'lista_admin' %}">🛠️ Panel Administradores</a>
-
-
+      <p>Panel de Control</p>
     </div>
-    <div> 
-<!-- Cierre de sesión -->
-<a href="{% url 'logout' %}">🚪 Cerrar sesión</a>
+
+    <div class="sidebar-user">
+      <p>{{ request.session.usuario_nombre }}</p>
+      <p class="rol">Administrador</p>
+    </div>
+
+    <div class="sidebar-nav">
+      <a href="{% url 'dashboard_admin' %}" class="active">Dashboard</a>
+      <a href="{% url 'lista_admin' %}">Mi Perfil</a>
+      <a href="{% url 'lista_clientes' %}">Clientes</a>
+      <a href="{% url 'lista_distribuidores' %}">Distribuidores</a>
+      <a href="{% url 'lista_pedidos' %}">Pedidos</a>
+      <a href="{% url 'lista_productos' %}">Productos</a>
+      <a href="{% url 'lista_repartidores' %}">Repartidores</a>
+      <a href="{% url 'lista_categorias' %}">Categorías</a>
+      <a href="{% url 'lista_subcategorias' %}">Subcategorías</a>
+      <a href="{% url 'notificaciones' %}">Notificaciones</a>
+    </div>
+
+    <div class="sidebar-footer">
+      <a href="{% url 'logout' %}">Cerrar Sesión</a>
     </div>
   </div>
+
   <div class="main-content">
-    <h1>Bienvenida al Panel de Administración</h1>
-    <div class="admin-info">
-      <p>Nombre: {{ request.session.usuario_nombre }}</p>
-      <p>Rol: Administrador</p>
+    <div class="page-header">
+      <h1>Panel de Administración</h1>
+      <div class="breadcrumb">
+        <span>Bienvenida: <strong>{{ request.session.usuario_nombre }}</strong> | Rol: <strong>Administrador</strong></span>
+      </div>
     </div>
 
-    <div class="dashboard-grid">
-      <!-- Producto más vendido -->
-      <div class="info-card" data-url="{% url 'lista_productos' %}">
-        <h3>🔥 Producto Estrella de la Semana</h3>
-        {% if producto_mas_vendido %}
-          <p class="highlight">{{ producto_mas_vendido.idProducto__nombreProducto }}</p>
-          <span>Total Vendido: {{ producto_mas_vendido.total_vendido }} unidades</span>
-        {% else %}
-          <p class="empty-state">No hay datos de ventas de la última semana.</p>
-        {% endif %}
-        <a href="{% url 'lista_productos' %}" class="card-link">Ver Productos</a>
+    <!-- Estadísticas Generales -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-number">{{ total_productos }}</div>
+        <div class="stat-label">Productos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">{{ total_clientes }}</div>
+        <div class="stat-label">Clientes</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">{{ total_pedidos }}</div>
+        <div class="stat-label">Pedidos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">${{ ventas_totales|floatformat:2 }}</div>
+        <div class="stat-label">Ventas Totales</div>
+      </div>
+    </div>
+
+    <!-- Gráficos de Estadísticas - Layout Horizontal Compacto -->
+    <div class="dashboard-section">
+      <h2 class="section-title">Estadísticas de Ventas</h2>
+      <div class="charts-grid">
+        <div class="chart-container">
+          <h3 class="chart-title">Productos Más Vendidos</h3>
+          <canvas id="productosChart"></canvas>
+        </div>
+        <div class="chart-container">
+          <h3 class="chart-title">Clientes por Semana</h3>
+          <canvas id="clientesChart"></canvas>
+        </div>
+        <div class="chart-container">
+          <h3 class="chart-title">Ventas por Categoría</h3>
+          <canvas id="categoriasChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Layout Horizontal: Stock Bajo, Productos Vendidos y Pedidos -->
+    <div class="dashboard-row-three">
+      <div class="dashboard-section">
+        <h2 class="section-title">Stock Bajo</h2>
+        <div class="card">
+          <div class="card-body card-compact">
+            {% for producto in productos_por_surtir %}
+              <div class="stock-item">
+                <div class="stock-info">
+                  <div class="stock-name">{{ producto.nombreProducto }}</div>
+                  <div class="stock-level">
+                    Stock: <strong style="color: #c62828;">{{ producto.stock }}</strong>
+                    {% if producto.stock == 0 %}
+                      <span class="badge badge-danger">Agotado</span>
+                    {% elif producto.stock <= 5 %}
+                      <span class="badge badge-warning">Crítico</span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="stock-actions">
+                  <a href="{% url 'movimientos_producto' producto.idProducto %}" class="btn-stock btn-restock">Reabastecer</a>
+                </div>
+              </div>
+            {% empty %}
+              <div class="empty-state">
+                <p>Stock suficiente</p>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
       </div>
 
-      <!-- Productos por surtir -->
-      <div class="info-card" data-url="{% url 'lista_productos' %}">
-        <h3>⚠️ Productos por Surtir (Stock < 5)</h3>
-        <ul class="item-list">
-          {% for producto in productos_por_surtir %}
-            <li>{{ producto.nombreProducto }} <span>(Quedan: {{ producto.stock }})</span></li>
-          {% empty %}
-            <li class="empty-state">¡Todo en orden! No hay productos con stock bajo.</li>
-          {% endfor %}
-        </ul>
-        <a href="{% url 'lista_productos' %}" class="card-link">Ir al Panel de Productos</a>
+      <div class="dashboard-section">
+        <h2 class="section-title">Productos Más Vendidos</h2>
+        <div class="card">
+          <div class="card-body card-compact">
+            {% for producto in productos_mas_vendidos %}
+              <div class="product-item">
+                {% if producto.imagen %}
+                  <img src="{{ producto.imagen.url }}" alt="{{ producto.nombreProducto }}" class="product-image">
+                {% else %}
+                  <div class="product-image" style="background: #f8bbd0; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                    {{ producto.nombreProducto|first }}
+                  </div>
+                {% endif %}
+                <div class="product-info">
+                  <div class="product-name">{{ producto.nombreProducto }}</div>
+                  <div class="product-stats">
+                    <strong>{{ producto.total_vendido }}</strong> | {{ producto.ultima_venta|date:"d/m/Y" }}
+                  </div>
+                </div>
+                <div class="product-actions">
+                  <a href="{% url 'producto_detalle' producto.idProducto %}" class="btn btn-secondary btn-small">Ver</a>
+                </div>
+              </div>
+            {% empty %}
+              <div class="empty-state">
+                <p>Sin datos de ventas</p>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
       </div>
 
-      <!-- Clientes nuevos -->
-      <div class="info-card" data-url="{% url 'lista_clientes' %}">
-        <h3>✨ Clientes Nuevos</h3>
-        <ul class="item-list">
-          {% for cliente in clientes_nuevos %}
-            <li>{{ cliente.nombre }}</li>
-          {% empty %}
-            <li class="empty-state">No hay nuevos clientes registrados recientemente.</li>
-          {% endfor %}
-        </ul>
-        <a href="{% url 'lista_clientes' %}" class="card-link">Ir al Panel de Clientes</a>
-      </div>
-
-      <!-- Nuevos pedidos -->
-      <div class="info-card" data-url="{% url 'lista_pedidos' %}">
-        <h3>📋 Pedidos Recientes</h3>
-        <ul class="item-list">
-          {% for pedido in pedidos_nuevos|slice:":5" %} {# Mostramos solo los 5 más recientes #}
-            <li>Pedido #{{ pedido.idPedido }} - {{ pedido.idCliente.nombre }} <span>{{ pedido.fechaCreacion|date:"d/m/y H:i" }}</span></li>
-          {% empty %}
-            <li class="empty-state">No hay pedidos recientes.</li>
-          {% endfor %}
-        </ul>
-        <a href="{% url 'lista_pedidos' %}" class="card-link">Ir al Panel de Pedidos</a>
+      <div class="dashboard-section">
+        <h2 class="section-title">Pedidos Recientes</h2>
+        <div class="card">
+          <div class="card-body card-compact"> </div>
+            {% for pedido in pedidos_nuevos %}
+              <div class="pedido-item">
+                <div class="pedido-info">
+                  <div class="pedido-id">Pedido #{{ pedido.idPedido }}</div>
+                  <div class="pedido-cliente">{{ pedido.idCliente.nombre }}</div>
+                  <div class="pedido-fecha">{{ pedido.fechaCreacion|date:"d/m/Y" }} | ${{ pedido.total }}</div>
+                </div>
+                <div class="pedido-actions">
+                  <a href="{% url 'detalle_pedido' pedido.idPedido %}" class="btn-pedido btn-details">Ver</a>
+                </div>
+              </div>
+            {% empty %}
+              <div class="empty-state">
+                <p>Sin pedidos recientes</p>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
       </div>
     </div>
   </div>
-  <style>
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 1.5rem;
-      margin-top: 2rem;
-    }
-    .info-card {
-      background-color: #ffffff;
-      padding: 1.5rem;
-      border-radius: 8px;
-      border: 1px solid #e2e8f0;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-      transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-      cursor: pointer;
-    }
-    .info-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    }
-    .info-card h3 { color: #1e3a8a; margin-top: 0; border-bottom: 1px solid #dbeafe; padding-bottom: 0.75rem; font-size: 1.1rem; }
-    .info-card .highlight { font-size: 1.2rem; font-weight: bold; color: #1d4ed8; margin: 0.75rem 0; }
-    .item-list { list-style: none; padding: 0; margin: 0.75rem 0; }
-    .item-list li { padding: 0.5rem 0; border-bottom: 1px solid #eff6ff; display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; }
-    .item-list li:last-child { border-bottom: none; }
-    .item-list li span { color: #64748b; font-size: 0.85rem; }
-    .empty-state { color: #94a3b8; font-style: italic; }
-    .card-link { display: inline-block; text-align: right; margin-top: 1rem; color: #2563eb; font-weight: bold; text-decoration: none; font-size: 0.9rem; }
-    .card-link:hover { text-decoration: underline; }
-  </style>
+
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const cards = document.querySelectorAll('.info-card');
-      cards.forEach(card => {
-        card.addEventListener('click', function() {
-          const url = this.dataset.url;
-          if (url) {
-            window.location.href = url;
+    /* eslint-disable */
+    // Django template - ignore syntax errors
+    
+    // Datos para los gráficos
+    const productosData = {
+      labels: [
+        {% for producto in productos_mas_vendidos %}
+          '{{ producto.nombreProducto|truncatechars:15 }}'{% if not forloop.last %},{% endif %}
+        {% endfor %}
+      ],
+      datasets: [{
+        label: 'Unidades Vendidas',
+        data: [
+          {% for producto in productos_mas_vendidos %}
+            {{ producto.total_vendido }}{% if not forloop.last %},{% endif %}
+          {% endfor %}
+        ],
+        backgroundColor: ['#f48fb1', '#ec407a', '#e91e63', '#c2185b', '#ad1457'],
+        borderColor: '#fff',
+        borderWidth: 2
+      }]
+    };
+
+    const clientesData = {
+      labels: ['Semana Pasada', 'Esta Semana'],
+      datasets: [{
+        label: 'Nuevos Clientes',
+        data: [{{ clientes_semana_pasada }}, {{ clientes_esta_semana }}],
+        backgroundColor: ['#f8bbd0', '#f48fb1'],
+        borderColor: '#c2185b',
+        borderWidth: 2
+      }]
+    };
+
+    const categoriasData = {
+      labels: [
+        {% for categoria in ventas_por_categoria %}
+          '{{ categoria.categoria }}'{% if not forloop.last %},{% endif %}
+        {% endfor %}
+      ],
+      datasets: [{
+        label: 'Ventas ($)',
+        data: [
+          {% for categoria in ventas_por_categoria %}
+            {{ categoria.total }}{% if not forloop.last %},{% endif %}
+          {% endfor %}
+        ],
+        backgroundColor: ['#fce4ec', '#f8bbd0', '#f48fb1', '#ec407a', '#e91e63'],
+        borderColor: '#c2185b',
+        borderWidth: 1
+      }]
+    };
+
+    // Configuración de gráficos
+    const chartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            padding: 20,
+            usePointStyle: true
           }
-        });
+        }
+      }
+    };
+
+    // Crear gráficos
+    document.addEventListener('DOMContentLoaded', function() {
+      // Gráfico de productos más vendidos
+      const productosCtx = document.getElementById('productosChart').getContext('2d');
+      new Chart(productosCtx, {
+        type: 'doughnut',
+        data: productosData,
+        options: chartOptions
+      });
+
+      // Gráfico de clientes por semana
+      const clientesCtx = document.getElementById('clientesChart').getContext('2d');
+      new Chart(clientesCtx, {
+        type: 'bar',
+        data: clientesData,
+        options: {
+          ...chartOptions,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                stepSize: 1
+              }
+            }
+          }
+        }
+      });
+
+      // Gráfico de ventas por categoría
+      const categoriasCtx = document.getElementById('categoriasChart').getContext('2d');
+      new Chart(categoriasCtx, {
+        type: 'line',
+        data: categoriasData,
+        options: {
+          ...chartOptions,
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
       });
     });
   </script>

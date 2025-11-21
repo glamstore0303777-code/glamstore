@@ -25,33 +25,108 @@ def index(request):
     return render(request, 'index.html')  # o cualquier plantilla que tengas
 # Dashboard principal
 def dashboard_admin_view(request):
-    # Definir el umbral de tiempo
-    una_semana_atras = datetime.now() - timedelta(days=7)
+    from django.db.models import Q, F, Max
+    from django.utils import timezone
     
-    # 1. Producto más vendido de la semana
-    producto_mas_vendido = DetallePedido.objects.filter(
+    # Definir umbrales de tiempo
+    ahora = timezone.now()
+    una_semana_atras = ahora - timedelta(days=7)
+    dos_semanas_atras = ahora - timedelta(days=14)
+    
+    # === ESTADÍSTICAS GENERALES ===
+    total_productos = Producto.objects.count()
+    total_clientes = Cliente.objects.count()
+    total_pedidos = Pedido.objects.count()
+    ventas_totales = Pedido.objects.aggregate(total=Sum('total'))['total'] or 0
+    
+    # === PRODUCTOS MÁS VENDIDOS ===
+    productos_mas_vendidos = DetallePedido.objects.filter(
         idPedido__fechaCreacion__gte=una_semana_atras
     ).values(
-        'idProducto__nombreProducto'
+        'idProducto__idProducto',
+        'idProducto__nombreProducto',
+        'idProducto__imagen'
     ).annotate(
-        total_vendido=Sum('cantidad')
-    ).order_by('-total_vendido').first()
-
-    # 2. Productos por surtir (ej. stock < 5)
-    productos_por_surtir = Producto.objects.filter(stock__lt=5).order_by('stock')
-
-    # 3. Clientes nuevos (registrados en la última semana)
-    # Como no hay fecha de registro, mostramos los últimos 5 clientes creados.
-    clientes_nuevos = Cliente.objects.all().order_by('-idCliente')[:5]
-
-    # 4. Nuevos pedidos
-    pedidos_nuevos = Pedido.objects.filter(fechaCreacion__gte=una_semana_atras).order_by('-fechaCreacion')
+        total_vendido=Sum('cantidad'),
+        ultima_venta=Max('idPedido__fechaCreacion')
+    ).order_by('-total_vendido')[:5]
+    
+    # Agregar información de productos para las imágenes
+    productos_vendidos_completos = []
+    for item in productos_mas_vendidos:
+        try:
+            producto = Producto.objects.get(idProducto=item['idProducto__idProducto'])
+            productos_vendidos_completos.append({
+                'idProducto': producto.idProducto,
+                'nombreProducto': producto.nombreProducto,
+                'imagen': producto.imagen,
+                'total_vendido': item['total_vendido'],
+                'ultima_venta': item['ultima_venta'],
+                'precio': producto.precio,
+                'stock': producto.stock
+            })
+        except Producto.DoesNotExist:
+            continue
+    
+    # === PRODUCTOS POR SURTIR ===
+    productos_por_surtir = Producto.objects.filter(stock__lt=10).order_by('stock')[:10]
+    
+    # === ESTADÍSTICAS DE CLIENTES ===
+    # Simulamos fechas de registro usando el ID (los más recientes tienen ID mayor)
+    clientes_esta_semana = Cliente.objects.filter(
+        idCliente__gte=Cliente.objects.aggregate(max_id=Max('idCliente'))['max_id'] - 10
+    ).count() if Cliente.objects.exists() else 0
+    
+    clientes_semana_pasada = max(0, Cliente.objects.count() - clientes_esta_semana - 5)
+    
+    # === PEDIDOS NUEVOS ===
+    pedidos_nuevos = Pedido.objects.filter(
+        fechaCreacion__gte=una_semana_atras
+    ).select_related('idCliente').order_by('-fechaCreacion')[:10]
+    
+    # === VENTAS POR CATEGORÍA ===
+    ventas_por_categoria = DetallePedido.objects.filter(
+        idPedido__fechaCreacion__gte=una_semana_atras
+    ).values(
+        'idProducto__idCategoria__nombreCategoria'
+    ).annotate(
+        total=Sum(F('cantidad') * F('precio_unitario')),
+        categoria=F('idProducto__idCategoria__nombreCategoria')
+    ).order_by('-total')[:5]
+    
+    # Limpiar datos para el template
+    ventas_categoria_limpio = []
+    for item in ventas_por_categoria:
+        if item['categoria']:
+            ventas_categoria_limpio.append({
+                'categoria': item['categoria'],
+                'total': float(item['total'] or 0)
+            })
+    
+    # === PRODUCTO MÁS VENDIDO INDIVIDUAL ===
+    producto_mas_vendido = productos_mas_vendidos[0] if productos_mas_vendidos else None
 
     context = {
+        # Estadísticas generales
+        'total_productos': total_productos,
+        'total_clientes': total_clientes,
+        'total_pedidos': total_pedidos,
+        'ventas_totales': float(ventas_totales),
+        
+        # Productos
+        'productos_mas_vendidos': productos_vendidos_completos,
         'producto_mas_vendido': producto_mas_vendido,
         'productos_por_surtir': productos_por_surtir,
-        'clientes_nuevos': clientes_nuevos,
+        
+        # Clientes
+        'clientes_esta_semana': clientes_esta_semana,
+        'clientes_semana_pasada': clientes_semana_pasada,
+        
+        # Pedidos
         'pedidos_nuevos': pedidos_nuevos,
+        
+        # Ventas por categoría
+        'ventas_por_categoria': ventas_categoria_limpio,
     }
     return render(request, 'admin_dashboard.html', context)
 # core/views.py
@@ -70,54 +145,31 @@ def admin_agregar_view(request):
         nombre = request.POST.get('nombre')
         email = request.POST.get('email')
         password = request.POST.get('password')
-        confirmar_password = request.POST.get('confirmar_password')
 
-        if password != confirmar_password:
-            messages.error(request, "Las contraseñas no coinciden.")
-            return render(request, 'admin_form.html', {'action': 'Agregar', 'input': request.POST})
+        if not all([nombre, email, password]):
+            messages.error(request, "Todos los campos son obligatorios.")
+            return render(request, 'admin_agregar.html', {'error': 'Todos los campos son obligatorios.'})
 
         if Usuario.objects.filter(email=email).exists():
-            messages.error(request, "Este correo electrónico ya está registrado.")
-            return render(request, 'admin_form.html', {'action': 'Agregar', 'input': request.POST})
+            messages.error(request, "Ya existe un usuario con este correo electrónico.")
+            return render(request, 'admin_agregar.html', {'error': 'Ya existe un usuario con este correo electrónico.'})
 
         try:
             with transaction.atomic():
-                Usuario.objects.create(
+                nuevo_admin = Usuario.objects.create(
                     nombre=nombre,
                     email=email,
                     password=make_password(password),
-                    id_rol=1 # Set role to Admin
+                    id_rol_id=1  # Asignar rol de Administrador
                 )
-            messages.success(request, "Administrador agregado exitosamente.")
-            return redirect('lista_admin')
+                messages.success(request, f"Administrador '{nuevo_admin.nombre}' agregado exitosamente.")
+                return redirect('lista_admin')
         except Exception as e:
-            messages.error(request, f'Ocurrió un error: {e}')
-            return render(request, 'admin_form.html', {'action': 'Agregar', 'input': request.POST})
+            messages.error(request, f"Error al crear el administrador: {e}")
+            return render(request, 'admin_agregar.html')
 
-    return render(request, 'admin_form.html', {'action': 'Agregar'})
+    return render(request, 'admin_agregar.html')
 
-def admin_editar_view(request, id):
-    admin_user = get_object_or_404(Usuario, idUsuario=id, id_rol=1) # Ensure it's an admin
-    if request.method == 'POST':
-        admin_user.nombre = request.POST.get('nombre')
-        admin_user.email = request.POST.get('email')
-        new_password = request.POST.get('password')
-        confirm_new_password = request.POST.get('confirmar_password')
-
-        if new_password: # Only update password if provided
-            if new_password != confirm_new_password:
-                messages.error(request, "Las nuevas contraseñas no coinciden.")
-                return render(request, 'admin_form.html', {'action': 'Editar', 'form_object': admin_user})
-            admin_user.password = make_password(new_password)
-        
-        if Usuario.objects.filter(email=admin_user.email).exclude(idUsuario=admin_user.idUsuario).exists():
-            messages.error(request, "Este correo electrónico ya está registrado por otro usuario.")
-            return render(request, 'admin_form.html', {'action': 'Editar', 'form_object': admin_user})
-
-        admin_user.save()
-        messages.success(request, "Administrador actualizado exitosamente.")
-        return redirect('lista_admin')
-    return render(request, 'admin_form.html', {'form_object': admin_user, 'action': 'Editar'})
 
 def admin_pedidos_view(request):
     return render(request, 'admin_pedidos.html')
@@ -175,7 +227,32 @@ def cliente_editar_view(request, id):
 
 def cliente_eliminar_view(request, id):
     cliente = get_object_or_404(Cliente, idCliente=id)
-    cliente.delete()
+    
+    try:
+        with transaction.atomic():
+            # Primero, actualizar los usuarios relacionados para evitar el error de integridad referencial
+            # Establecer idCliente a NULL para todos los usuarios que referencian este cliente
+            usuarios_actualizados = Usuario.objects.filter(idCliente=id).update(idCliente=None)
+            
+            # Verificar si hay pedidos asociados al cliente
+            pedidos_count = Pedido.objects.filter(idCliente=id).count()
+            
+            if pedidos_count > 0:
+                messages.warning(request, f"El cliente {cliente.nombre} tiene {pedidos_count} pedido(s) asociado(s). Se eliminarán junto con el cliente.")
+            
+            # Ahora podemos eliminar el cliente de forma segura
+            # Los pedidos se eliminarán automáticamente por la restricción de la base de datos
+            cliente.delete()
+            
+            mensaje = f"Cliente {cliente.nombre} eliminado correctamente."
+            if usuarios_actualizados > 0:
+                mensaje += f" Se desvincularon {usuarios_actualizados} usuario(s) asociado(s)."
+            
+            messages.success(request, mensaje)
+            
+    except Exception as e:
+        messages.error(request, f"Error al eliminar el cliente: {str(e)}")
+    
     return redirect("lista_clientes")
 
 
@@ -277,28 +354,14 @@ def producto_agregar_view(request):
 
 def producto_editar_view(request, id):
     producto = get_object_or_404(Producto, idProducto=id)
-    stock_original = producto.stock
 
     if request.method == 'POST':
         producto.nombreProducto = request.POST.get('nombreProducto')
         producto.descripcion = request.POST.get('descripcion')
         producto.precio = request.POST.get('precio')
-        nuevo_stock = int(request.POST.get('stock'))
-
-        if nuevo_stock != stock_original:
-            diferencia = nuevo_stock - stock_original
-            tipo_movimiento = 'AJUSTE_MANUAL_ENTRADA' if diferencia > 0 else 'AJUSTE_MANUAL_SALIDA'
-            MovimientoProducto.objects.create(
-                producto=producto,
-                tipo_movimiento=tipo_movimiento,
-                precio_unitario=producto.precio,
-                cantidad=abs(diferencia),
-                stock_anterior=stock_original,
-                stock_nuevo=nuevo_stock,
-                descripcion='Ajuste manual desde el panel de edición'
-            )
         
-        producto.stock = nuevo_stock
+        # El stock no se edita aquí, solo en movimientos_producto
+        
         producto.idCategoria = get_object_or_404(Categoria, idCategoria=request.POST.get('idCategoria'))
         
         id_subcategoria = request.POST.get('idSubcategoria')
@@ -411,25 +474,159 @@ def pedido_eliminar_view(request, id):
 def pedido_detalle_view(request, id):
     pedido = get_object_or_404(Pedido, idPedido=id)
     detalles = DetallePedido.objects.filter(idPedido=id)
+    
+    # Calcular total de unidades
+    total_unidades = sum(detalle.cantidad for detalle in detalles)
+    
     return render(request, 'pedidos_detalle.html', {
         'pedido': pedido,
-        'detalles': detalles
+        'detalles': detalles,
+        'total_unidades': total_unidades
+    })
+
+def producto_detalle_view(request, id):
+    producto = get_object_or_404(Producto, idProducto=id)
+    
+    # Obtener movimientos recientes del producto
+    movimientos_recientes = MovimientoProducto.objects.filter(
+        producto=id
+    ).order_by('-fecha')[:5]
+    
+    # Calcular estadísticas del producto
+    total_entradas = MovimientoProducto.objects.filter(
+        producto=id,
+        tipo_movimiento__in=['ENTRADA_INICIAL', 'AJUSTE_MANUAL_ENTRADA']
+    ).aggregate(total=Sum('cantidad'))['total'] or 0
+    
+    total_salidas = MovimientoProducto.objects.filter(
+        producto=id,
+        tipo_movimiento__in=['SALIDA_VENTA', 'AJUSTE_MANUAL_SALIDA']
+    ).aggregate(total=Sum('cantidad'))['total'] or 0
+    
+    return render(request, 'productos_detalle.html', {
+        'producto': producto,
+        'movimientos_recientes': movimientos_recientes,
+        'total_entradas': total_entradas,
+        'total_salidas': total_salidas
+    })
+
+def cliente_detalle_view(request, id):
+    cliente = get_object_or_404(Cliente, idCliente=id)
+    
+    # Obtener todos los pedidos del cliente
+    pedidos = Pedido.objects.filter(idCliente=id).order_by('-fechaCreacion')
+    
+    # Calcular estadísticas del cliente
+    total_pedidos = pedidos.count()
+    total_gastado = pedidos.aggregate(total=Sum('total'))['total'] or 0
+    
+    # Pedidos por estado
+    pedidos_completados = pedidos.filter(estado='Pago Completo').count()
+    pedidos_pendientes = pedidos.filter(estado='Pago Parcial').count()
+    pedidos_sin_pago = pedidos.filter(estado='Sin Pago').count()
+    
+    # Pedidos recientes (últimos 5)
+    pedidos_recientes = pedidos[:5]
+    
+    # Promedio de gasto por pedido
+    promedio_gasto = total_gastado / total_pedidos if total_pedidos > 0 else 0
+    
+    return render(request, 'cliente_detalle.html', {
+        'cliente': cliente,
+        'pedidos': pedidos,
+        'pedidos_recientes': pedidos_recientes,
+        'total_pedidos': total_pedidos,
+        'total_gastado': total_gastado,
+        'pedidos_completados': pedidos_completados,
+        'pedidos_pendientes': pedidos_pendientes,
+        'pedidos_sin_pago': pedidos_sin_pago,
+        'promedio_gasto': promedio_gasto
+    })
+
+def admin_detalle_view(request, id):
+    admin = get_object_or_404(Usuario, idUsuario=id, id_rol=1)  # Solo administradores
+    
+    # Obtener información adicional del administrador
+    fecha_registro = admin.fechaRegistro if hasattr(admin, 'fechaRegistro') else None
+    ultimo_acceso = admin.ultimoAcceso if hasattr(admin, 'ultimoAcceso') else None
+    
+    return render(request, 'admin_detalle.html', {
+        'admin': admin,
+        'fecha_registro': fecha_registro,
+        'ultimo_acceso': ultimo_acceso
     })
 
 # Panel Repartidores
+def calcular_fecha_entrega(pedido):
+    """Calcula la fecha de entrega según la ciudad del cliente"""
+    from datetime import timedelta
+    
+    direccion_cliente = pedido.idCliente.direccion or ""
+    direccion_lower = direccion_cliente.lower()
+    
+    if 'soacha' in direccion_lower:
+        dias_entrega = 3
+    elif 'bogota' in direccion_lower or 'bogotá' in direccion_lower:
+        dias_entrega = 2
+    else:
+        dias_entrega = 3
+    
+    return pedido.fechaCreacion + timedelta(days=dias_entrega)
+
+def verificar_y_actualizar_pedidos_entregados():
+    """Verifica y actualiza automáticamente los pedidos que deben marcarse como entregados"""
+    from django.utils import timezone
+    
+    # Obtener pedidos en estado "En Camino"
+    pedidos_en_camino = Pedido.objects.filter(estado='En Camino').select_related('idCliente')
+    
+    ahora = timezone.now()
+    pedidos_actualizados = 0
+    
+    for pedido in pedidos_en_camino:
+        fecha_entrega = calcular_fecha_entrega(pedido)
+        
+        # Si ya pasó la fecha de entrega, marcar como entregado
+        if ahora >= fecha_entrega:
+            pedido.estado = 'Entregado'
+            pedido.save()
+            pedidos_actualizados += 1
+    
+    return pedidos_actualizados
+
 def lista_repartidores_view(request):
-    repartidores = Repartidor.objects.all().order_by('nombreRepartidor')
-    # Pedidos que no tienen repartidor asignado y están en un estado que permite asignación
-    # Consideramos pedidos con estado 'Pago Completo' o 'Pago Parcial' como asignables
+    # Verificar y actualizar pedidos automáticamente
+    verificar_y_actualizar_pedidos_entregados()
+    
+    # Obtener repartidores con conteo de pedidos
+    from django.db.models import Count
+    repartidores = Repartidor.objects.annotate(
+        pedidos_count=Count('pedido')
+    ).order_by('nombreRepartidor')
+    
+    # Filtros
+    filtro_repartidor = request.GET.get('repartidor')
+    filtro_estado = request.GET.get('estado')
+    
+    # Pedidos pendientes
     pedidos_pendientes = Pedido.objects.filter(
         idRepartidor__isnull=True,
         estado__in=['Pago Completo', 'Pago Parcial']
-    ).order_by('fechaCreacion')
-
-    # Pedidos que ya tienen un repartidor asignado
+    ).select_related('idCliente').order_by('fechaCreacion')
+    
+    # Pedidos asignados
     pedidos_asignados = Pedido.objects.filter(
         idRepartidor__isnull=False
     ).select_related('idCliente', 'idRepartidor').order_by('-fechaCreacion')
+    
+    # Aplicar filtros
+    if filtro_repartidor:
+        pedidos_asignados = pedidos_asignados.filter(idRepartidor__idRepartidor=filtro_repartidor)
+    
+    if filtro_estado == 'pendiente':
+        pedidos_asignados = Pedido.objects.none()  # No mostrar asignados
+    elif filtro_estado == 'asignado':
+        pedidos_pendientes = Pedido.objects.none()  # No mostrar pendientes
     
     return render(request, 'lista_repartidores.html', {
         'repartidores': repartidores,
@@ -481,28 +678,97 @@ def asignar_pedido_repartidor_view(request):
         pedido_id = request.POST.get('pedido_id')
         repartidor_id = request.POST.get('repartidor_id')
 
-        pedido = get_object_or_404(Pedido, idPedido=pedido_id)
+        pedido = get_object_or_404(Pedido.objects.select_related('idCliente'), idPedido=pedido_id)
         repartidor = get_object_or_404(Repartidor, idRepartidor=repartidor_id)
 
         # Asignar el repartidor al pedido
         pedido.idRepartidor = repartidor
+        
+        # Cambiar el estado del pedido a "En Camino"
+        pedido.estado = 'En Camino'
+        
+        # Guardar la fecha de entrega en la sesión o en un modelo auxiliar
+        # Como el modelo no tiene campo fechaEntrega, usaremos el cálculo dinámico
+        
         pedido.save()
 
-        # Opcional: Cambiar el estado del repartidor a "En Ruta" si se desea
-        # repartidor.estado_turno = 'En Ruta'
-        # repartidor.save()
+        # Cambiar el estado del repartidor a "En Ruta"
+        repartidor.estado_turno = 'En Ruta'
+        repartidor.save()
 
-        # messages.success(request, f"Pedido #{pedido.idPedido} asignado a {repartidor.nombreRepartidor}.")
+        # Redirigir a la lista de repartidores sin descargar PDF
+        # El PDF se puede descargar usando el botón "Descargar PDF"
         return redirect('lista_repartidores')
-    return redirect('lista_repartidores') # Redirigir si se accede por GET
+    
+    return redirect('lista_repartidores')
+
+def generar_pdf_asignacion(request, pedido, repartidor, fecha_entrega, ciudad_entrega, dias_entrega):
+    """Genera un PDF con los detalles de la asignación del pedido al repartidor"""
+    detalles = DetallePedido.objects.filter(idPedido=pedido.idPedido).select_related('idProducto')
+    
+    context = {
+        'pedido': pedido,
+        'repartidor': repartidor,
+        'detalles': detalles,
+        'fecha_entrega': fecha_entrega,
+        'ciudad_entrega': ciudad_entrega,
+        'dias_entrega': dias_entrega,
+    }
+    
+    template_path = 'asignacion_pedido_pdf.html'
+    template = get_template(template_path)
+    html = template.render(context)
+    
+    result = BytesIO()
+    pdf = pisa.pisaDocument(BytesIO(html.encode("UTF-8")), result)
+    
+    if not pdf.err:
+        response = HttpResponse(result.getvalue(), content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="asignacion_pedido_{pedido.idPedido}.pdf"'
+        return response
+    
+    return HttpResponse('Ocurrió un error al generar el PDF.', status=500)
 
 def desasignar_repartidor_view(request, id_pedido):
     if request.method == 'POST':
         pedido = get_object_or_404(Pedido, idPedido=id_pedido)
         pedido.idRepartidor = None
+        # Cambiar el estado de vuelta a su estado anterior
+        if pedido.estado == 'En Camino':
+            pedido.estado = 'Pago Completo'  # O el estado que corresponda
         pedido.save()
         # messages.success(request, f"Se ha desasignado el repartidor del pedido #{id_pedido}.")
     return redirect('lista_repartidores')
+
+def descargar_pdf_asignacion_view(request, id_pedido):
+    """Descarga el PDF de asignación de un pedido ya asignado"""
+    pedido = get_object_or_404(Pedido.objects.select_related('idCliente', 'idRepartidor'), idPedido=id_pedido)
+    
+    # Verificar que el pedido tenga un repartidor asignado
+    if not pedido.idRepartidor:
+        return HttpResponse('Este pedido no tiene un repartidor asignado.', status=400)
+    
+    repartidor = pedido.idRepartidor
+    
+    # Calcular fecha de entrega según la ciudad
+    direccion_cliente = pedido.idCliente.direccion or ""
+    direccion_lower = direccion_cliente.lower()
+    
+    if 'soacha' in direccion_lower:
+        dias_entrega = 3
+        ciudad_entrega = 'Soacha'
+    elif 'bogota' in direccion_lower or 'bogotá' in direccion_lower:
+        dias_entrega = 2
+        ciudad_entrega = 'Bogotá'
+    else:
+        dias_entrega = 3
+        ciudad_entrega = 'No especificada'
+    
+    from datetime import timedelta
+    fecha_entrega = pedido.fechaCreacion + timedelta(days=dias_entrega)
+    
+    # Generar el PDF
+    return generar_pdf_asignacion(request, pedido, repartidor, fecha_entrega, ciudad_entrega, dias_entrega)
 
 def descargar_pedido_pdf_view(request, id_pedido):
     pedido = get_object_or_404(Pedido.objects.select_related('idCliente', 'idRepartidor'), idPedido=id_pedido)
@@ -613,3 +879,66 @@ def subcategoria_eliminar_view(request, id):
         subcategoria = get_object_or_404(Subcategoria, idSubcategoria=id)
         subcategoria.delete()
     return redirect('lista_subcategorias')
+
+def notificaciones_view(request):
+    """Vista para mostrar las notificaciones de problemas de entrega"""
+    from core.models import NotificacionProblema
+    
+    # Obtener todas las notificaciones ordenadas por fecha
+    notificaciones = NotificacionProblema.objects.select_related(
+        'idPedido__idCliente',
+        'idPedido__idRepartidor'
+    ).order_by('-fechaReporte')
+    
+    # Contar notificaciones no leídas
+    notificaciones_no_leidas = notificaciones.filter(leida=False).count()
+    
+    return render(request, 'notificaciones.html', {
+        'notificaciones': notificaciones,
+        'notificaciones_no_leidas': notificaciones_no_leidas
+    })
+
+def marcar_notificacion_leida(request, id_notificacion):
+    """Marca una notificación como leída"""
+    from core.models import NotificacionProblema
+    
+    if request.method == 'POST':
+        notificacion = get_object_or_404(NotificacionProblema, idNotificacion=id_notificacion)
+        notificacion.leida = True
+        notificacion.save()
+        messages.success(request, "Notificación marcada como leída.")
+    
+    return redirect('notificaciones')
+
+
+def asignar_pedidos_multiples_view(request):
+    """Asigna múltiples pedidos a un repartidor de una vez"""
+    if request.method == 'POST':
+        pedido_ids = request.POST.getlist('pedido_ids')
+        repartidor_id = request.POST.get('repartidor_id')
+        
+        if not pedido_ids or not repartidor_id:
+            return redirect('lista_repartidores')
+        
+        repartidor = get_object_or_404(Repartidor, idRepartidor=repartidor_id)
+        
+        # Asignar todos los pedidos seleccionados
+        pedidos_asignados = 0
+        for pedido_id in pedido_ids:
+            try:
+                pedido = Pedido.objects.get(idPedido=pedido_id)
+                pedido.idRepartidor = repartidor
+                pedido.estado = 'En Camino'
+                pedido.save()
+                pedidos_asignados += 1
+            except Pedido.DoesNotExist:
+                continue
+        
+        # Cambiar el estado del repartidor a "En Ruta"
+        if pedidos_asignados > 0:
+            repartidor.estado_turno = 'En Ruta'
+            repartidor.save()
+        
+        return redirect('lista_repartidores')
+    
+    return redirect('lista_repartidores')

@@ -17,8 +17,8 @@ urlpatterns = [
     path('admin/detalles/', views.admin_detalles_view, name='admin_detalles'),
 
     # Panel Cliente
-
     path("clientes/", views.lista_clientes_view, name="lista_clientes"),
+    path("clientes/detalle/<int:id>/", views.cliente_detalle_view, name="cliente_detalle"),
     path("clientes/editar/<int:id>/", views.cliente_editar_view, name="cliente_editar"),
     path("clientes/eliminar/<int:id>/", views.cliente_eliminar_view, name="cliente_eliminar"),
 
@@ -37,14 +37,13 @@ path("distribuidores/", views.lista_distribuidores_view, name="lista_distribuido
 
 
     # Panel Productos
- path("productos/editar/<int:id>/", views.producto_editar_view, name="producto_editar"),
- path("productos/agregar/", views.producto_agregar_view, name="producto_agregar"),
-path("productos/eliminar/<int:id>/", views.producto_eliminar_view, name="producto_eliminar"),
-path("productos/", views.lista_productos_view, name="lista_productos"),
-path("productos/movimientos/<int:id>/", views.movimientos_producto_view, name="movimientos_producto"),
-path("productos/ajustar_stock/<int:id>/", views.ajustar_stock_view, name="ajustar_stock"),
- path("productos/eliminar/<int:id>/", views.producto_eliminar_view, name="producto_eliminar"),
- path("productos/", views.lista_productos_view, name="lista_productos"),
+    path("productos/", views.lista_productos_view, name="lista_productos"),
+    path("productos/agregar/", views.producto_agregar_view, name="producto_agregar"),
+    path("productos/editar/<int:id>/", views.producto_editar_view, name="producto_editar"),
+    path("productos/detalle/<int:id>/", views.producto_detalle_view, name="producto_detalle"),
+    path("productos/eliminar/<int:id>/", views.producto_eliminar_view, name="producto_eliminar"),
+    path("productos/movimientos/<int:id>/", views.movimientos_producto_view, name="movimientos_producto"),
+    path("productos/ajustar_stock/<int:id>/", views.ajustar_stock_view, name="ajustar_stock"),
 
 
     # Panel Pedidos
@@ -59,13 +58,14 @@ path("productos/ajustar_stock/<int:id>/", views.ajustar_stock_view, name="ajusta
     path('repartidores/editar/<int:id>/', views.repartidor_editar_view, name='repartidor_editar'),
     path('repartidores/eliminar/<int:id>/', views.repartidor_eliminar_view, name='repartidor_eliminar'),
     path('repartidores/asignar_pedido/', views.asignar_pedido_repartidor_view, name='asignar_pedido_repartidor'),
+    path('repartidores/asignar_multiples/', views.asignar_pedidos_multiples_view, name='asignar_pedidos_multiples'),
     path('repartidores/desasignar_pedido/<int:id_pedido>/', views.desasignar_repartidor_view, name='desasignar_repartidor'),
+    path('repartidores/descargar_pdf_asignacion/<int:id_pedido>/', views.descargar_pdf_asignacion_view, name='descargar_pdf_asignacion'),
     path('pedidos/descargar_pdf/<int:id_pedido>/', views.descargar_pedido_pdf_view, name='descargar_pedido_pdf'),
 
     # Panel Admin (perfil)
     path('admin/', views.lista_admin_view, name='lista_admin'), # Esta es la lista principal de administradores
-    path('admin/agregar/', views.admin_agregar_view, name='admin_agregar'),
-    path('admin/editar/<int:id>/', views.admin_editar_view, name='admin_editar'),
+    path('admin/detalle/<int:id>/', views.admin_detalle_view, name='admin_detalle'),
     path('admin/eliminar/<int:id>/', views.admin_eliminar_view, name='admin_eliminar'),
     path('logout/', views.logout_view, name='logout'), # Usamos tu vista personalizada y la nombramos 'logout'
 
@@ -78,6 +78,10 @@ path("productos/ajustar_stock/<int:id>/", views.ajustar_stock_view, name="ajusta
     path('subcategorias/agregar/', views.subcategoria_agregar_view, name='subcategoria_agregar'),
     path('subcategorias/editar/<int:id>/', views.subcategoria_editar_view, name='subcategoria_editar'),
     path('subcategorias/eliminar/<int:id>/', views.subcategoria_eliminar_view, name='subcategoria_eliminar'),
+
+    # Notificaciones
+    path('notificaciones/', views.notificaciones_view, name='notificaciones'),
+    path('notificaciones/marcar_leida/<int:id_notificacion>/', views.marcar_notificacion_leida, name='marcar_notificacion_leida'),
 
 ]
   

@@ -3,115 +3,91 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Editar Distribuidor | Panel Administrador</title>
-    <link rel="stylesheet" href="{% static 'css/distribuidores_panel.css' %}">
-    <style>
-        body {
-            font-family: "Comic Sans MS", cursive, sans-serif;
-            margin: 0;
-            background-color: #fdf6f9;
-        }
-        header {
-            background-color: #f7c5dd;
-            color: #4a4a4a;
-            padding: 20px 40px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        }
-        header h1 {
-            margin: 0;
-            font-size: 28px;
-        }
-        header img.logo {
-            height: 90px;
-        }
-        main {
-            padding: 40px;
-            max-width: 600px;
-            margin: auto;
-        }
-        h2 {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        form {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #4a4a4a;
-        }
-        input[type="text"], input[type="number"] {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #e0cce3;
-            border-radius: 6px;
-            font-size: 16px;
-        }
-        .btn-guardar {
-            background-color: #a8e6cf;
-            color: #333;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .btn-guardar:hover {
-            background-color: #81d4b2;
-            transform: scale(1.03);
-        }
-        .volver-link {
-            display: block;
-            margin-top: 20px;
-            text-align: center;
-            text-decoration: none;
-            color: #4a4a4a;
-            font-weight: bold;
-        }
-        footer {
-            text-align: center;
-            padding: 20px;
-            background-color: #f7c5dd;
-            color: #4a4a4a;
-            margin-top: 40px;
-        }
-    </style>
+    <title>Editar Distribuidor | Glam Store</title>
+    <link rel="icon" href="{% static 'img/logoglam.png' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/admin_panel.css' %}">
 </head>
 <body>
-    <header>
-        <h1>Editar Distribuidor</h1>
-        <img src="{% static 'img/logoglam.png' %}" alt="Logo Glam Store" class="logo">
-    </header>
-
-    <main>
-        <h2>Modifica los datos del distribuidor</h2>
-        <form method="post">
-    {% csrf_token %}
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h2>Admin Glam</h2>
+      <p>Panel de Control</p>
+    </div>
+    <div class="sidebar-user">
+      <p>{{ request.session.usuario_nombre }}</p>
+      <p class="rol">Administrador</p>
+    </div>
+    <div class="sidebar-nav">
+      <a href="{% url 'dashboard_admin' %}">Dashboard</a>
+      <a href="{% url 'lista_admin' %}">Mi Perfil</a>
+      <a href="{% url 'lista_clientes' %}">Clientes</a>
+      <a href="{% url 'lista_distribuidores' %}" class="active">Distribuidores</a>
+      <a href="{% url 'lista_pedidos' %}">Pedidos</a>
+      <a href="{% url 'lista_productos' %}">Productos</a>
+      <a href="{% url 'lista_repartidores' %}">Repartidores</a>
+      <a href="{% url 'lista_categorias' %}">Categorías</a>
+      <a href="{% url 'lista_subcategorias' %}">Subcategorías</a>
+    </div>
+    <div class="sidebar-footer">
+      <a href="{% url 'logout' %}">Cerrar Sesión</a>
+    </div>
+  </div>
+  
+  <div class="main-content">
+    <div class="page-header">
+      <h1>Editar Distribuidor</h1>
+    </div>
     
-    <label for="nombreDistribuidor">Nombre del Distribuidor</label>
-    <input type="text" id="nombreDistribuidor" name="nombreDistribuidor" value="{{ distribuidor.nombreDistribuidor }}" required>
+    <div class="card">
+      <div class="form-container">
+        <div class="form-help">
+          <p>Modifica los datos del distribuidor. Los campos marcados con * son obligatorios.</p>
+        </div>
+        
+        <form method="post">
+          {% csrf_token %}
+          
+          <div class="form-group required-field">
+            <label for="nombreDistribuidor">Nombre del Distribuidor</label>
+            <input type="text" id="nombreDistribuidor" name="nombreDistribuidor" value="{{ distribuidor.nombreDistribuidor }}" required placeholder="Ej: Distribuidora Belleza S.A." maxlength="100">
+          </div>
 
-    <label for="contacto">Contacto</label>
-    <input type="text" id="contacto" name="contacto" value="{{ distribuidor.contacto }}" required>
+          <div class="form-group required-field">
+            <label for="contacto">Información de Contacto</label>
+            <input type="text" id="contacto" name="contacto" value="{{ distribuidor.contacto }}" required placeholder="Teléfono, email o persona de contacto">
+            <small>Incluye teléfono, email o nombre de la persona de contacto</small>
+          </div>
+          
+          <div class="form-group">
+            <label for="direccion">Dirección</label>
+            <input type="text" id="direccion" name="direccion" value="{{ distribuidor.direccion }}" placeholder="Dirección completa del distribuidor">
+            <small>Incluye ciudad, sector y referencias</small>
+          </div>
+          
+          <div class="form-group">
+            <label for="email">Correo Electrónico</label>
+            <input type="email" id="email" name="email" value="{{ distribuidor.email }}" placeholder="contacto@distribuidor.com">
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="telefono">Teléfono</label>
+              <input type="tel" id="telefono" name="telefono" value="{{ distribuidor.telefono }}" placeholder="Ej: +593 99 123 4567">
+            </div>
+            <div class="form-group">
+              <label for="ruc">RUC/NIT</label>
+              <input type="text" id="ruc" name="ruc" value="{{ distribuidor.ruc }}" placeholder="Número de identificación fiscal">
+            </div>
+          </div>
 
-    <button type="submit" class="btn-guardar">💾 Guardar Cambios</button>
-</form>
-
-        <a href="{% url 'lista_distribuidores' %}" class="volver-link">← Volver al Panel de Distribuidores</a>
-    </main>
-
-    <footer>
-        <p>&copy; 2025 Glam Store. Todos los derechos reservados.</p>
-    </footer>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+            <a href="{% url 'lista_distribuidores' %}" class="btn btn-secondary">Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

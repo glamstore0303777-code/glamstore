@@ -3,197 +3,95 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Panel de Administradores</title>
+  <title>Panel de Administradores — Glam Store</title>
+  <link rel="icon" href="{% static 'img/logoglam.png' %}">
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: "Comic Sans MS", cursive, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #fdf6f9;
-      display: flex;
-    }
-    .sidebar {
-      width: 220px;
-      background-color: #f7c5dd;
-      color: #4a4a4a;
-      height: 100vh;
-      position: fixed;
-      top: 0;
-      left: 0;
-      padding: 20px;
-      box-shadow: 2px 0 6px rgba(0,0,0,0.1);
-    }
-    .sidebar h2 {
-      font-size: 20px;
-      margin-bottom: 20px;
-    }
-    .sidebar a {
-      display: block;
-      margin-bottom: 12px;
-      text-decoration: none;
-      color: #4a4a4a;
-      font-weight: bold;
-    }
-    .sidebar a:hover {
-      text-decoration: underline;
-    }
-    .main-content {
-      margin-left: 240px;
-      width: calc(100% - 240px);
-    }
-    header {
-      background-color: #f7c5dd;
-      color: #4a4a4a;
-      padding: 20px 40px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    header h1 {
-      margin: 0;
-      font-size: 28px;
-    }
-    header img {
-      height: 100px;
-    }
-    main {
-      padding: 40px;
-    }
-    .top-bar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-    }
-    .volver-btn, .btn-agregar {
-      padding: 10px 20px;
-      background-color: #fbb1c8;
-      border: none;
-      border-radius: 6px;
-      color: #333;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      text-decoration: none;
-      display: inline-block;
-    }
-    .volver-btn:hover, .btn-agregar:hover {
-      background-color: #f98aa7;
-      transform: scale(1.03);
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background-color: #fff;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    th, td {
-      padding: 12px 15px;
-      border: 1px solid #e0cce3;
-      text-align: left;
-    }
-    th {
-      background-color: #fceef5;
-      color: #5a5a5a;
-    }
-    .acciones a, .acciones button {
-      margin-right: 6px;
-      padding: 6px 12px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: all 0.2s ease;
-      text-decoration: none;
-    }
-    .btn-editar { background-color: #a8e6cf; color: #333; }
-    .btn-eliminar { background-color: #ffaaa5; color: #333; }
-    .acciones a:hover, .acciones button:hover {
-      opacity: 0.9;
-      transform: scale(1.05);
-    }
-    .messages { list-style: none; padding: 0; margin-bottom: 1.5rem; }
-    .messages li.error { background-color: #fee2e2; color: #991b1b; padding: 0.8rem; border-radius: 8px; font-weight: bold; margin-bottom: 0.5rem; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { margin: 0; font-family: 'Comic Neue', cursive, Arial, sans-serif; background-color: #fffafc; display: flex; min-height: 100vh; }
+    .sidebar { background-color: #fce4ec; padding: 2rem; width: 240px; height: 100vh; position: fixed; display: flex; flex-direction: column; border-right: 2px solid #f8bbd0; box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1); z-index: 1000; overflow-y: auto; }
+    .sidebar-header { text-align: center; margin-bottom: 2rem; }
+    .sidebar-header h2 { color: #ad1457; font-size: 1.8rem; margin-bottom: 0.5rem; }
+    .sidebar-header p { color: #d81b60; font-size: 0.9rem; }
+    .sidebar-user { background-color: #fff; padding: 1rem; border-radius: 10px; margin-bottom: 1.5rem; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05); text-align: center; border: 2px solid #f8bbd0; }
+    .sidebar-user p { margin: 0.3rem 0; color: #c2185b; font-weight: bold; font-size: 1rem; }
+    .sidebar-user .rol { font-size: 0.85rem; color: #d81b60; font-weight: normal; }
+    .sidebar-nav { flex: 1; }
+    .sidebar a { display: block; margin: 0.5rem 0; color: #880e4f; text-decoration: none; font-weight: bold; padding: 0.8rem 1rem; border-radius: 25px; transition: all 0.3s ease; }
+    .sidebar a:hover, .sidebar a.active { background-color: #f8bbd0; color: #fff; }
+    .sidebar-footer { margin-top: auto; padding-top: 1rem; border-top: 2px solid #f8bbd0; }
+    .main-content { margin-left: 240px; padding: 2rem 5rem; width: calc(100% - 240px - 10rem); flex: 1; }
+    .page-header { margin-bottom: 2rem; }
+    .page-header h1 { font-size: 2.2rem; color: #c2185b; border-bottom: 3px solid #f48fb1; padding-bottom: 0.5rem; margin-bottom: 1rem; }
+    .action-bar { margin-bottom: 2rem; display: flex; gap: 1rem; }
+    .btn { padding: 0.8rem 1.5rem; border-radius: 25px; text-decoration: none; font-weight: bold; transition: all 0.3s ease; border: none; cursor: pointer; font-family: 'Comic Neue', cursive, Arial, sans-serif; font-size: 1rem; display: inline-block; }
+    .btn-primary { background: linear-gradient(135deg, #f48fb1 0%, #ec407a 100%); color: white; box-shadow: 0 4px 12px rgba(244, 143, 177, 0.3); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(244, 143, 177, 0.4); }
+    .btn-secondary { background: white; color: #c2185b; border: 2px solid #f48fb1; }
+    .btn-secondary:hover { background: #fce4ec; }
+    .table-container { background: #fff; border-radius: 15px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%); }
+    thead th { padding: 1rem; text-align: left; color: #ad1457; font-weight: bold; border-bottom: 2px solid #f48fb1; }
+    tbody tr { border-bottom: 1px solid #fce4ec; transition: all 0.3s ease; }
+    tbody tr:hover { background: #fffafc; }
+    tbody td { padding: 1rem; color: #666; }
+    .acciones { display: flex; gap: 0.5rem; }
+    .acciones a, .acciones button { padding: 0.5rem 1rem; border-radius: 20px; text-decoration: none; font-weight: bold; font-size: 0.9rem; border: none; cursor: pointer; transition: all 0.3s ease; }
+    .detalle-btn { background: #e3f2fd; color: #1565c0; }
+    .detalle-btn:hover { background: #bbdefb; }
+    .eliminar-btn { background: #ffebee; color: #c62828; }
+    .eliminar-btn:hover { background: #ffcdd2; }
+    @media (max-width: 768px) { .sidebar { width: 100%; height: auto; position: relative; } .main-content { margin-left: 0; padding: 2rem; width: 100%; } }
   </style>
-  <script>
-    function volverDashboard() {
-      window.location.href = "{% url 'dashboard_admin' %}";
-    }
-    function confirmarEliminacion(id) {
-        if (confirm('¿Estás seguro de que deseas eliminar a este administrador?')) {
-            document.getElementById('form-eliminar-' + id).submit();
-        }
-    }
-  </script>
 </head>
 <body>
   <div class="sidebar">
-    <h2>Admin Glam</h2>
-    <a href="{% url 'lista_admin' %}">👤 Panel Administradores</a>
-    <a href="{% url 'lista_clientes' %}">💄 Panel Cliente</a>
-    <a href="{% url 'lista_distribuidores' %}">🚚 Panel Distribuidores</a>
-    <a href="{% url 'lista_pedidos' %}">📋 Panel Pedidos</a>
-    <a href="{% url 'lista_productos' %}">🛍️ Panel Productos</a>
-    <a href="{% url 'lista_repartidores' %}">🛵 Panel Repartidores</a>
-    <a href="{% url 'lista_categorias' %}">🎨 Panel Categorías</a>
-    <a href="{% url 'lista_subcategorias' %}">✨ Panel Subcategorías</a>
-    <a href="{% url 'logout' %}">🔓 Cerrar sesión</a>
+    <div class="sidebar-header"><h2>Admin Glam</h2><p>Panel de Control</p></div>
+    <div class="sidebar-user"><p>{{ request.session.usuario_nombre }}</p><p class="rol">Administrador</p></div>
+    <div class="sidebar-nav">
+      <a href="{% url 'dashboard_admin' %}">Dashboard</a>
+      <a href="{% url 'lista_admin' %}" class="active">Mi Perfil</a>
+      <a href="{% url 'lista_clientes' %}">Clientes</a>
+      <a href="{% url 'lista_distribuidores' %}">Distribuidores</a>
+      <a href="{% url 'lista_pedidos' %}">Pedidos</a>
+      <a href="{% url 'lista_productos' %}">Productos</a>
+      <a href="{% url 'lista_repartidores' %}">Repartidores</a>
+      <a href="{% url 'lista_categorias' %}">Categorías</a>
+      <a href="{% url 'lista_subcategorias' %}">Subcategorías</a>
+    </div>
+    <div class="sidebar-footer"><a href="{% url 'logout' %}">Cerrar Sesión</a></div>
   </div>
-
   <div class="main-content">
-    <header>
-      <h1>Panel de Administradores</h1>
-      <img src="{% static 'img/logoglam.png' %}" alt="Logo GlamStore">
-    </header>
-    <main>
-      <div class="top-bar">
-        <button class="volver-btn" onclick="volverDashboard()">← Volver al Dashboard</button>
-        <a href="{% url 'admin_agregar' %}" class="btn-agregar">➕ Agregar Administrador</a>
-      </div>
-
-      {% if messages %}
-          <ul class="messages">
-              {% for message in messages %}
-                  <li class="error">{{ message }}</li>
-              {% endfor %}
-          </ul>
-      {% endif %}
-
+    <div class="page-header"><h1>Gestión de Administradores</h1></div>
+    <div class="action-bar">
+      <a href="{% url 'dashboard_admin' %}" class="btn btn-secondary">← Volver</a>
+    </div>
+    <div class="table-container">
       <table>
         <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Email</th>
-            <th>Acciones</th>
-          </tr>
+          <tr><th>ID</th><th>Nombre</th><th>Email</th><th>Acciones</th></tr>
         </thead>
         <tbody>
-          {% for admin_user in admins %}
+          {% for admin in admins %}
           <tr>
-            <td>{{ admin_user.idUsuario }}</td>
-            <td>{{ admin_user.nombre }}</td>
-            <td>{{ admin_user.email }}</td>
+            <td>{{ admin.idUsuario }}</td>
+            <td>{{ admin.nombre }}</td>
+            <td>{{ admin.email }}</td>
             <td class="acciones">
-              <a href="{% url 'admin_editar' admin_user.idUsuario %}" class="btn-editar">Editar</a>
-              <form id="form-eliminar-{{ admin_user.idUsuario }}" method="POST" action="{% url 'admin_eliminar' admin_user.idUsuario %}" style="display:inline;">
+              <a href="{% url 'admin_detalle' admin.idUsuario %}" class="detalle-btn">Ver Detalle</a>
+              <form method="POST" action="{% url 'admin_eliminar' admin.idUsuario %}" style="display: inline;">
                 {% csrf_token %}
-                <button type="button" class="btn-eliminar" onclick="confirmarEliminacion('{{ admin_user.idUsuario }}')"
-                        {% if request.session.usuario_id == admin_user.idUsuario %}disabled title="No puedes eliminar tu propia cuenta."{% endif %}>
-                  Eliminar
-                </button>
+                <button type="submit" class="eliminar-btn" onclick="return confirm('¿Eliminar este administrador?');">Eliminar</button>
               </form>
             </td>
           </tr>
           {% empty %}
-          <tr><td colspan="4">No hay administradores registrados.</td></tr>
+          <tr><td colspan="4" style="text-align: center; padding: 2rem; color: #999;">No hay administradores registrados</td></tr>
           {% endfor %}
         </tbody>
       </table>
-    </main>
+    </div>
   </div>
 </body>
 </html>

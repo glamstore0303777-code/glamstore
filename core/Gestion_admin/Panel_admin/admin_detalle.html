@@ -1,0 +1,514 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Detalle del Administrador — {{ admin.nombre }} — Glam Store</title>
+  <link rel="icon" href="{% static 'img/logoglam.png' %}">
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Comic Neue', cursive, Arial, sans-serif;
+      background-color: #fffafc;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      background-color: #fce4ec;
+      padding: 2rem;
+      width: 240px;
+      height: 100vh;
+      position: fixed;
+      display: flex;
+      flex-direction: column;
+      border-right: 2px solid #f8bbd0;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      overflow-y: auto;
+    }
+
+    .sidebar-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .sidebar-header h2 {
+      color: #ad1457;
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .sidebar-header p {
+      color: #d81b60;
+      font-size: 0.9rem;
+    }
+
+    .sidebar-user {
+      background-color: #fff;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      text-align: center;
+      border: 2px solid #f8bbd0;
+    }
+
+    .sidebar-user p {
+      margin: 0.3rem 0;
+      color: #c2185b;
+      font-weight: bold;
+      font-size: 1rem;
+    }
+
+    .sidebar-user .rol {
+      font-size: 0.85rem;
+      color: #d81b60;
+      font-weight: normal;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+    }
+
+    .sidebar a {
+      display: block;
+      margin: 0.5rem 0;
+      color: #880e4f;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 0.8rem 1rem;
+      border-radius: 25px;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar a:hover,
+    .sidebar a.active {
+      background-color: #f8bbd0;
+      color: #fff;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding-top: 1rem;
+      border-top: 2px solid #f8bbd0;
+    }
+
+    /* Main Content */
+    .main-content {
+      margin-left: 240px;
+      padding: 2rem 5rem;
+      width: calc(100% - 240px - 10rem);
+      flex: 1;
+    }
+
+    .page-header {
+      margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+      font-size: 2.2rem;
+      color: #c2185b;
+      border-bottom: 3px solid #f48fb1;
+      padding-bottom: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .breadcrumb {
+      color: #999;
+      font-size: 1rem;
+    }
+
+    .breadcrumb a {
+      color: #c2185b;
+      text-decoration: none;
+    }
+
+    .breadcrumb a:hover {
+      text-decoration: underline;
+    }
+
+    /* Action Bar */
+    .action-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    /* Cards */
+    .card {
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+      margin-bottom: 2rem;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 20px rgba(244, 143, 177, 0.2);
+    }
+
+    .card-header {
+      padding: 1.5rem;
+      background: #fce4ec;
+      border-bottom: 2px solid #f8bbd0;
+    }
+
+    .card-header h2 {
+      color: #c2185b;
+      font-size: 1.4rem;
+      margin: 0;
+    }
+
+    .card-body {
+      padding: 1.5rem;
+    }
+
+    /* Admin Detail Layout */
+    .admin-detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .admin-info-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .info-group {
+      background: #fffafc;
+      padding: 1.5rem;
+      border-radius: 10px;
+      border-left: 4px solid #f48fb1;
+    }
+
+    .info-label {
+      font-weight: bold;
+      color: #c2185b;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.5rem;
+    }
+
+    .info-value {
+      font-size: 1.1rem;
+      color: #333;
+      line-height: 1.4;
+    }
+
+    .info-value.large {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #c2185b;
+    }
+
+    /* Admin Avatar */
+    .admin-avatar {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .avatar-circle {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f48fb1 0%, #ec407a 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+      color: white;
+      font-size: 3rem;
+      font-weight: bold;
+      box-shadow: 0 8px 25px rgba(244, 143, 177, 0.3);
+    }
+
+    .admin-name {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #c2185b;
+      margin-bottom: 0.5rem;
+    }
+
+    .admin-role {
+      color: #666;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 0.8rem 1.5rem;
+      border-radius: 25px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+      font-family: 'Comic Neue', cursive, Arial, sans-serif;
+      font-size: 1rem;
+      display: inline-block;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #f48fb1 0%, #ec407a 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(244, 143, 177, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(244, 143, 177, 0.4);
+      background: linear-gradient(135deg, #ec407a 0%, #d81b60 100%);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #c2185b;
+      border: 2px solid #f48fb1;
+    }
+
+    .btn-secondary:hover {
+      background: #fce4ec;
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+    }
+
+    .btn-danger:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(244, 67, 54, 0.4);
+      background: linear-gradient(135deg, #d32f2f 0%, #c62828 100%);
+    }
+
+    /* Status Badges */
+    .status-badge {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-active {
+      background: #e8f5e9;
+      color: #2e7d32;
+      border: 1px solid #4caf50;
+    }
+
+    .status-inactive {
+      background: #ffebee;
+      color: #c62828;
+      border: 1px solid #f44336;
+    }
+
+    /* Permissions Section */
+    .permissions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .permission-item {
+      background: #e8f5e9;
+      padding: 0.8rem;
+      border-radius: 8px;
+      text-align: center;
+      color: #2e7d32;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+
+    /* Security Notice */
+    .security-notice {
+      background: #fff3e0;
+      border: 1px solid #ff9800;
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .security-notice h3 {
+      color: #e65100;
+      margin-bottom: 1rem;
+    }
+
+    .security-notice p {
+      color: #ef6c00;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+
+      .main-content {
+        margin-left: 0;
+        padding: 2rem;
+        width: 100%;
+      }
+
+      .admin-detail-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h2>Admin Glam</h2>
+      <p>Panel de Control</p>
+    </div>
+
+    <div class="sidebar-user">
+      <p>{{ request.session.usuario_nombre }}</p>
+      <p class="rol">Administrador</p>
+    </div>
+
+    <div class="sidebar-nav">
+      <a href="{% url 'dashboard_admin' %}">Dashboard</a>
+      <a href="{% url 'lista_admin' %}" class="active">Mi Perfil</a>
+      <a href="{% url 'lista_clientes' %}">Clientes</a>
+      <a href="{% url 'lista_distribuidores' %}">Distribuidores</a>
+      <a href="{% url 'lista_pedidos' %}">Pedidos</a>
+      <a href="{% url 'lista_productos' %}">Productos</a>
+      <a href="{% url 'lista_repartidores' %}">Repartidores</a>
+      <a href="{% url 'lista_categorias' %}">Categorías</a>
+      <a href="{% url 'lista_subcategorias' %}">Subcategorías</a>
+    </div>
+
+    <div class="sidebar-footer">
+      <a href="{% url 'logout' %}">Cerrar Sesión</a>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="page-header">
+      <h1>Detalle del Administrador</h1>
+      <div class="breadcrumb">
+        <a href="{% url 'dashboard_admin' %}">Dashboard</a> > 
+        <a href="{% url 'lista_admin' %}">Administradores</a> > 
+        Detalle
+      </div>
+    </div>
+
+    <div class="action-bar">
+      <a href="{% url 'lista_admin' %}" class="btn btn-secondary">← Volver a Administradores</a>
+      <form method="POST" action="{% url 'admin_eliminar' admin.idUsuario %}" style="display: inline;" onsubmit="return confirm('¿Estás seguro de eliminar este administrador? Esta acción no se puede deshacer.');">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Eliminar Administrador</button>
+      </form>
+    </div>
+
+    <!-- Información Principal del Administrador -->
+    <div class="admin-detail-grid">
+      <div class="admin-info-section">
+        <div class="admin-avatar">
+          <div class="avatar-circle">
+            {{ admin.nombre|first|upper }}
+          </div>
+          <div class="admin-name">{{ admin.nombre }}</div>
+          <div class="admin-role">Administrador del Sistema</div>
+        </div>
+
+        <div class="info-group">
+          <div class="info-label">Estado</div>
+          <div class="info-value">
+            <span class="status-badge status-active">Activo</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-info-section">
+        <div class="info-group">
+          <div class="info-label">Nombre Completo</div>
+          <div class="info-value large">{{ admin.nombre }}</div>
+        </div>
+
+        <div class="info-group">
+          <div class="info-label">Email</div>
+          <div class="info-value">{{ admin.email }}</div>
+        </div>
+
+        <div class="info-group">
+          <div class="info-label">ID de Usuario</div>
+          <div class="info-value">{{ admin.idUsuario }}</div>
+        </div>
+
+        {% if fecha_registro %}
+        <div class="info-group">
+          <div class="info-label">Fecha de Registro</div>
+          <div class="info-value">{{ fecha_registro|date:"d/m/Y H:i" }}</div>
+        </div>
+        {% endif %}
+
+        {% if ultimo_acceso %}
+        <div class="info-group">
+          <div class="info-label">Último Acceso</div>
+          <div class="info-value">{{ ultimo_acceso|date:"d/m/Y H:i" }}</div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Permisos y Accesos -->
+    <div class="card">
+      <div class="card-header">
+        <h2>Permisos del Administrador</h2>
+      </div>
+      <div class="card-body">
+        <p style="margin-bottom: 1rem; color: #666;">
+          Este administrador tiene acceso completo a todas las funcionalidades del sistema:
+        </p>
+        <div class="permissions-grid">
+          <div class="permission-item">Gestión de Productos</div>
+          <div class="permission-item">Gestión de Pedidos</div>
+          <div class="permission-item">Gestión de Clientes</div>
+          <div class="permission-item">Gestión de Distribuidores</div>
+          <div class="permission-item">Gestión de Repartidores</div>
+          <div class="permission-item">Gestión de Categorías</div>
+          <div class="permission-item">Panel de Estadísticas</div>
+          <div class="permission-item">Configuración del Sistema</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Información de Seguridad -->
+    <div class="security-notice">
+      <h3>Información de Seguridad</h3>
+      <p><strong>Nota importante:</strong> Los datos de los administradores son de solo lectura por motivos de seguridad.</p>
+      <p><strong>Eliminación:</strong> Solo se puede eliminar un administrador, no editar sus datos.</p>
+      <p><strong>Acceso:</strong> Todos los administradores tienen permisos completos sobre el sistema.</p>
+    </div>
+  </div>
+</body>
+</html>

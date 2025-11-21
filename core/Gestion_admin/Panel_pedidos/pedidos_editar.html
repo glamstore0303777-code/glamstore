@@ -4,108 +4,445 @@
 <head>
     <meta charset="UTF-8">
     <title>Editar Pedido | Glam Store</title>
+    <link rel="icon" href="{% static 'img/logoglam.png' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: "Comic Sans MS", cursive, sans-serif; margin: 0; background-color: #fdf6f9; display: flex; }
-        .sidebar { width: 240px; background-color: #f7c5dd; color: #4a4a4a; height: 100vh; position: fixed; padding: 30px 20px; box-shadow: 2px 0 6px rgba(0,0,0,0.1); }
-        .sidebar h2 { font-size: 22px; margin-bottom: 25px; }
-        .sidebar a { display: block; margin-bottom: 16px; text-decoration: none; color: #4a4a4a; font-weight: bold; }
-        .main-content { margin-left: 240px; width: calc(100% - 240px); }
-        header { background-color: #f7c5dd; color: #4a4a4a; padding: 20px 40px; display: flex; align-items: center; justify-content: space-between; }
-        header h1 { margin: 0; }
-        header img { height: 90px; }
-        main { padding: 40px; display: flex; gap: 30px; flex-wrap: wrap; }
-        .panel { background-color: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 0 15px rgba(0,0,0,0.07); flex: 1; min-width: 350px; }
-        .panel h2 { margin-top: 0; color: #c026d3; }
-        label { display: block; margin-top: 15px; font-weight: bold; color: #4a4a4a; }
-        input, select { width: 100%; padding: 10px; margin-top: 6px; border: 1px solid #e0cce3; border-radius: 6px; box-sizing: border-box; }
-        button, .btn-cancelar { display: inline-block; margin-top: 20px; padding: 10px 20px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; text-decoration: none; }
-        button { background-color: #a8e6cf; color: #333; }
-        .btn-cancelar { background-color: #ffaaa5; color: #333; margin-left: 10px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 10px; border: 1px solid #e0cce3; text-align: left; }
-        th { background-color: #fceef5; }
-        .btn-asignar { background-color: #fbb1c8; color: #333; width: 100%; }
-        .repartidor-asignado { background-color: #dcfce7; padding: 10px; border-radius: 8px; border: 1px solid #4ade80; color: #166534; font-weight: bold; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Neue', cursive;
+            background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #fbcfe8 100%);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #ec4899 0%, #f472b6 100%);
+            color: white;
+            padding: 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 4px 0 20px rgba(236, 72, 153, 0.2);
+        }
+
+        .sidebar-header {
+            text-align: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+            color: #be185d;
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .sidebar-header p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .sidebar-user {
+            padding: 1rem 2rem;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 0 1rem 1rem 1rem;
+            border-radius: 15px;
+        }
+
+        .sidebar-user p {
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        .sidebar-user .rol {
+            background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+            color: #be185d;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .sidebar-nav {
+            padding: 0 1rem;
+            flex: 1;
+        }
+
+        .sidebar-nav a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 1rem 1.5rem;
+            margin-bottom: 0.5rem;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .sidebar-nav a:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-nav a.active {
+            background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+            color: #be185d;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(253, 242, 248, 0.3);
+        }
+
+        .sidebar-footer {
+            padding: 1rem 2rem 2rem 2rem;
+            margin-top: auto;
+        }
+
+        .sidebar-footer a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            text-align: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .sidebar-footer a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+        }
+
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, #ffffff 0%, #fdf2f8 100%);
+            padding: 2rem;
+            border-radius: 25px;
+            box-shadow: 0 10px 40px rgba(236, 72, 153, 0.1);
+            margin-bottom: 2rem;
+            text-align: center;
+            border: 1px solid #fce7f3;
+        }
+
+        .page-header h1 {
+            color: #be185d;
+            font-size: 2.2rem;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #ffffff 0%, #fefcff 100%);
+            border-radius: 25px;
+            box-shadow: 0 10px 40px rgba(236, 72, 153, 0.08);
+            overflow: hidden;
+            margin-bottom: 2rem;
+            border: 1px solid #fce7f3;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+            padding: 1.5rem 2rem;
+            border-bottom: 2px solid #fbcfe8;
+        }
+
+        .card-header h2 {
+            color: #be185d;
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        .form-container {
+            max-width: 100%;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #be185d;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .required-field label::after {
+            content: " *";
+            color: #ec4899;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #fce7f3;
+            border-radius: 20px;
+            font-family: 'Comic Neue', cursive;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #ffffff 0%, #fefcff 100%);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #ec4899;
+            box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .form-group input[readonly] {
+            background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+            color: #9d174d;
+            border-color: #fbcfe8;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 25px;
+            font-family: 'Comic Neue', cursive;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            min-width: 150px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ad1457 0%, #c2185b 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(173, 20, 87, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f8bbd0 0%, #f48fb1 100%);
+            color: #ad1457;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(244, 143, 177, 0.3);
+        }
+
+        .content-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-card {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(173, 20, 87, 0.1);
+        }
+
+        .info-card h3 {
+            color: #ad1457;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-card p {
+            color: #666;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .status-parcial {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffcc02 100%);
+            color: #e65100;
+        }
+
+        .status-completo {
+            background: linear-gradient(135deg, #e8f5e9 0%, #4caf50 100%);
+            color: #1b5e20;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .page-header h1 {
+                font-size: 2rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                margin-bottom: 1rem;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
-    <aside class="sidebar">
-        <h2>Admin Glam</h2>
-        <a href="{% url 'lista_clientes' %}">💄 Panel Cliente</a>
-        <a href="{% url 'lista_pedidos' %}">📋 Panel Pedidos</a>
-        <a href="{% url 'lista_productos' %}">🛍️ Panel Productos</a>
-        <a href="{% url 'lista_repartidores' %}">🛵 Panel Repartidores</a>
-        <a href="{% url 'lista_categorias' %}">🎨 Panel Categorías</a>
-        <a href="{% url 'lista_subcategorias' %}">✨ Panel Subcategorías</a>
-        <a href="{% url 'logout' %}">🔓 Cerrar sesión</a>
-    </aside>
-    <div class="main-content">
-        <header>
-            <h1>Editar Pedido #{{ pedido.idPedido }}</h1>
-            <img src="{% static 'img/logoglam.png' %}" alt="Logo Glam Store">
-        </header>
-        <main>
-            <div class="panel">
-                <h2>Editar Estado del Pedido</h2>
-                <form method="post">
-                    {% csrf_token %}
-                    <p><strong>Cliente:</strong> {{ pedido.idCliente.nombre }}</p>
-                    <p><strong>Total:</strong> ${{ pedido.total }}</p>
-                    <label for="estado">Estado del Pago:</label>
-                    <select id="estado" name="estado" required>
-                        <option value="Pago Parcial" {% if pedido.estado == 'Pago Parcial' %}selected{% endif %}>Pago Parcial</option>
-                        <option value="Pago Completo" {% if pedido.estado == 'Pago Completo' %}selected{% endif %}>Pago Completo</option>
-                    </select>
-                    <button type="submit">Guardar Cambios</button>
-                    <a href="{% url 'lista_pedidos' %}" class="btn-cancelar">Volver</a>
-                </form>
-            </div>
-
-            <div class="panel">
-                <h2>Asignar Repartidor</h2>
-                {% if pedido.idRepartidor %}
-                    <div class="repartidor-asignado">
-                        Repartidor Asignado: {{ pedido.idRepartidor.nombreRepartidor }}
-                    </div>
-                {% else %}
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Teléfono</th>
-                                <th>Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for repartidor in repartidores %}
-                            <tr>
-                                <td>{{ repartidor.nombreRepartidor }}</td>
-                                <td>{{ repartidor.telefono }}</td>
-                                <td>
-                                    <form method="post">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="repartidor_id" value="{{ repartidor.idRepartidor }}">
-                                        <button type="submit" name="asignar_repartidor" class="btn-asignar">Asignar</button>
-                                    </form>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr><td colspan="3">No hay repartidores disponibles.</td></tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                {% endif %}
-            </div>
-        </main>
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h2>Admin Glam</h2>
+      <p>Panel de Control</p>
     </div>
+    <div class="sidebar-user">
+      <p>{{ request.session.usuario_nombre }}</p>
+      <p class="rol">Administrador</p>
+    </div>
+    <div class="sidebar-nav">
+      <a href="{% url 'dashboard_admin' %}">Dashboard</a>
+      <a href="{% url 'lista_admin' %}">Mi Perfil</a>
+      <a href="{% url 'lista_clientes' %}">Clientes</a>
+      <a href="{% url 'lista_distribuidores' %}">Distribuidores</a>
+      <a href="{% url 'lista_pedidos' %}" class="active">Pedidos</a>
+      <a href="{% url 'lista_productos' %}">Productos</a>
+      <a href="{% url 'lista_repartidores' %}">Repartidores</a>
+      <a href="{% url 'lista_categorias' %}">Categorías</a>
+      <a href="{% url 'lista_subcategorias' %}">Subcategorías</a>
+    </div>
+    <div class="sidebar-footer">
+      <a href="{% url 'logout' %}">Cerrar Sesión</a>
+    </div>
+  </div>
+  
+  <div class="main-content">
+    <div class="page-header">
+      <h1>Editar Pedido #{{ pedido.idPedido }}</h1>
+    </div>
+    
+    <div class="content-container">
+      <div class="card">
+        <div class="card-header">
+          <h2>Editar Información del Pedido</h2>
+        </div>
+        <div class="card-body">
+          <div class="form-container">
+            <form method="post">
+              {% csrf_token %}
+              
+              <div class="form-group">
+                <label>Cliente</label>
+                <input type="text" value="{{ pedido.idCliente.nombre }} - {{ pedido.idCliente.email }}" readonly>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="total">Total del Pedido</label>
+                  <input type="number" id="total" name="total" value="{{ pedido.total }}" step="0.01" min="0" required>
+                </div>
+                <div class="form-group">
+                  <label for="fecha_creacion">Fecha y Hora del Pedido</label>
+                  <input type="datetime-local" id="fecha_creacion" name="fecha_creacion" 
+                         value="{{ pedido.fechaCreacion|date:'Y-m-d\TH:i' }}" required>
+                </div>
+              </div>
+              
+              <div class="form-group required-field">
+                <label for="estado">Estado del Pago</label>
+                <select id="estado" name="estado" required>
+                  <option value="Pago Parcial" {% if pedido.estado == 'Pago Parcial' %}selected{% endif %}>Pago Parcial</option>
+                  <option value="Pago Completo" {% if pedido.estado == 'Pago Completo' %}selected{% endif %}>Pago Completo</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label for="observaciones">Observaciones</label>
+                <textarea id="observaciones" name="observaciones" placeholder="Notas adicionales sobre el pedido...">{{ pedido.observaciones }}</textarea>
+              </div>
+              
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                <a href="{% url 'lista_pedidos' %}" class="btn btn-secondary">Volver a Lista</a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
-```
-
-### **2. Actualización de la Vista (`views.py`)**
-
-He completado la lógica de la vista `pedido_editar_view` para que busque el pedido, muestre el formulario con sus datos y guarde los cambios que realices.
-
-```diff
---- a/c:/ProyectoF/glamstore/glamstore/core/Gestion_admin/views.py
-+++ b/c:/ProyectoF/glamstore/glamstore/core/Gestion_admin/views.py

@@ -325,6 +325,112 @@
       transform: scale(0.95);
     }
 
+    /* Badges de estado de pedido */
+    .estado-badge {
+      display: inline-block;
+      padding: 0.3rem 0.8rem;
+      border-radius: 15px;
+      font-size: 0.85rem;
+      font-weight: bold;
+    }
+
+    .estado-encamino {
+      background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+      color: white;
+      box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+    }
+
+    .estado-pagocompleto {
+      background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%);
+      color: white;
+      box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+    }
+
+    .estado-pagoparcial {
+      background: linear-gradient(135deg, #ff9800 0%, #ffa726 100%);
+      color: white;
+      box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+    }
+
+    .estado-entregado {
+      background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+      color: white;
+      box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+      animation: pulse 2s infinite;
+    }
+
+    .estado-completado {
+      background: linear-gradient(135deg, #8bc34a 0%, #9ccc65 100%);
+      color: white;
+      box-shadow: 0 2px 8px rgba(139, 195, 74, 0.3);
+    }
+
+    .estado-problemaenentrega {
+      background: linear-gradient(135deg, #f44336 0%, #e57373 100%);
+      color: white;
+      box-shadow: 0 2px 8px rgba(244, 67, 54, 0.3);
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    /* Alerta de pedidos entregados */
+    .alert-entrega {
+      background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+      border: 2px solid #4caf50;
+      border-left: 6px solid #4caf50;
+      padding: 1.5rem;
+      border-radius: 10px;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 15px rgba(76, 175, 80, 0.2);
+    }
+
+    .alert-entrega h3 {
+      color: #2e7d32;
+      font-size: 1.3rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .alert-entrega p {
+      color: #1b5e20;
+      margin-bottom: 1rem;
+    }
+
+    .pedido-entregado-item {
+      background: white;
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 0.5rem 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .pedido-entregado-item span {
+      color: #2e7d32;
+      font-weight: bold;
+    }
+
+    .btn-confirmar {
+      background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+      color: white;
+      padding: 0.6rem 1.2rem;
+      border-radius: 20px;
+      text-decoration: none;
+      font-weight: bold;
+      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .btn-confirmar:hover {
+      background: linear-gradient(135deg, #388e3c 0%, #4caf50 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+    }
+
 /* Mensaje de alerta para invitados */
 .guest-alert {
   background: linear-gradient(135deg, #fff9e6 0%, #fff3d6 100%);
@@ -453,6 +559,20 @@
       </div>
       {% endif %}
 
+      <!-- Alerta de pedidos entregados sin confirmar -->
+      {% if pedidos_entregados_sin_confirmar %}
+      <div class="alert-entrega">
+        <h3>📦 ¡Tienes pedidos entregados!</h3>
+        <p>Por favor, confirma si recibiste correctamente tus pedidos:</p>
+        {% for pedido in pedidos_entregados_sin_confirmar %}
+        <div class="pedido-entregado-item">
+          <span><strong>Pedido #{{ pedido.idPedido }}</strong> - ${{ pedido.total }}</span>
+          <a href="{% url 'confirmar_recepcion' pedido.idPedido %}" class="btn-confirmar">Confirmar Recepción</a>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
       <h3>Últimos Pedidos</h3>
       {% if pedidos %}
       <ul class="pedidos-list">
@@ -460,7 +580,23 @@
         <li style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
           <div>
             <strong>Pedido #{{ pedido.idPedido }}</strong> —
-            {{ pedido.estado }} —
+            <span class="estado-badge estado-{{ pedido.estado|lower|cut:' ' }}">
+              {% if pedido.estado == 'En Camino' %}
+                🚚 {{ pedido.estado }}
+              {% elif pedido.estado == 'Entregado' %}
+                📦 {{ pedido.estado }}
+              {% elif pedido.estado == 'Completado' %}
+                ✅ {{ pedido.estado }}
+              {% elif pedido.estado == 'Pago Completo' %}
+                💳 {{ pedido.estado }}
+              {% elif pedido.estado == 'Pago Parcial' %}
+                ⏳ {{ pedido.estado }}
+              {% elif pedido.estado == 'Problema en Entrega' %}
+                ⚠️ {{ pedido.estado }}
+              {% else %}
+                {{ pedido.estado }}
+              {% endif %}
+            </span> —
             <strong>Total: ${{ pedido.total }}</strong>
           </div>
           {% if tiene_usuario %}

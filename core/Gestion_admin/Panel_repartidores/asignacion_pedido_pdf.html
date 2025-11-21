@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Orden de Entrega - Pedido #{{ pedido.idPedido }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1.5cm;
+        }
+        
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            color: #2c3e50;
+            line-height: 1.5;
+            font-size: 11pt;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #c2185b;
+        }
+        
+        .header h1 {
+            color: #c2185b;
+            font-size: 24pt;
+            margin: 0 0 5px 0;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .header .subtitle {
+            color: #666;
+            font-size: 10pt;
+            margin: 0;
+        }
+        
+        .document-info {
+            text-align: right;
+            margin-bottom: 20px;
+            font-size: 9pt;
+            color: #666;
+        }
+        
+        .delivery-date-box {
+            background: #c2185b;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .delivery-date-box h2 {
+            margin: 0 0 8px 0;
+            font-size: 14pt;
+            font-weight: bold;
+        }
+        
+        .delivery-date-box .date {
+            font-size: 20pt;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+        
+        .delivery-date-box .details {
+            font-size: 9pt;
+            margin-top: 8px;
+            opacity: 0.9;
+        }
+        
+        .section {
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            background: #f5f5f5;
+            color: #2c3e50;
+            font-size: 11pt;
+            font-weight: bold;
+            padding: 8px 12px;
+            margin-bottom: 10px;
+            border-left: 4px solid #c2185b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .info-table {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        
+        .info-table td {
+            padding: 6px 0;
+            vertical-align: top;
+        }
+        
+        .info-table .label {
+            font-weight: bold;
+            color: #555;
+            width: 35%;
+            font-size: 10pt;
+        }
+        
+        .info-table .value {
+            color: #2c3e50;
+            font-size: 10pt;
+        }
+        
+        .products-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        .products-table thead {
+            background: #f5f5f5;
+            border-top: 2px solid #c2185b;
+            border-bottom: 2px solid #c2185b;
+        }
+        
+        .products-table th {
+            padding: 10px 8px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 10pt;
+            color: #2c3e50;
+        }
+        
+        .products-table th.right {
+            text-align: right;
+        }
+        
+        .products-table td {
+            padding: 8px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 10pt;
+        }
+        
+        .products-table td.right {
+            text-align: right;
+        }
+        
+        .products-table tbody tr:hover {
+            background: #fafafa;
+        }
+        
+        .totals-section {
+            margin-top: 15px;
+            border-top: 2px solid #c2185b;
+            padding-top: 10px;
+        }
+        
+        .totals-table {
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .totals-table td {
+            padding: 5px 0;
+            font-size: 10pt;
+        }
+        
+        .totals-table .label {
+            text-align: right;
+            padding-right: 20px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        .totals-table .value {
+            text-align: right;
+            width: 150px;
+            color: #2c3e50;
+        }
+        
+        .totals-table .total-row {
+            border-top: 2px solid #c2185b;
+            padding-top: 8px;
+        }
+        
+        .totals-table .total-row .label,
+        .totals-table .total-row .value {
+            font-size: 13pt;
+            font-weight: bold;
+            color: #c2185b;
+            padding-top: 8px;
+        }
+        
+        .payment-status {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 10pt;
+        }
+        
+        .payment-complete {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .payment-partial {
+            background: #ff9800;
+            color: white;
+        }
+        
+        .alert-box {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-left: 4px solid #ffc107;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 3px;
+        }
+        
+        .alert-box strong {
+            color: #856404;
+            display: block;
+            margin-bottom: 5px;
+            font-size: 10pt;
+        }
+        
+        .alert-box p {
+            margin: 0;
+            color: #856404;
+            font-size: 9pt;
+        }
+        
+        .instructions {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 3px;
+        }
+        
+        .instructions h3 {
+            color: #2c3e50;
+            margin: 0 0 10px 0;
+            font-size: 11pt;
+        }
+        
+        .instructions ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin: 5px 0;
+            color: #555;
+            font-size: 9pt;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 2px solid #e0e0e0;
+            text-align: center;
+            font-size: 8pt;
+            color: #999;
+        }
+        
+        .signature-section {
+            margin-top: 40px;
+            display: table;
+            width: 100%;
+        }
+        
+        .signature-box {
+            display: table-cell;
+            width: 48%;
+            text-align: center;
+            padding: 10px;
+        }
+        
+        .signature-line {
+            border-top: 2px solid #2c3e50;
+            margin-top: 50px;
+            padding-top: 8px;
+            font-size: 9pt;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        .two-columns {
+            display: table;
+            width: 100%;
+        }
+        
+        .column {
+            display: table-cell;
+            width: 48%;
+            vertical-align: top;
+            padding-right: 2%;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Glam Store</h1>
+        <p class="subtitle">Orden de Entrega de Pedido</p>
+    </div>
+    
+    <div class="document-info">
+        <strong>Pedido N°:</strong> {{ pedido.idPedido }}<br>
+        <strong>Fecha de Emisión:</strong> {{ pedido.fechaCreacion|date:"d/m/Y H:i" }}
+    </div>
+    
+    <div class="delivery-date-box">
+        <h2>FECHA DE ENTREGA PROGRAMADA</h2>
+        <div class="date">{{ fecha_entrega|date:"d/m/Y" }}</div>
+        <div class="details">
+            {{ dias_entrega }} días hábiles desde la creación del pedido<br>
+            Destino: {{ ciudad_entrega }}
+        </div>
+    </div>
+    
+    <div class="two-columns">
+        <div class="column">
+            <div class="section">
+                <div class="section-title">Datos del Cliente</div>
+                <table class="info-table">
+                    <tr>
+                        <td class="label">Nombre:</td>
+                        <td class="value">{{ pedido.idCliente.nombre }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Teléfono:</td>
+                        <td class="value">{{ pedido.idCliente.telefono|default:"No registrado" }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Email:</td>
+                        <td class="value">{{ pedido.idCliente.email }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Dirección:</td>
+                        <td class="value">{{ pedido.idCliente.direccion|default:"No especificada" }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <div class="column">
+            <div class="section">
+                <div class="section-title">Repartidor Asignado</div>
+                <table class="info-table">
+                    <tr>
+                        <td class="label">Nombre:</td>
+                        <td class="value">{{ repartidor.nombreRepartidor }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Teléfono:</td>
+                        <td class="value">{{ repartidor.telefono }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">ID Repartidor:</td>
+                        <td class="value">#{{ repartidor.idRepartidor }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Estado:</td>
+                        <td class="value">{{ repartidor.estado_turno }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <div class="section-title">Detalle de Productos</div>
+        <table class="products-table">
+            <thead>
+                <tr>
+                    <th style="width: 10%;">Cant.</th>
+                    <th style="width: 50%;">Producto</th>
+                    <th class="right" style="width: 20%;">Precio Unit.</th>
+                    <th class="right" style="width: 20%;">Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for detalle in detalles %}
+                <tr>
+                    <td style="text-align: center;">{{ detalle.cantidad }}</td>
+                    <td>{{ detalle.idProducto.nombreProducto }}</td>
+                    <td class="right">${{ detalle.precio_unitario|floatformat:2 }}</td>
+                    <td class="right">${{ detalle.subtotal|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="totals-section">
+        <table class="totals-table">
+            <tr>
+                <td class="label">Subtotal Productos:</td>
+                <td class="value">${{ pedido.total|floatformat:2 }}</td>
+            </tr>
+            <tr>
+                <td class="label">Estado de Pago:</td>
+                <td class="value">
+                    <span class="payment-status {% if pedido.estado == 'Pago Completo' %}payment-complete{% else %}payment-partial{% endif %}">
+                        {{ pedido.estado }}
+                    </span>
+                </td>
+            </tr>
+            <tr class="total-row">
+                <td class="label">TOTAL A ENTREGAR:</td>
+                <td class="value">${{ pedido.total|floatformat:2 }}</td>
+            </tr>
+        </table>
+    </div>
+    
+    {% if pedido.estado == 'Pago Parcial' %}
+    <div class="alert-box">
+        <strong>⚠️ IMPORTANTE - PAGO CONTRA ENTREGA</strong>
+        <p>Este pedido tiene <strong>PAGO PARCIAL</strong>. El cliente debe pagar el envío <strong>CONTRA ENTREGA</strong>.</p>
+        <p>Por favor, cobrar el valor del envío al momento de entregar el pedido.</p>
+    </div>
+    {% else %}
+    <div class="alert-box" style="background: #d4edda; border-color: #28a745;">
+        <strong style="color: #155724;">✓ PAGO COMPLETO</strong>
+        <p style="color: #155724;">Este pedido está completamente pagado. No se debe cobrar nada al cliente.</p>
+    </div>
+    {% endif %}
+    
+    <div class="instructions">
+        <h3>Instrucciones para la Entrega</h3>
+        <ul>
+            <li>Verificar la identidad del cliente antes de entregar el pedido</li>
+            <li>Confirmar la dirección de entrega con el cliente por teléfono antes de salir</li>
+            <li>Revisar que todos los productos estén en buen estado y completos</li>
+            {% if pedido.estado == 'Pago Parcial' %}
+            <li><strong>Cobrar el valor del envío en efectivo al momento de la entrega</strong></li>
+            {% endif %}
+            <li>Solicitar firma o confirmación de recepción del cliente</li>
+            <li>En caso de no encontrar al cliente, contactar por teléfono inmediatamente</li>
+            <li>Reportar cualquier novedad o problema al administrador de inmediato</li>
+            <li>Tomar foto del pedido entregado como comprobante (opcional)</li>
+        </ul>
+    </div>
+    
+    <div class="signature-section">
+        <div class="signature-box">
+            <div class="signature-line">
+                Firma del Repartidor<br>
+                {{ repartidor.nombreRepartidor }}
+            </div>
+        </div>
+        <div class="signature-box">
+            <div class="signature-line">
+                Firma del Cliente<br>
+                {{ pedido.idCliente.nombre }}
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p><strong>Glam Store</strong> - Sistema de Gestión de Pedidos y Entregas</p>
+        <p>Documento generado el {{ pedido.fechaCreacion|date:"d/m/Y" }} a las {{ pedido.fechaCreacion|date:"H:i" }}</p>
+        <p>Este documento es válido como comprobante de asignación y entrega de pedido</p>
+    </div>
+</body>
+</html>

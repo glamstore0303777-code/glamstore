@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Confirmar Recepción | Glam Store</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { margin: 0; font-family: 'Comic Neue', cursive, Arial, sans-serif; background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%); display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    
+    .container { background: white; padding: 3rem; border-radius: 20px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1); max-width: 500px; width: 90%; text-align: center; }
+    
+    .icon { font-size: 4rem; margin-bottom: 1rem; }
+    
+    h1 { color: #c2185b; font-size: 2rem; margin-bottom: 1rem; }
+    
+    .pedido-info { background: #fce4ec; padding: 1.5rem; border-radius: 10px; margin: 2rem 0; border-left: 4px solid #f48fb1; }
+    
+    .pedido-info p { margin: 0.5rem 0; color: #666; font-size: 1rem; }
+    
+    .pedido-info strong { color: #c2185b; }
+    
+    .question { font-size: 1.2rem; color: #333; margin: 2rem 0 1.5rem 0; font-weight: bold; }
+    
+    .buttons { display: flex; gap: 1rem; margin-top: 2rem; }
+    
+    .btn { flex: 1; padding: 1rem 2rem; border-radius: 25px; text-decoration: none; font-weight: bold; transition: all 0.3s ease; border: none; cursor: pointer; font-family: 'Comic Neue', cursive; font-size: 1.1rem; }
+    
+    .btn-si { background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%); color: white; box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3); }
+    
+    .btn-si:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4); }
+    
+    .btn-no { background: linear-gradient(135deg, #f44336 0%, #e57373 100%); color: white; box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3); }
+    
+    .btn-no:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(244, 67, 54, 0.4); }
+    
+    .back-link { display: block; margin-top: 2rem; color: #c2185b; text-decoration: none; font-weight: bold; }
+    
+    .back-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">📦</div>
+    <h1>Confirmar Recepción de Pedido</h1>
+    
+    <div class="pedido-info">
+      <p><strong>Pedido #{{ pedido.idPedido }}</strong></p>
+      <p>Total: <strong>${{ pedido.total }}</strong></p>
+      <p>Estado: <strong>{{ pedido.estado }}</strong></p>
+    </div>
+    
+    <p class="question">¿Recibiste tu pedido correctamente?</p>
+    
+    <form method="POST">
+      {% csrf_token %}
+      <div class="buttons">
+        <button type="submit" name="confirmacion" value="si" class="btn btn-si">
+          ✓ Sí, lo recibí
+        </button>
+        <button type="submit" name="confirmacion" value="no" class="btn btn-no">
+          ✗ No lo recibí
+        </button>
+      </div>
+    </form>
+    
+    <a href="{% url 'perfil' %}" class="back-link">← Volver a mi perfil</a>
+  </div>
+</body>
+</html>

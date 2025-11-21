@@ -4,60 +4,131 @@
 <head>
     <meta charset="UTF-8">
     <title>Editar Repartidor | Glam Store</title>
+    <link rel="icon" href="{% static 'img/logoglam.png' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: "Comic Sans MS", cursive, sans-serif; margin: 0; background-color: #fdf6f9; display: flex; }
-        .sidebar { width: 240px; background-color: #f7c5dd; color: #4a4a4a; height: 100vh; position: fixed; padding: 30px 20px; box-shadow: 2px 0 6px rgba(0,0,0,0.1); }
-        .sidebar h2 { font-size: 22px; margin-bottom: 25px; }
-        .sidebar a { display: block; margin-bottom: 16px; text-decoration: none; color: #4a4a4a; font-weight: bold; }
-        .main-content { margin-left: 240px; width: calc(100% - 240px); }
-        header { background-color: #f7c5dd; color: #4a4a4a; padding: 20px 40px; display: flex; align-items: center; justify-content: space-between; }
-        header h1 { margin: 0; }
-        header img { height: 90px; }
-        main { padding: 40px; }
-        form { background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); max-width: 500px; }
-        label { display: block; margin-top: 15px; font-weight: bold; color: #4a4a4a; }
-        input, select { width: 100%; padding: 10px; margin-top: 6px; border: 1px solid #e0cce3; border-radius: 6px; }
-        button, .btn-cancelar { display: inline-block; margin-top: 20px; padding: 10px 20px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; text-decoration: none; }
-        button { background-color: #a8e6cf; color: #333; }
-        .btn-cancelar { background-color: #ffaaa5; color: #333; margin-left: 10px; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { margin: 0; font-family: 'Comic Neue', cursive, Arial, sans-serif; background-color: #fffafc; display: flex; min-height: 100vh; }
+      
+      /* SIDEBAR */
+      .sidebar { background-color: #fce4ec; padding: 2rem; width: 240px; height: 100vh; position: fixed; display: flex; flex-direction: column; border-right: 2px solid #f8bbd0; box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1); z-index: 1000; overflow-y: auto; }
+      .sidebar-header { text-align: center; margin-bottom: 2rem; }
+      .sidebar-header h2 { color: #ad1457; font-size: 1.8rem; margin-bottom: 0.5rem; }
+      .sidebar-header p { color: #d81b60; font-size: 0.9rem; }
+      .sidebar-user { background-color: #fff; padding: 1rem; border-radius: 10px; margin-bottom: 1.5rem; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05); text-align: center; border: 2px solid #f8bbd0; }
+      .sidebar-user p { margin: 0.3rem 0; color: #c2185b; font-weight: bold; font-size: 1rem; }
+      .sidebar-user .rol { font-size: 0.85rem; color: #d81b60; font-weight: normal; }
+      .sidebar-nav { flex: 1; }
+      .sidebar a { display: block; margin: 0.5rem 0; color: #880e4f; text-decoration: none; font-weight: bold; padding: 0.8rem 1rem; border-radius: 25px; transition: all 0.3s ease; }
+      .sidebar a:hover, .sidebar a.active { background-color: #f8bbd0; color: #fff; }
+      .sidebar-footer { margin-top: auto; padding-top: 1rem; border-top: 2px solid #f8bbd0; }
+      
+      /* MAIN CONTENT */
+      .main-content { margin-left: 240px; padding: 2rem 3rem; width: calc(100% - 240px); flex: 1; }
+      .page-header { margin-bottom: 2rem; }
+      .page-header h1 { font-size: 2.2rem; color: #c2185b; border-bottom: 3px solid #f48fb1; padding-bottom: 0.5rem; margin-bottom: 1rem; }
+      
+      /* CARD */
+      .card { background: #fff; border-radius: 15px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07); padding: 2rem; max-width: 800px; margin: 0 auto; }
+      
+      /* FORM */
+      .form-container { width: 100%; }
+      .form-help { background: #e3f2fd; padding: 1rem; border-radius: 10px; margin-bottom: 2rem; border-left: 4px solid #2196f3; }
+      .form-help p { color: #1565c0; margin: 0; font-size: 0.95rem; }
+      
+      .form-group { margin-bottom: 1.5rem; }
+      .form-group label { display: block; color: #c2185b; font-weight: bold; margin-bottom: 0.5rem; font-size: 1rem; }
+      .form-group.required-field label::after { content: " *"; color: #c62828; }
+      .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.8rem; border: 2px solid #f8bbd0; border-radius: 10px; font-family: 'Comic Neue', cursive; font-size: 1rem; transition: all 0.3s ease; }
+      .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #f48fb1; box-shadow: 0 0 0 3px rgba(244, 143, 177, 0.1); }
+      .form-group small { display: block; color: #999; font-size: 0.85rem; margin-top: 0.3rem; }
+      
+      .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+      
+      /* BUTTONS */
+      .form-actions { display: flex; gap: 1rem; margin-top: 2rem; padding-top: 2rem; border-top: 2px solid #fce4ec; }
+      .btn { padding: 0.8rem 1.5rem; border-radius: 25px; text-decoration: none; font-weight: bold; transition: all 0.3s ease; border: none; cursor: pointer; font-family: 'Comic Neue', cursive; font-size: 1rem; display: inline-block; }
+      .btn-primary { background: linear-gradient(135deg, #f48fb1 0%, #ec407a 100%); color: white; box-shadow: 0 4px 12px rgba(244, 143, 177, 0.3); }
+      .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(244, 143, 177, 0.4); }
+      .btn-secondary { background: white; color: #c2185b; border: 2px solid #f48fb1; }
+      .btn-secondary:hover { background: #fce4ec; }
+      
+      /* RESPONSIVE */
+      @media (max-width: 768px) { 
+        .sidebar { width: 100%; height: auto; position: relative; } 
+        .main-content { margin-left: 0; padding: 2rem; width: 100%; }
+        .form-row { grid-template-columns: 1fr; }
+      }
     </style>
 </head>
 <body>
-    <aside class="sidebar">
-        <h2>Admin Glam</h2>
-        <a href="{% url 'lista_clientes' %}">💄 Panel Cliente</a>
-        <a href="{% url 'lista_pedidos' %}">📋 Panel Pedidos</a>
-        <a href="{% url 'lista_productos' %}">🛍️ Panel Productos</a>
-        <a href="{% url 'lista_repartidores' %}">🛵 Panel Repartidores</a>
-        <a href="{% url 'lista_categorias' %}">🎨 Panel Categorías</a>
-        <a href="{% url 'lista_subcategorias' %}">✨ Panel Subcategorías</a>
-        <a href="{% url 'logout' %}">🔓 Cerrar sesión</a>
-    </aside>
-    <div class="main-content">
-        <header>
-            <h1>Editar Repartidor</h1>
-            <img src="{% static 'img/logoglam.png' %}" alt="Logo Glam Store">
-        </header>
-        <main>
-            <form method="post">
-                {% csrf_token %}
-                <label for="nombreRepartidor">Nombre del Repartidor:</label>
-                <input type="text" id="nombreRepartidor" name="nombreRepartidor" value="{{ repartidor.nombreRepartidor }}" required>
-
-                <label for="telefono">Teléfono:</label>
-                <input type="text" id="telefono" name="telefono" value="{{ repartidor.telefono }}" required>
-
-                <label for="estado_turno">Estado del Turno:</label>
-                <select id="estado_turno" name="estado_turno" required>
-                    <option value="Disponible" {% if repartidor.estado_turno == 'Disponible' %}selected{% endif %}>Disponible</option>
-                    <option value="No Disponible" {% if repartidor.estado_turno == 'No Disponible' %}selected{% endif %}>No Disponible</option>
-                    <option value="En Ruta" {% if repartidor.estado_turno == 'En Ruta' %}selected{% endif %}>En Ruta</option>
-                </select>
-
-                <button type="submit">Guardar Cambios</button>
-                <a href="{% url 'lista_repartidores' %}" class="btn-cancelar">Cancelar</a>
-            </form>
-        </main>
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h2>Admin Glam</h2>
+      <p>Panel de Control</p>
     </div>
+    <div class="sidebar-user">
+      <p>{{ request.session.usuario_nombre }}</p>
+      <p class="rol">Administrador</p>
+    </div>
+    <div class="sidebar-nav">
+      <a href="{% url 'dashboard_admin' %}">Dashboard</a>
+      <a href="{% url 'lista_admin' %}">Mi Perfil</a>
+      <a href="{% url 'lista_clientes' %}">Clientes</a>
+      <a href="{% url 'lista_distribuidores' %}">Distribuidores</a>
+      <a href="{% url 'lista_pedidos' %}">Pedidos</a>
+      <a href="{% url 'lista_productos' %}">Productos</a>
+      <a href="{% url 'lista_repartidores' %}" class="active">Repartidores</a>
+      <a href="{% url 'lista_categorias' %}">Categorías</a>
+      <a href="{% url 'lista_subcategorias' %}">Subcategorías</a>
+    </div>
+    <div class="sidebar-footer">
+      <a href="{% url 'logout' %}">Cerrar Sesión</a>
+    </div>
+  </div>
+  
+  <div class="main-content">
+    <div class="page-header">
+      <h1>Editar Repartidor</h1>
+    </div>
+    
+    <div class="card">
+      <div class="form-container">
+        <div class="form-help">
+          <p>Modifica los datos del repartidor. Los campos marcados con * son obligatorios.</p>
+        </div>
+        
+        <form method="post">
+          {% csrf_token %}
+          
+          <div class="form-group required-field">
+            <label for="nombreRepartidor">Nombre del Repartidor</label>
+            <input type="text" id="nombreRepartidor" name="nombreRepartidor" value="{{ repartidor.nombreRepartidor }}" required placeholder="Ej: Carlos Mendoza" maxlength="100">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group required-field">
+              <label for="telefono">Teléfono</label>
+              <input type="tel" id="telefono" name="telefono" value="{{ repartidor.telefono }}" required placeholder="Ej: +593 99 123 4567">
+              <small>Incluye código de país si es necesario</small>
+            </div>
+            <div class="form-group required-field">
+              <label for="estado_turno">Estado del Turno</label>
+              <select id="estado_turno" name="estado_turno" required>
+                <option value="Disponible" {% if repartidor.estado_turno == 'Disponible' %}selected{% endif %}>Disponible</option>
+                <option value="No Disponible" {% if repartidor.estado_turno == 'No Disponible' %}selected{% endif %}>No Disponible</option>
+                <option value="En Ruta" {% if repartidor.estado_turno == 'En Ruta' %}selected{% endif %}>En Ruta</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+            <a href="{% url 'lista_repartidores' %}" class="btn btn-secondary">Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
