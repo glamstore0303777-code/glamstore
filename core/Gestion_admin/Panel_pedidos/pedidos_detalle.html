@@ -554,8 +554,11 @@
             </div>
           {% else %}
             <div style="padding: 1rem; background: #fff3e0; border-radius: 10px; border-left: 4px solid #ff9800;">
-              <strong>Sin repartidor asignado</strong>
-              <br><small style="color: #666;">Este pedido aún no tiene repartidor asignado</small>
+              <strong>Asignar Repartidor</strong>
+              <br><small style="color: #666;">Este pedido aún no tiene un repartidor asignado.</small>
+              <div style="margin-top: 1rem;">
+                <a href="{% url 'lista_repartidores' %}" class="btn btn-primary">Asignar Repartidor</a>
+              </div>
             </div>
           {% endif %}
         </div>

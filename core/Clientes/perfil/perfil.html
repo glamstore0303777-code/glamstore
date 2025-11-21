@@ -486,6 +486,7 @@
       {% else %}
         {# Usuario con sesión (registrado o invitado) #}
         <li><a href="{% url 'perfil' %}" class="active">Mi Perfil</a></li>
+        <li><a href="{% url 'notificaciones_cliente' %}">📬 Notificaciones</a></li>
         {% if tiene_usuario %}
           <li><a href="{% url 'logout' %}">Cerrar Sesión</a></li>
         {% else %}

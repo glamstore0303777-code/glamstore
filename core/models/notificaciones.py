@@ -12,6 +12,8 @@ class NotificacionProblema(models.Model):
     foto = models.ImageField(upload_to='problemas_entrega/', null=True, blank=True)
     fechaReporte = models.DateTimeField(auto_now_add=True)
     leida = models.BooleanField(default=False)
+    respuesta_admin = models.TextField(null=True, blank=True)
+    fecha_respuesta = models.DateTimeField(null=True, blank=True)
     
     class Meta:
         db_table = 'notificaciones_problema'

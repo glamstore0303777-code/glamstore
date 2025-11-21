@@ -31,4 +31,5 @@ urlpatterns = [
     path('ver_seguimiento/<int:idPedido>/', views.ver_seguimiento, name='ver_seguimiento'),
     path('confirmar_recepcion/<int:idPedido>/', views.confirmar_recepcion_pedido, name='confirmar_recepcion'),
     path('reportar_problema/<int:idPedido>/', views.reportar_problema_entrega, name='reportar_problema'),
+    path('notificaciones/', views.notificaciones_cliente, name='notificaciones_cliente'),
 ]

@@ -82,6 +82,7 @@ path("distribuidores/", views.lista_distribuidores_view, name="lista_distribuido
     # Notificaciones
     path('notificaciones/', views.notificaciones_view, name='notificaciones'),
     path('notificaciones/marcar_leida/<int:id_notificacion>/', views.marcar_notificacion_leida, name='marcar_notificacion_leida'),
+    path('notificaciones/responder/<int:id_notificacion>/', views.responder_notificacion_view, name='responder_notificacion'),
 
 ]
   

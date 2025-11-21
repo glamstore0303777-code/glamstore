@@ -911,6 +911,30 @@ def marcar_notificacion_leida(request, id_notificacion):
     return redirect('notificaciones')
 
 
+def responder_notificacion_view(request, id_notificacion):
+    """Vista para que el admin responda a una notificación de problema"""
+    from core.models import NotificacionProblema
+    from django.utils import timezone
+    
+    notificacion = get_object_or_404(NotificacionProblema, idNotificacion=id_notificacion)
+    
+    if request.method == 'POST':
+        respuesta = request.POST.get('respuesta')
+        
+        if not respuesta:
+            messages.error(request, "Por favor escribe una respuesta.")
+            return render(request, 'responder_notificacion.html', {'notificacion': notificacion})
+        
+        notificacion.respuesta_admin = respuesta
+        notificacion.fecha_respuesta = timezone.now()
+        notificacion.save()
+        
+        messages.success(request, "Respuesta enviada al cliente.")
+        return redirect('notificaciones')
+    
+    return render(request, 'responder_notificacion.html', {'notificacion': notificacion})
+
+
 def asignar_pedidos_multiples_view(request):
     """Asigna múltiples pedidos a un repartidor de una vez"""
     if request.method == 'POST':

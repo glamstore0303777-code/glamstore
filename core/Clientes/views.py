@@ -969,3 +969,32 @@ def reportar_problema_entrega(request, idPedido):
         return redirect('perfil')
     
     return render(request, 'reportar_problema.html', {'pedido': pedido})
+    return render(request, 'reportar_problema.html', {'pedido': pedido})
+
+
+def notificaciones_cliente(request):
+    """
+    Vista para que el cliente vea sus notificaciones de pedidos
+    """
+    from core.models import NotificacionProblema
+    
+    usuario_id = request.session.get('usuario_id')
+    cliente_id = request.session.get('cliente_id')
+    
+    if usuario_id:
+        usuario = get_object_or_404(Usuario, idUsuario=usuario_id)
+        cliente = usuario.idCliente
+    elif cliente_id:
+        cliente = get_object_or_404(Cliente, idCliente=cliente_id)
+    else:
+        messages.error(request, "Debes iniciar sesión para ver tus notificaciones.")
+        return redirect('login')
+    
+    # Obtener notificaciones del cliente
+    notificaciones = NotificacionProblema.objects.filter(
+        idPedido__idCliente=cliente
+    ).select_related('idPedido').order_by('-fechaReporte')
+    
+    return render(request, 'notificaciones_cliente.html', {
+        'notificaciones': notificaciones
+    })

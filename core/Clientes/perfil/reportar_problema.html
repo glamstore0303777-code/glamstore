@@ -71,7 +71,7 @@
       <p>Tu reporte será enviado inmediatamente a nuestro equipo de administración. Nos pondremos en contacto contigo lo antes posible.</p>
     </div>
     
-    <form method="POST" enctype="multipart/form-data">
+    <form method="POST" action="{% url 'reportar_problema' pedido.idPedido %}" enctype="multipart/form-data">
       {% csrf_token %}
       
       <div class="form-group">
