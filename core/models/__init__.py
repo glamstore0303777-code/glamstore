@@ -10,3 +10,5 @@ from .perfil import Profile
 from .categoria import Categoria, Subcategoria
 from .rol import Rol
 from .movimientos import MovimientoProducto
+from .lotes import LoteProducto, MovimientoLote
+from .confirmacion_entrega import ConfirmacionEntrega

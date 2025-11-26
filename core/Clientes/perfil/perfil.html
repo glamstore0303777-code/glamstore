@@ -1,4 +1,5 @@
 {% load static %}
+{% load humanize %}
 <!DOCTYPE html>
 <html lang="es">
 
@@ -502,6 +503,173 @@
   font-weight: 600;
 }
 
+/* Nuevos estilos para pedidos organizados */
+.pedidos-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.pedido-card {
+  background: white;
+  border: 1px solid #f0f0f0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.pedido-card:hover {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.pedido-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.pedido-numero {
+  font-size: 1.1rem;
+  color: #c2185b;
+}
+
+.pedido-fecha {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.pedido-estados {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.estado-pago, .estado-entrega {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.estado-label {
+  font-size: 0.85rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.pedido-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1rem;
+  border-top: 1px solid #f5f5f5;
+}
+
+.pedido-total {
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.pedido-acciones {
+  display: flex;
+  align-items: center;
+}
+
+.accion-problema {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.estado-pendiente {
+  font-size: 0.75rem;
+  color: #f44336;
+  font-weight: bold;
+}
+
+.btn-accion {
+  padding: 0.6rem 1.2rem;
+  border-radius: 20px;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.btn-problema {
+  background: linear-gradient(135deg, #f44336 0%, #e57373 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(244, 67, 54, 0.3);
+}
+
+.btn-problema:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
+}
+
+.btn-completado {
+  background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+.btn-completado:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+}
+
+.btn-seguimiento {
+  background: linear-gradient(135deg, #f48fb1 0%, #ec407a 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(244, 143, 177, 0.3);
+}
+
+.btn-seguimiento:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(244, 143, 177, 0.4);
+}
+
+.sin-pedidos {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: #999;
+  background: #f9f9f9;
+  border-radius: 10px;
+}
+
+.sin-pedidos p {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+/* Responsive para pedidos */
+@media (max-width: 768px) {
+  .pedido-estados {
+    grid-template-columns: 1fr;
+  }
+  
+  .pedido-footer {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+  
+  .pedido-acciones {
+    justify-content: center;
+  }
+  
+  .accion-problema {
+    align-items: center;
+  }
+}
+
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
   
@@ -660,12 +828,12 @@
       <!-- Mensaje para clientes invitados (sin usuario registrado) -->
       {% if not tiene_usuario %}
       <div class="guest-alert">
-        <h3>👋 ¡Hola, Usuario Invitado!</h3>
+        <h3>Hola, Usuario Invitado</h3>
         <p>
           Te recordamos que para <strong>ver el seguimiento de tus pedidos</strong> necesitas iniciar sesión o crear una cuenta.
         </p>
         <p>
-          Puedes seguir comprando y ver el seguimiento después. ¡Tus pedidos estarán esperándote! 🛍️
+          Puedes seguir comprando y ver el seguimiento después. Tus pedidos estarán esperándote.
         </p>
       </div>
       {% endif %}
@@ -673,12 +841,12 @@
       <!-- Alerta de pedidos entregados sin confirmar -->
       {% if pedidos_entregados_sin_confirmar %}
       <div class="alert-entrega">
-        <h3>📦 ¡Tienes pedidos entregados!</h3>
+        <h3>Tienes pedidos entregados</h3>
         <p>Por favor, confirma si recibiste correctamente tus pedidos:</p>
         {% for pedido in pedidos_entregados_sin_confirmar %}
         <div class="pedido-entregado-item">
-          <span><strong>Pedido #{{ pedido.idPedido }}</strong> - ${{ pedido.total }}</span>
-          <a href="{% url 'confirmar_recepcion' pedido.idPedido %}" class="btn-confirmar">Confirmar Recepción</a>
+          <span><strong>Pedido #{{ pedido.idPedido }}</strong> - ${{ pedido.total|floatformat:0|intcomma }}</span>
+          <a href="{% url 'confirmar_recepcion' pedido.idPedido %}" class="btn-confirmar">Confirmar Recepcion</a>
         </div>
         {% endfor %}
       </div>
@@ -686,50 +854,87 @@
 
       <h3>Últimos Pedidos</h3>
       {% if pedidos %}
-      <ul class="pedidos-list">
+      <div class="pedidos-container">
         {% for pedido in pedidos %}
-        <li style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
-          <div>
-            <strong>Pedido #{{ pedido.idPedido }}</strong> —
-            <span class="estado-badge estado-{{ pedido.estado_pago|lower|cut:' ' }}">
-              {% if pedido.estado_pago == 'Pago Completo' %}
-                💳 Pago Completo
-              {% elif pedido.estado_pago == 'Pago Parcial' %}
-                ⏳ Pago Parcial
-              {% else %}
-                {{ pedido.estado_pago }}
-              {% endif %}
-            </span>
-            <span class="estado-badge estado-{{ pedido.estado_pedido|lower|cut:' ' }}">
-              {% if pedido.estado_pedido == 'Confirmado' %}
-                ✓ Confirmado
-              {% elif pedido.estado_pedido == 'En Preparación' %}
-                📋 En Preparación
-              {% elif pedido.estado_pedido == 'En Camino' %}
-                🚚 En Camino
-              {% elif pedido.estado_pedido == 'Entregado' %}
-                📦 Entregado
-              {% elif pedido.estado_pedido == 'Completado' %}
-                ✅ Completado
-              {% elif pedido.estado_pedido == 'Problema en Entrega' %}
-                ⚠️ Problema en Entrega
-              {% else %}
-                {{ pedido.estado_pedido }}
-              {% endif %}
-            </span> —
-            <strong>Total: ${{ pedido.total }}</strong>
+        <div class="pedido-card">
+          <div class="pedido-header">
+            <div class="pedido-numero">
+              <strong>Pedido #{{ pedido.idPedido }}</strong>
+            </div>
+            <div class="pedido-fecha">
+              {{ pedido.fechaCreacion|date:"d/m/Y" }}
+            </div>
           </div>
-          {% if tiene_usuario %}
-          <!-- Botón de seguimiento solo para usuarios registrados -->
-          <a href="{% url 'ver_seguimiento' pedido.idPedido %}" class="btn-seguimiento">
-            Ver seguimiento
-          </a>
-          {% endif %}
-        </li>
+          
+          <div class="pedido-estados">
+            <div class="estado-pago">
+              <span class="estado-label">Estado de Pago:</span>
+              <span class="estado-badge estado-{{ pedido.estado_pago|lower|cut:' ' }}">
+                {% if pedido.estado_pago == 'Pago Completo' %}
+                  Pago Completo
+                {% elif pedido.estado_pago == 'Pago Parcial' %}
+                  Pago Parcial
+                {% else %}
+                  {{ pedido.estado_pago }}
+                {% endif %}
+              </span>
+            </div>
+            
+            <div class="estado-entrega">
+              <span class="estado-label">Estado de Entrega:</span>
+              <span class="estado-badge {% if pedido.estado == 'Problema en Entrega' %}estado-problemaenentrega{% else %}estado-{{ pedido.estado_pedido|lower|cut:' ' }}{% endif %}">
+                {% if pedido.estado == 'Problema en Entrega' %}
+                  Pedido completado sin entrega
+                {% elif pedido.estado_pedido == 'Confirmado' %}
+                  Confirmado
+                {% elif pedido.estado_pedido == 'En Preparación' %}
+                  En Preparación
+                {% elif pedido.estado_pedido == 'En Camino' %}
+                  En Camino
+                {% elif pedido.estado_pedido == 'Entregado' %}
+                  Entregado
+                {% elif pedido.estado_pedido == 'Completado' %}
+                  Completado
+                {% else %}
+                  {{ pedido.estado_pedido }}
+                {% endif %}
+              </span>
+            </div>
+          </div>
+          
+          <div class="pedido-footer">
+            <div class="pedido-total">
+              <strong>Total: ${{ pedido.total|floatformat:0|intcomma }}</strong>
+            </div>
+            
+            {% if tiene_usuario %}
+            <div class="pedido-acciones">
+              {% if pedido.estado == 'Problema en Entrega' %}
+                <div class="accion-problema">
+                  <span class="estado-pendiente">Pendiente de respuesta</span>
+                  <a href="{% url 'notificaciones_cliente' %}" class="btn-accion btn-problema">
+                    Ver reporte del pedido
+                  </a>
+                </div>
+              {% elif pedido.estado_pedido == 'Completado' %}
+                <a href="{% url 'ver_seguimiento' pedido.idPedido %}" class="btn-accion btn-completado">
+                  Ver detalles
+                </a>
+              {% else %}
+                <a href="{% url 'ver_seguimiento' pedido.idPedido %}" class="btn-accion btn-seguimiento">
+                  Ver seguimiento
+                </a>
+              {% endif %}
+            </div>
+            {% endif %}
+          </div>
+        </div>
         {% endfor %}
-      </ul>
+      </div>
       {% else %}
-      <p style="color: #999; font-style: italic;">No hay pedidos registrados.</p>
+      <div class="sin-pedidos">
+        <p>No hay pedidos registrados.</p>
+      </div>
       {% endif %}
     </div>
 

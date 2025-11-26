@@ -20,6 +20,16 @@ class MovimientoProducto(models.Model):
     stock_nuevo = models.IntegerField()
     id_pedido = models.ForeignKey(Pedido, on_delete=models.SET_NULL, null=True, blank=True, db_column='idPedido')
     descripcion = models.CharField(max_length=255, blank=True, null=True)
+    
+    # Campos adicionales para reabastecimiento
+    lote = models.CharField(max_length=100, blank=True, null=True, help_text="Código del lote del producto")
+    fecha_vencimiento = models.DateField(blank=True, null=True, help_text="Fecha de vencimiento del producto")
+    total_con_iva = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, help_text="Total incluyendo IVA")
+    iva = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, help_text="Valor del IVA (19%)")
+    
+    # Campo para trazabilidad de lotes (para salidas)
+    lote_origen = models.ForeignKey('LoteProducto', on_delete=models.SET_NULL, null=True, blank=True, 
+                                   help_text="Lote del cual salió el producto (para movimientos de salida)")
 
     class Meta:
         db_table = 'movimientos_producto'
@@ -37,9 +47,9 @@ class MovimientoProducto(models.Model):
 
     @property
     def precio_venta_recomendado(self):
-        """Calcula el precio de venta recomendado (precio unitario + 30%)"""
+        """Calcula el precio de venta recomendado (precio unitario + 25%)"""
         if self.precio_unitario and self.precio_unitario > 0:
-            return self.precio_unitario * Decimal('1.30')
+            return self.precio_unitario * Decimal('1.25')
         return 0
     
     @property

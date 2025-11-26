@@ -1,6 +1,8 @@
+{# django-html #}
 {% load static %}
+{% load humanize %}
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es"></html>
 <head>
   <meta charset="UTF-8">
   <title>Panel de Administración — Glam Store</title>
@@ -545,6 +547,21 @@
       color: #e65100;
     }
 
+    .badge-fuente {
+      padding: 0.2rem 0.5rem;
+      border-radius: 10px;
+    }
+
+    .fuente-excel {
+      background: #e3f2fd;
+      color: #1565c0;
+    }
+
+    .fuente-manual {
+      background: #f3e5f5;
+      color: #6a1b9a;
+    }
+
     /* ========================================
        EMPTY STATE
        ======================================== */
@@ -574,6 +591,12 @@
       .dashboard-row {
         grid-template-columns: 1fr;
       }
+    }
+
+    .btn-reporte:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(156, 39, 176, 0.4);
+      background: linear-gradient(135deg, #6a1b9a 0%, #8e24aa 100%);
     }
 
     @media (max-width: 768px) {
@@ -681,11 +704,19 @@
   </div>
 
   <div class="main-content">
-    <div class="page-header">
-      <h1>Panel de Administración</h1>
-      <div class="breadcrumb">
-        <span>Bienvenida: <strong>{{ request.session.usuario_nombre }}</strong> | Rol: <strong>Administrador</strong></span>
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <h1>Panel de Administración</h1>
+        <div class="breadcrumb">
+          <span>Bienvenida: <strong>{{ request.session.usuario_nombre }}</strong> | Rol: <strong>Administrador</strong></span>
+        </div>
       </div>
+      <form action="{% url 'enviar_reporte_dashboard' %}" method="post" style="margin: 0;">
+        {% csrf_token %}
+        <button type="submit" class="btn-reporte" style="background: linear-gradient(135deg, #7b1fa2 0%, #9c27b0 100%); color: white; padding: 12px 24px; border-radius: 25px; border: none; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 1rem; box-shadow: 0 4px 12px rgba(156, 39, 176, 0.3); transition: all 0.3s ease;">
+          Enviar Reporte
+        </button>
+      </form>
     </div>
 
     <!-- ALERTA DE CAPACIDAD DE REPARTIDORES -->
@@ -725,7 +756,7 @@
         <div class="stat-label">Pedidos</div>
       </div>
       <div class="stat-card">
-        <div class="stat-number">${{ ventas_totales|floatformat:2 }}</div>
+        <div class="stat-number">{{ ventas_totales|floatformat:0|intcomma }}</div>
         <div class="stat-label">Ventas Totales</div>
       </div>
     </div>
@@ -755,26 +786,60 @@
       <div class="card">
         <div class="card-body card-compact">
           {% if reabastecimientos_recientes %}
-            <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
               <thead>
                 <tr style="background: #fce4ec; border-bottom: 1px solid #f48fb1;">
-                  <th style="padding: 0.5rem; text-align: left; color: #c2185b; font-weight: bold; font-size: 0.85rem;">Producto</th>
-                  <th style="padding: 0.5rem; text-align: center; color: #c2185b; font-weight: bold; font-size: 0.85rem;">Cant.</th>
-                  <th style="padding: 0.5rem; text-align: center; color: #c2185b; font-weight: bold; font-size: 0.85rem;">Costo</th>
-                  <th style="padding: 0.5rem; text-align: right; color: #c2185b; font-weight: bold; font-size: 0.85rem;">Total</th>
-                  <th style="padding: 0.5rem; text-align: left; color: #c2185b; font-weight: bold; font-size: 0.85rem;">Fuente</th>
-                  <th style="padding: 0.5rem; text-align: left; color: #c2185b; font-weight: bold; font-size: 0.85rem;">Proveedor</th>
+                  <th style="padding: 0.5rem; text-align: left; color: #c2185b; font-weight: bold; font-size: 0.8rem;">Producto</th>
+                  <th style="padding: 0.5rem; text-align: center; color: #c2185b; font-weight: bold; font-size: 0.8rem;">Cant.</th>
+                  <th style="padding: 0.5rem; text-align: center; color: #c2185b; font-weight: bold; font-size: 0.8rem;">Precio Unit.</th>
+                  <th style="padding: 0.5rem; text-align: center; color: #c2185b; font-weight: bold; font-size: 0.8rem;">Total IVA</th>
+                  <th style="padding: 0.5rem; text-align: center; color: #c2185b; font-weight: bold; font-size: 0.8rem;">Lote</th>
+                  <th style="padding: 0.5rem; text-align: center; color: #c2185b; font-weight: bold; font-size: 0.8rem;">Vencimiento</th>
+                  <th style="padding: 0.5rem; text-align: center; color: #c2185b; font-weight: bold; font-size: 0.8rem;">IVA</th>
+                  <th style="padding: 0.5rem; text-align: center; color: #c2185b; font-weight: bold; font-size: 0.8rem;">Inv. Ant.</th>
+                  <th style="padding: 0.5rem; text-align: center; color: #c2185b; font-weight: bold; font-size: 0.8rem;">Inv. Nuevo</th>
+                  <th style="padding: 0.5rem; text-align: left; color: #c2185b; font-weight: bold; font-size: 0.8rem;">Fuente</th>
                 </tr>
               </thead>
               <tbody>
                 {% for reab in reabastecimientos_recientes %}
                 <tr style="border-bottom: 1px solid #fce4ec;">
-                  <td style="padding: 0.5rem; color: #333;">{{ reab.producto|truncatewords:3 }}</td>
+                  <td style="padding: 0.5rem; color: #333; font-size: 0.85rem;">{{ reab.producto|truncatewords:2 }}</td>
                   <td style="padding: 0.5rem; text-align: center; color: #333;">{{ reab.cantidad }}</td>
-                  <td style="padding: 0.5rem; text-align: center; color: #333;">${{ reab.costo_unitario|floatformat:0 }}</td>
-                  <td style="padding: 0.5rem; text-align: right; color: #c2185b; font-weight: bold;">${{ reab.valor_total|floatformat:0 }}</td>
-                  <td style="padding: 0.5rem; color: #666; font-size: 0.85rem;"><span style="background: {% if reab.fuente == 'Excel' %}#e3f2fd{% else %}#f3e5f5{% endif %}; padding: 0.2rem 0.5rem; border-radius: 10px; color: {% if reab.fuente == 'Excel' %}#1565c0{% else %}#6a1b9a{% endif %};">{{ reab.fuente }}</span></td>
-                  <td style="padding: 0.5rem; color: #666; font-size: 0.85rem;">{{ reab.proveedor|truncatewords:2 }}</td>
+                  <td style="padding: 0.5rem; text-align: center; color: #333;">{{ reab.costo_unitario|intcomma }}</td>
+                  <td style="padding: 0.5rem; text-align: center; color: #2e7d32; font-weight: bold;">
+                    {% if reab.total_con_iva is not None %}
+                      {{ reab.total_con_iva|intcomma }}
+                    {% else %}
+                      -
+                    {% endif %}
+                  </td>
+                  <td style="padding: 0.5rem; text-align: center; color: #666; font-size: 0.8rem;">
+                    {% if reab.lote %}
+                      {{ reab.lote }}
+                    {% else %}
+                      -
+                    {% endif %}
+                  </td>
+                  <td style="padding: 0.5rem; text-align: center; color: #666; font-size: 0.8rem;">
+                    {% if reab.fecha_vencimiento %}
+                      {{ reab.fecha_vencimiento }}
+                    {% else %}
+                      -
+                    {% endif %}
+                  </td>
+                  <td style="padding: 0.5rem; text-align: center; color: #c2185b; font-weight: bold;">
+                    {% if reab.iva is not None %}
+                      {{ reab.iva|intcomma }}
+                    {% else %}
+                      -
+                    {% endif %}
+                  </td>
+                  <td style="padding: 0.5rem; text-align: center; color: #666;">{{ reab.stock_anterior }}</td>
+                  <td style="padding: 0.5rem; text-align: center; color: #2e7d32; font-weight: bold;">{{ reab.stock_nuevo }}</td>
+                  <td style="padding: 0.5rem; color: #666; font-size: 0.8rem;">
+                    <span class="badge-fuente {% if reab.fuente == 'Excel' %}fuente-excel{% else %}fuente-manual{% endif %}">{{ reab.fuente }}</span>
+                  </td>
                 </tr>
                 {% endfor %}
               </tbody>
@@ -786,10 +851,10 @@
       </div>
     </div>
 
-    <!-- Layout Horizontal: Stock Bajo, Productos Vendidos y Pedidos -->
+    <!-- Layout Horizontal: Inventario Bajo, Productos Vendidos y Pedidos -->
     <div class="dashboard-row-three">
       <div class="dashboard-section">
-        <h2 class="section-title">Stock Bajo</h2>
+        <h2 class="section-title">Inventario Bajo</h2>
         <div class="card">
           <div class="card-body card-compact">
             {% for producto in productos_por_surtir %}
@@ -797,7 +862,7 @@
                 <div class="stock-info">
                   <div class="stock-name">{{ producto.nombreProducto }}</div>
                   <div class="stock-level">
-                    Stock: <strong style="color: #c62828;">{{ producto.stock }}</strong>
+                    Inventario: <strong style="color: #c62828;">{{ producto.stock }}</strong>
                     {% if producto.stock == 0 %}
                       <span class="badge badge-danger">Agotado</span>
                     {% elif producto.stock <= 5 %}
@@ -811,7 +876,7 @@
               </div>
             {% empty %}
               <div class="empty-state">
-                <p>Stock suficiente</p>
+                <p>Inventario suficiente</p>
               </div>
             {% endfor %}
           </div>
@@ -853,7 +918,7 @@
       <div class="dashboard-section">
         <h2 class="section-title">Pedidos Recientes</h2>
         <div class="card">
-          <div class="card-body card-compact"> </div>
+          <div class="card-body card-compact">
             {% for pedido in pedidos_nuevos %}
               <div class="pedido-item">
                 <div class="pedido-info">
@@ -874,10 +939,91 @@
         </div>
       </div>
     </div>
+
+    <!-- Sección de Calificaciones de Repartidores -->
+    <div class="dashboard-row" style="margin-top: 2rem;">
+      <!-- Repartidor Estrella del Mes -->
+      <div class="dashboard-section">
+        <h2 class="section-title">Repartidor Estrella del Mes</h2>
+        <div class="card">
+          <div class="card-body" style="text-align: center; padding: 2rem;">
+            {% if repartidor_estrella %}
+            <div style="background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); padding: 1.5rem; border-radius: 15px; margin-bottom: 1rem; box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);">
+              <div style="font-size: 1rem; color: #fff; margin-bottom: 0.3rem; text-transform: uppercase; letter-spacing: 2px;">Estrella del Mes</div>
+              <div style="font-size: 1.6rem; font-weight: bold; color: #fff;">{{ repartidor_estrella.repartidor__nombreRepartidor }}</div>
+            </div>
+            <div style="display: flex; justify-content: center; gap: 2rem; margin-top: 1rem;">
+              <div style="background: #fffafc; padding: 1rem 1.5rem; border-radius: 10px; border: 2px solid #ffc107;">
+                <div style="color: #ffc107; font-size: 1.3rem; margin-bottom: 0.3rem;">
+                  {% with promedio=repartidor_estrella.promedio_calificacion|floatformat:0|add:0 %}
+                    {% for i in "12345" %}{% if forloop.counter <= promedio %}★{% else %}☆{% endif %}{% endfor %}
+                  {% endwith %}
+                </div>
+                <div style="font-size: 1.5rem; font-weight: bold; color: #ffc107;">{{ repartidor_estrella.promedio_calificacion|floatformat:1 }}</div>
+                <div style="color: #666; font-size: 0.85rem;">Promedio</div>
+              </div>
+              <div style="background: #fffafc; padding: 1rem 1.5rem; border-radius: 10px; border: 2px solid #c2185b;">
+                <div style="font-size: 1.5rem; font-weight: bold; color: #c2185b;">{{ repartidor_estrella.total_entregas }}</div>
+                <div style="color: #666; font-size: 0.85rem;">Entregas</div>
+              </div>
+            </div>
+            {% else %}
+            <div class="empty-state">
+              <p>Sin calificaciones este mes</p>
+              <p style="font-size: 0.85rem; color: #999;">Las calificaciones aparecerán cuando los clientes confirmen sus entregas</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Calificaciones Recientes -->
+      <div class="dashboard-section">
+        <h2 class="section-title">Calificaciones de Entregas Confirmadas</h2>
+        <div class="card">
+          <div class="card-body card-compact">
+            {% for calif in calificaciones_recientes %}
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.8rem; margin-bottom: 0.5rem; background: {% if calif.calificacion >= 4 %}#e8f5e9{% elif calif.calificacion >= 3 %}#fff3e0{% else %}#ffebee{% endif %}; border-radius: 10px; border-left: 4px solid {% if calif.calificacion >= 4 %}#4caf50{% elif calif.calificacion >= 3 %}#ff9800{% else %}#f44336{% endif %};">
+              <div>
+                <div style="font-weight: bold; color: #c2185b;">Pedido #{{ calif.pedido.idPedido }}</div>
+                <div style="font-size: 0.85rem; color: #666;">
+                  <strong>Repartidor:</strong> {% if calif.repartidor %}{{ calif.repartidor.nombreRepartidor }}{% else %}Sin asignar{% endif %}
+                </div>
+                <div style="font-size: 0.8rem; color: #999;">
+                  <strong>Cliente:</strong> {{ calif.pedido.idCliente.nombre|default:"N/A" }}
+                </div>
+                <div style="font-size: 0.75rem; color: #aaa;">{{ calif.fecha_confirmacion|date:"d/m/Y H:i" }}</div>
+              </div>
+              <div style="text-align: right;">
+                <div style="color: #ffc107; font-size: 1.4rem; text-shadow: 1px 1px 2px rgba(0,0,0,0.1);">
+                  {% for i in "12345" %}
+                    {% if forloop.counter <= calif.calificacion %}★{% else %}☆{% endif %}
+                  {% endfor %}
+                </div>
+                <div style="font-size: 0.9rem; font-weight: bold; color: {% if calif.calificacion >= 4 %}#4caf50{% elif calif.calificacion >= 3 %}#ff9800{% else %}#f44336{% endif %};">
+                  {{ calif.calificacion }}/5
+                </div>
+                {% if calif.comentario %}
+                <div style="font-size: 0.75rem; color: #666; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 0.3rem;" title="{{ calif.comentario }}">{{ calif.comentario|truncatewords:5 }}</div>
+                {% endif %}
+              </div>
+            </div>
+            {% empty %}
+            <div class="empty-state">
+              <p>Sin calificaciones registradas</p>
+              <p style="font-size: 0.85rem; color: #999;">Las calificaciones aparecerán cuando los clientes confirmen la recepción de sus pedidos</p>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
+    // @ts-nocheck
     /* eslint-disable */
+    /* jshint ignore:start */
     // Django template - ignore syntax errors
     
     // Datos para los gráficos

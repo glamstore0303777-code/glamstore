@@ -130,8 +130,10 @@ def perfil(request):
     # Obtener los pedidos del cliente determinado
     pedidos = Pedido.objects.filter(idCliente=cliente.idCliente).order_by('-fechaCreacion')
     
-    # Verificar si hay pedidos entregados sin confirmar
-    pedidos_entregados_sin_confirmar = pedidos.filter(estado_pedido='Entregado')
+    # Verificar si hay pedidos entregados sin confirmar (excluir los que tienen problema)
+    pedidos_entregados_sin_confirmar = pedidos.filter(
+        estado_pedido='Entregado'
+    ).exclude(estado='Problema en Entrega')
 
     context = {
         'cliente': cliente,
@@ -423,22 +425,24 @@ def simular_pago(request):
             costo_envio = 10000
             tasa_iva = Decimal('0.19')  # 19% de IVA
             
-            # Calcular IVA sobre el subtotal de productos (sin incluir envío)
+            # Calcular IVA sobre el subtotal de productos (se suma adicional)
+            subtotal_productos = int(total_pedido)
             iva = int(total_pedido * tasa_iva)
             
             # El total y estado dependen del tipo de pago
             if pago_envio == 'ahora':
-                # Cliente pagó todo (productos + IVA + envío)
-                total_final = int(total_pedido) + iva + costo_envio
+                # Cliente paga productos + IVA + envío
+                total_final = subtotal_productos + iva + costo_envio
                 estado_pago = 'Pago Completo'
             else:
-                # Cliente pagó solo productos + IVA, envío contra entrega
-                total_final = int(total_pedido) + iva
+                # Cliente paga productos + IVA, envío contra entrega
+                total_final = subtotal_productos + iva
                 estado_pago = 'Pago Parcial'
 
             print(f"DEBUG - Creando pedido:")
-            print(f"  Subtotal productos: {total_pedido}")
+            print(f"  Subtotal productos: {subtotal_productos}")
             print(f"  IVA (19%): {iva}")
+            print(f"  Total productos + IVA: {subtotal_productos + iva}")
             print(f"  Envío: {costo_envio if pago_envio == 'ahora' else 0}")
             print(f"  Total final: {total_final}")
             print(f"  Estado Pago: {estado_pago}")
@@ -463,18 +467,29 @@ def simular_pago(request):
                     precio_unitario=producto.precio_venta,
                     subtotal=subtotal
                 )
-                producto.stock -= cantidad
-                MovimientoProducto.objects.create(
-                    producto=producto,
-                    tipo_movimiento='SALIDA_VENTA',
-                    precio_unitario=producto.precio_venta,
-                    cantidad=cantidad,
-                    stock_anterior=producto.stock + cantidad,
-                    stock_nuevo=producto.stock,
-                    id_pedido=nuevo_pedido,
-                    descripcion=f'Venta en pedido #{nuevo_pedido.idPedido}'
-                )
-                producto.save()
+                # Usar el servicio de lotes para procesar la salida con trazabilidad FIFO
+                try:
+                    from core.services import LotesService
+                    movimientos = LotesService.procesar_salida_fifo(
+                        producto=producto,
+                        cantidad_salida=cantidad,
+                        id_pedido=nuevo_pedido,
+                        descripcion=f'Venta en pedido #{nuevo_pedido.idPedido}'
+                    )
+                except ValueError as e:
+                    # Si no hay lotes disponibles, usar la lógica anterior como respaldo
+                    producto.stock -= cantidad
+                    MovimientoProducto.objects.create(
+                        producto=producto,
+                        tipo_movimiento='SALIDA_VENTA',
+                        precio_unitario=producto.precio_venta,
+                        cantidad=cantidad,
+                        stock_anterior=producto.stock + cantidad,
+                        stock_nuevo=producto.stock,
+                        id_pedido=nuevo_pedido,
+                        descripcion=f'Venta en pedido #{nuevo_pedido.idPedido} - Sin lotes disponibles'
+                    )
+                    producto.save()
 
         # 5. NO guardar sesión automáticamente - solo si ya tiene usuario_id
         # Si el usuario ya estaba logueado, mantener su sesión
@@ -1247,10 +1262,8 @@ def confirmar_recepcion_pedido(request, idPedido):
         confirmacion = request.POST.get('confirmacion')
         
         if confirmacion == 'si':
-            # Cliente confirma que recibió el pedido
-            pedido.estado_pedido = 'Completado'
-            pedido.save()
-            messages.success(request, f"Gracias por confirmar. El pedido #{pedido.idPedido} ha sido finalizado exitosamente.")
+            # Redirigir a la página de calificación con foto
+            return redirect('calificar_entrega', idPedido=idPedido)
         elif confirmacion == 'no':
             # Cliente indica que no recibió el pedido - mostrar formulario
             return render(request, 'reportar_problema.html', {'pedido': pedido})
@@ -1293,8 +1306,12 @@ def reportar_problema_entrega(request, idPedido):
             messages.error(request, "Por favor describe el problema.")
             return render(request, 'reportar_problema.html', {'pedido': pedido})
         
-        # Cambiar estado del pedido
-        pedido.estado_pedido = 'Problema en Entrega'
+        # Cambiar estado del pedido - Completar el pago pero marcar como no entregado
+        pedido.estado_pedido = 'Completado'
+        pedido.estado_pago = 'Pago Completo'  # El pago se considera completo
+        # Usar un campo personalizado para indicar que no fue entregado
+        # Como no tenemos un campo específico, usaremos el estado original para tracking
+        pedido.estado = 'Problema en Entrega'  # Mantener referencia del problema
         pedido.save()
         
         # Crear notificación
@@ -1337,3 +1354,65 @@ def notificaciones_cliente(request):
     return render(request, 'notificaciones_cliente.html', {
         'notificaciones': notificaciones
     })
+
+
+def calificar_entrega(request, idPedido):
+    """
+    Vista para que el cliente califique la entrega con foto y estrellas
+    """
+    from core.models import ConfirmacionEntrega
+    
+    pedido = get_object_or_404(Pedido, idPedido=idPedido)
+    
+    # Verificar que el pedido pertenece al cliente en sesión
+    usuario_id = request.session.get('usuario_id')
+    cliente_id = request.session.get('cliente_id')
+    
+    if usuario_id:
+        usuario = get_object_or_404(Usuario, idUsuario=usuario_id)
+        if pedido.idCliente.idCliente != usuario.idCliente:
+            messages.error(request, "No tienes permiso para calificar este pedido.")
+            return redirect('perfil')
+    elif cliente_id:
+        if pedido.idCliente.idCliente != cliente_id:
+            messages.error(request, "No tienes permiso para calificar este pedido.")
+            return redirect('perfil')
+    else:
+        messages.error(request, "Debes iniciar sesión para calificar la entrega.")
+        return redirect('login')
+    
+    if request.method == 'POST':
+        calificacion = int(request.POST.get('calificacion', 5))
+        comentario = request.POST.get('comentario', '')
+        foto_entrega = request.FILES.get('foto_entrega')
+        
+        # Crear la confirmación de entrega
+        confirmacion = ConfirmacionEntrega.objects.create(
+            pedido=pedido,
+            repartidor=pedido.idRepartidor,
+            calificacion=calificacion,
+            comentario=comentario,
+            foto_entrega=foto_entrega
+        )
+        
+        # Actualizar estado del pedido a Entregado y Completado
+        pedido.estado_pedido = 'Completado'
+        pedido.estado = 'Entregado'
+        pedido.save()
+        
+        messages.success(request, f"¡Gracias por tu calificacion! El pedido #{pedido.idPedido} ha sido entregado y finalizado exitosamente.")
+        return redirect('perfil')
+    
+    return render(request, 'calificar_entrega.html', {'pedido': pedido})
+
+def terminos_condiciones(request):
+    """
+    Vista para mostrar los términos y condiciones
+    """
+    return render(request, 'terminos_condiciones.html')
+
+def politica_privacidad(request):
+    """
+    Vista para mostrar la política de privacidad
+    """
+    return render(request, 'politica_privacidad.html')

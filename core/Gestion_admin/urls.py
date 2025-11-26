@@ -93,5 +93,7 @@ urlpatterns = [
     path('repartidores/verificar_capacidad/', views.verificar_capacidad_repartidores_view, name='verificar_capacidad_repartidores'),
     path('repartidores/descargar_pdf/<int:repartidor_id>/', views.descargar_pdf_repartidor_view, name='descargar_pdf_repartidor'),
 
+    # Reporte por correo
+    path('dashboard/enviar_reporte/', views.enviar_reporte_dashboard_view, name='enviar_reporte_dashboard'),
 ]
   

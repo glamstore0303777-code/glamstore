@@ -1,4 +1,5 @@
 {% load static %}
+{% load humanize %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -528,7 +529,7 @@
             <div class="stat-label">Hora del Pedido</div>
           </div>
           <div class="stat-card">
-            <div class="stat-number order-total">${{ pedido.total }}</div>
+            <div class="stat-number order-total">${{ pedido.total|floatformat:0|intcomma }}</div>
             <div class="stat-label">Total del Pedido</div>
           </div>
         </div>
@@ -602,8 +603,8 @@
                 {% endif %}
               </td>
               <td><strong>{{ detalle.cantidad }}</strong> unidades</td>
-              <td>${{ detalle.precio_unitario }}</td>
-              <td><strong style="color: #c2185b;">${{ detalle.subtotal }}</strong></td>
+              <td>${{ detalle.precio_unitario|floatformat:0|intcomma }}</td>
+              <td><strong style="color: #c2185b;">${{ detalle.subtotal|floatformat:0|intcomma }}</strong></td>
               <td>
                 <a href="{% url 'producto_detalle' detalle.idProducto.idProducto %}" class="btn btn-secondary btn-small">Ver Producto</a>
               </td>
@@ -642,7 +643,7 @@
             <div class="stat-label">Total de Unidades</div>
           </div>
           <div class="stat-card">
-            <div class="stat-number order-total">${{ pedido.total }}</div>
+            <div class="stat-number order-total">${{ pedido.total|floatformat:0|intcomma }}</div>
             <div class="stat-label">Total a Pagar</div>
           </div>
         </div>

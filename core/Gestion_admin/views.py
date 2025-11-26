@@ -86,12 +86,15 @@ def dashboard_admin_view(request):
     productos_por_surtir = Producto.objects.filter(stock__lt=10).order_by('stock')[:10]
     
     # === ESTADÍSTICAS DE CLIENTES ===
-    # Simulamos fechas de registro usando el ID (los más recientes tienen ID mayor)
-    clientes_esta_semana = Cliente.objects.filter(
-        idCliente__gte=Cliente.objects.aggregate(max_id=Max('idCliente'))['max_id'] - 10
-    ).count() if Cliente.objects.exists() else 0
+    # Calcular clientes únicos que hicieron pedidos esta semana y la semana pasada
+    clientes_esta_semana = Pedido.objects.filter(
+        fechaCreacion__gte=una_semana_atras
+    ).values('idCliente').distinct().count()
     
-    clientes_semana_pasada = max(0, Cliente.objects.count() - clientes_esta_semana - 5)
+    clientes_semana_pasada = Pedido.objects.filter(
+        fechaCreacion__gte=dos_semanas_atras,
+        fechaCreacion__lt=una_semana_atras
+    ).values('idCliente').distinct().count()
     
     # === PEDIDOS NUEVOS ===
     pedidos_nuevos = Pedido.objects.filter(
@@ -126,35 +129,96 @@ def dashboard_admin_view(request):
         fecha__gte=una_semana_atras
     ).select_related('producto').order_by('-fecha')[:10]
     
-    # Procesar reabastecimientos para extraer proveedor de la descripción
+    # Procesar reabastecimientos para extraer información de la descripción y campos directos
     reabastecimientos_procesados = []
     for mov in reabastecimientos_recientes:
         proveedor = "Sin especificar"
         fuente = "Manual"
+        lote = mov.lote if mov.lote else None
+        fecha_vencimiento = mov.fecha_vencimiento.strftime('%d/%m/%Y') if mov.fecha_vencimiento else None
+        total_con_iva = int(mov.total_con_iva) if mov.total_con_iva is not None else None
+        iva = int(mov.iva) if mov.iva is not None else None
         
+        # Detectar si es Excel o Manual basándose en la descripción
         if mov.descripcion:
-            if "Proveedor:" in mov.descripcion:
-                proveedor = mov.descripcion.split("Proveedor:")[-1].strip()
+            if "Proveedor:" in mov.descripcion or "Reabastecimiento desde Excel" in mov.descripcion:
                 fuente = "Excel"
-            elif "Reabastecimiento desde Excel" in mov.descripcion:
-                fuente = "Excel"
+                # Extraer información de la descripción para reabastecimientos desde Excel
+                partes = mov.descripcion.split(" | ")
+                for parte in partes:
+                    if "Proveedor:" in parte:
+                        proveedor = parte.split("Proveedor:")[-1].strip()
+                    elif "Lote:" in parte and not lote:
+                        lote = parte.split("Lote:")[-1].strip()
+                    elif "Vencimiento:" in parte and not fecha_vencimiento:
+                        fecha_str = parte.split("Vencimiento:")[-1].strip()
+                        try:
+                            if ' ' in fecha_str:
+                                fecha_obj = datetime.strptime(fecha_str.split()[0], '%Y-%m-%d')
+                                fecha_vencimiento = fecha_obj.strftime('%d/%m/%Y')
+                            else:
+                                fecha_vencimiento = fecha_str
+                        except:
+                            fecha_vencimiento = fecha_str
+        
+        # Calcular IVA y Total con IVA si no existen en la base de datos
+        costo_unitario_val = int(mov.costo_unitario) if mov.costo_unitario else 0
+        cantidad_val = mov.cantidad
+        
+        # Si no hay IVA guardado, calcularlo (19% del costo total)
+        if iva is None and costo_unitario_val > 0 and cantidad_val > 0:
+            costo_total = costo_unitario_val * cantidad_val
+            iva = int(costo_total * Decimal('0.19'))
+            total_con_iva = costo_total + iva
         
         reabastecimientos_procesados.append({
             'producto': mov.producto.nombreProducto,
-            'cantidad': mov.cantidad,
-            'costo_unitario': float(mov.costo_unitario),
-            'valor_total': float(mov.costo_unitario * Decimal(mov.cantidad)),
+            'cantidad': cantidad_val,
+            'costo_unitario': costo_unitario_val,
+            'valor_total': int(mov.costo_unitario * Decimal(mov.cantidad)) if mov.costo_unitario else 0,
             'proveedor': proveedor,
             'fuente': fuente,
+            'lote': lote,
+            'fecha_vencimiento': fecha_vencimiento,
+            'total_con_iva': int(total_con_iva) if total_con_iva is not None else None,
+            'iva': int(iva) if iva is not None else None,
+            'stock_anterior': mov.stock_anterior,
+            'stock_nuevo': mov.stock_nuevo,
             'fecha': mov.fecha
         })
+
+    # === CALIFICACIONES DE REPARTIDORES ===
+    from core.models import ConfirmacionEntrega
+    from django.db.models import Avg, Count
+    
+    # Obtener calificaciones recientes (últimas 10)
+    calificaciones_recientes = ConfirmacionEntrega.objects.select_related(
+        'pedido', 'pedido__idCliente', 'repartidor'
+    ).order_by('-fecha_confirmacion')[:10]
+    
+    # Repartidor estrella del mes (mejor promedio de calificación este mes)
+    inicio_mes = ahora.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    
+    repartidores_calificados = ConfirmacionEntrega.objects.filter(
+        fecha_confirmacion__gte=inicio_mes,
+        repartidor__isnull=False
+    ).values(
+        'repartidor__idRepartidor',
+        'repartidor__nombreRepartidor',
+        'repartidor__telefono'
+    ).annotate(
+        promedio_calificacion=Avg('calificacion'),
+        total_entregas=Count('idConfirmacion')
+    ).order_by('-promedio_calificacion', '-total_entregas')
+    
+    repartidor_estrella = repartidores_calificados.first() if repartidores_calificados.exists() else None
 
     context = {
         # Estadísticas generales
         'total_productos': total_productos,
         'total_clientes': total_clientes,
         'total_pedidos': total_pedidos,
-        'ventas_totales': float(ventas_totales),
+        'ventas_totales': int(ventas_totales) if ventas_totales else 0,
         
         # Productos
         'productos_mas_vendidos': productos_vendidos_completos,
@@ -178,6 +242,10 @@ def dashboard_admin_view(request):
         'hay_capacidad_repartidores': verificar_capacidad_repartidores(),
         'pedidos_sin_asignar': obtener_pedidos_sin_asignar().count(),
         'repartidores_disponibles': obtener_repartidores_disponibles().count(),
+        
+        # Calificaciones de repartidores
+        'calificaciones_recientes': calificaciones_recientes,
+        'repartidor_estrella': repartidor_estrella,
     }
     return render(request, 'admin_dashboard.html', context)
 # core/views.py
@@ -364,6 +432,9 @@ def distribuidor_eliminar_view(request, id):
 def lista_productos_view(request):
     productos = Producto.objects.all().order_by('nombreProducto')
     categorias = Categoria.objects.all()
+    
+    # Productos con stock bajo (menos de 10 unidades)
+    productos_stock_bajo = Producto.objects.filter(stock__lt=10).order_by('stock')
 
     categoria_id = request.GET.get('categoria')
     if categoria_id:
@@ -373,7 +444,8 @@ def lista_productos_view(request):
     return render(request, 'lista_productos.html', {
         'productos': productos,
         'categorias': categorias,
-        'categoria_seleccionada_id': int(categoria_id) if categoria_id else None
+        'categoria_seleccionada_id': int(categoria_id) if categoria_id else None,
+        'productos_stock_bajo': productos_stock_bajo
     })
 
 def producto_agregar_view(request):
@@ -440,10 +512,23 @@ def producto_eliminar_view(request, id):
 
 def movimientos_producto_view(request, id):
     producto = get_object_or_404(Producto, idProducto=id)
-    movimientos = producto.movimientos.all().select_related('id_pedido')
+    movimientos = producto.movimientos.all().select_related('id_pedido', 'lote_origen')
+    
+    # Obtener lotes disponibles para el producto
+    from core.models import LoteProducto
+    lotes_disponibles = LoteProducto.objects.filter(
+        producto=producto,
+        cantidad_disponible__gt=0
+    ).order_by('fecha_entrada')
+    
+    # Obtener proveedores (distribuidores)
+    proveedores = Distribuidor.objects.all().order_by('nombreDistribuidor')
+    
     return render(request, 'movimientos_producto.html', {
         'producto': producto,
-        'movimientos': movimientos
+        'movimientos': movimientos,
+        'lotes_disponibles': lotes_disponibles,
+        'proveedores': proveedores
     })
 
 def ajustar_stock_view(request, id):
@@ -457,6 +542,12 @@ def ajustar_stock_view(request, id):
         tipo_ajuste = request.POST.get('tipo_ajuste')
         costo_unitario = request.POST.get('costo_unitario', 0)
         descripcion = request.POST.get('descripcion', 'Ajuste manual')
+        lote = request.POST.get('lote', '')
+        fecha_vencimiento = request.POST.get('fecha_vencimiento', '')
+        iva = request.POST.get('iva', 0)
+        total_con_iva = request.POST.get('total_con_iva', 0)
+        lote_seleccionado_id = request.POST.get('lote_seleccionado')
+        proveedor = request.POST.get('proveedor', '')
 
         if cantidad <= 0:
             messages.error(request, "La cantidad debe ser un número positivo.")
@@ -469,17 +560,90 @@ def ajustar_stock_view(request, id):
         tipo_movimiento = 'AJUSTE_MANUAL_ENTRADA' if tipo_ajuste == 'entrada' else 'AJUSTE_MANUAL_SALIDA'
 
         costo_a_registrar = 0
-        if tipo_ajuste == 'entrada':
-            costo_a_registrar = float(costo_unitario) if costo_unitario else 0
+        iva_a_registrar = None
+        total_con_iva_a_registrar = None
+        fecha_venc_a_registrar = None
+        lote_a_registrar = None
 
-        MovimientoProducto.objects.create(
-            producto=producto, tipo_movimiento=tipo_movimiento, cantidad=cantidad,
-            stock_anterior=stock_anterior, stock_nuevo=stock_nuevo, descripcion=descripcion,
-            costo_unitario=costo_a_registrar, precio_unitario=producto.precio
-        )
-        producto.stock = stock_nuevo
-        producto.save()
-        messages.success(request, "El stock ha sido ajustado correctamente.")
+        if tipo_ajuste == 'entrada':
+            # Convertir a entero (sin decimales) para pesos colombianos
+            costo_a_registrar = int(float(costo_unitario)) if costo_unitario else 0
+            # Limpiar valores de IVA y Total (remover puntos de separador de miles)
+            if iva and str(iva).strip():
+                iva_limpio = str(iva).replace('.', '').replace(',', '').strip()
+                if iva_limpio and iva_limpio != '0':
+                    iva_a_registrar = Decimal(iva_limpio)
+            if total_con_iva and str(total_con_iva).strip():
+                total_limpio = str(total_con_iva).replace('.', '').replace(',', '').strip()
+                if total_limpio and total_limpio != '0':
+                    total_con_iva_a_registrar = Decimal(total_limpio)
+            lote_a_registrar = lote if lote else None
+            fecha_venc_a_registrar = fecha_vencimiento if fecha_vencimiento else None
+
+        from core.services import LotesService
+        from core.models import LoteProducto
+        
+        if tipo_ajuste == 'entrada' and lote_a_registrar:
+            # Usar el servicio de lotes para entradas con lote
+            proveedor_a_registrar = proveedor if proveedor else None
+            LotesService.crear_lote_entrada(
+                producto=producto,
+                codigo_lote=lote_a_registrar,
+                cantidad=cantidad,
+                costo_unitario=costo_a_registrar,
+                fecha_vencimiento=fecha_venc_a_registrar,
+                total_con_iva=total_con_iva_a_registrar,
+                iva=iva_a_registrar,
+                proveedor=proveedor_a_registrar,
+                descripcion=descripcion
+            )
+        elif tipo_ajuste == 'salida' and lote_seleccionado_id:
+            # Salida con lote específico seleccionado
+            lote = get_object_or_404(LoteProducto, idLote=lote_seleccionado_id)
+            
+            if cantidad > lote.cantidad_disponible:
+                messages.error(request, f"Solo hay {lote.cantidad_disponible} unidades disponibles en este lote.")
+                return redirect('movimientos_producto', id=id)
+            
+            # Crear movimiento de salida
+            MovimientoProducto.objects.create(
+                producto=producto, 
+                tipo_movimiento='AJUSTE_MANUAL_SALIDA', 
+                cantidad=cantidad,
+                stock_anterior=stock_anterior, 
+                stock_nuevo=stock_nuevo, 
+                descripcion=descripcion,
+                costo_unitario=lote.costo_unitario, 
+                precio_unitario=int(float(producto.precio)) if producto.precio else 0,
+                lote=lote.codigo_lote,
+                fecha_vencimiento=lote.fecha_vencimiento,
+                lote_origen=lote
+            )
+            
+            # Actualizar lote y producto
+            lote.cantidad_disponible -= cantidad
+            lote.save()
+            producto.stock = stock_nuevo
+            producto.save()
+        else:
+            # Lógica anterior para entradas sin lote
+            MovimientoProducto.objects.create(
+                producto=producto, 
+                tipo_movimiento=tipo_movimiento, 
+                cantidad=cantidad,
+                stock_anterior=stock_anterior, 
+                stock_nuevo=stock_nuevo, 
+                descripcion=descripcion,
+                costo_unitario=costo_a_registrar, 
+                precio_unitario=int(float(producto.precio)) if producto.precio else 0,
+                lote=lote_a_registrar,
+                fecha_vencimiento=fecha_venc_a_registrar,
+                iva=iva_a_registrar,
+                total_con_iva=total_con_iva_a_registrar
+            )
+            producto.stock = stock_nuevo
+            producto.save()
+        messages.success(request, "El inventario ha sido ajustado correctamente.")
     except (ValueError, TypeError):
         messages.error(request, "Por favor, introduce una cantidad válida.")
     
@@ -490,8 +654,8 @@ def reabastecimiento_view(request):
     """Vista para cargar reabastecimiento desde Excel"""
     categorias = Categoria.objects.all()
     proveedores = Distribuidor.objects.all()
-    productos_reabastecidos = request.session.pop('productos_reabastecidos', [])
-    errores = request.session.pop('errores_reabastecimiento', [])
+    productos_reabastecidos = request.session.get('productos_reabastecidos', [])
+    errores = request.session.get('errores_reabastecimiento', [])
     
     if request.method == 'POST':
         archivo_excel = request.FILES.get('archivo_excel')
@@ -514,28 +678,54 @@ def reabastecimiento_view(request):
             categoria = get_object_or_404(Categoria, idCategoria=categoria_id)
             proveedor = get_object_or_404(Distribuidor, idDistribuidor=proveedor_id)
             
-            # Cargar el archivo Excel
-            wb = openpyxl.load_workbook(archivo_excel)
+            # Cargar el archivo Excel (data_only=True para leer valores de fórmulas)
+            wb = openpyxl.load_workbook(archivo_excel, data_only=True)
             ws = wb.active
             
             productos_procesados = []
             errores_lista = []
             
             # Iterar sobre las filas (comenzando desde la fila 2, asumiendo que la fila 1 es encabezado)
+            # Columnas: Producto, Cantidad, Precio Unitario, Total con IVA, Lote, Fecha Vencimiento, IVA (19%)
             for row_idx, row in enumerate(ws.iter_rows(min_row=2, values_only=True), start=2):
                 try:
                     nombre_producto = row[0]
                     cantidad = row[1]
-                    costo_unitario = row[2]
+                    precio_unitario = row[2]
+                    total_con_iva = row[3]
+                    lote = row[4] if len(row) > 4 else None
+                    fecha_vencimiento = row[5] if len(row) > 5 else None
+                    iva_valor = row[6] if len(row) > 6 else None
                     
-                    # Validar que los datos no sean None
-                    if not nombre_producto or cantidad is None or costo_unitario is None:
-                        errores_lista.append(f"Fila {row_idx}: Datos incompletos")
+                    # Validar que los datos básicos no sean None
+                    if not nombre_producto or cantidad is None or precio_unitario is None:
+                        errores_lista.append(f"Fila {row_idx}: Datos incompletos (Producto, Cantidad o Precio Unitario)")
                         continue
                     
                     # Convertir a tipos correctos
                     cantidad = int(cantidad)
-                    costo_unitario = Decimal(str(costo_unitario))
+                    precio_unitario = Decimal(str(precio_unitario))
+                    
+                    # Limpiar valores monetarios (remover $, puntos, comas)
+                    if isinstance(total_con_iva, str):
+                        total_con_iva = total_con_iva.replace('$', '').replace('.', '').replace(',', '').strip()
+                    if total_con_iva and str(total_con_iva).strip():
+                        try:
+                            total_con_iva = Decimal(str(total_con_iva))
+                        except:
+                            total_con_iva = None
+                    else:
+                        total_con_iva = None
+                    
+                    if isinstance(iva_valor, str):
+                        iva_valor = iva_valor.replace('$', '').replace('.', '').replace(',', '').strip()
+                    if iva_valor and str(iva_valor).strip():
+                        try:
+                            iva_valor = Decimal(str(iva_valor))
+                        except:
+                            iva_valor = None
+                    else:
+                        iva_valor = None
                     
                     # Buscar el producto por nombre en la categoría
                     producto = Producto.objects.filter(
@@ -547,33 +737,74 @@ def reabastecimiento_view(request):
                         errores_lista.append(f"Fila {row_idx}: Producto '{nombre_producto}' no encontrado en la categoría")
                         continue
                     
+                    # Actualizar el precio del producto con el precio unitario del Excel
+                    producto.precio = precio_unitario
+                    
                     # Crear movimiento de entrada
                     stock_anterior = producto.stock
                     stock_nuevo = stock_anterior + cantidad
+                    
+                    # Construir descripción con toda la información
+                    descripcion_partes = [
+                        f'Reabastecimiento desde Excel - {categoria.nombreCategoria}',
+                        f'Proveedor: {proveedor.nombreDistribuidor}'
+                    ]
+                    if lote:
+                        descripcion_partes.append(f'Lote: {lote}')
+                    if fecha_vencimiento:
+                        descripcion_partes.append(f'Vencimiento: {fecha_vencimiento}')
+                    if total_con_iva:
+                        descripcion_partes.append(f'Total con IVA: ${total_con_iva:,.0f}')
+                    if iva_valor:
+                        descripcion_partes.append(f'IVA: ${iva_valor:,.0f}')
+                    
+                    descripcion_completa = ' | '.join(descripcion_partes)
+                    
+                    # Preparar valores para guardar
+                    lote_a_guardar = lote if lote else None
+                    fecha_venc_a_guardar = fecha_vencimiento if fecha_vencimiento else None
+                    iva_a_guardar = Decimal(iva_valor) if iva_valor else None
+                    total_iva_a_guardar = Decimal(total_con_iva) if total_con_iva else None
                     
                     MovimientoProducto.objects.create(
                         producto=producto,
                         tipo_movimiento='AJUSTE_MANUAL_ENTRADA',
                         cantidad=cantidad,
-                        precio_unitario=producto.precio,
-                        costo_unitario=costo_unitario,
+                        precio_unitario=precio_unitario,
+                        costo_unitario=precio_unitario,
                         stock_anterior=stock_anterior,
                         stock_nuevo=stock_nuevo,
-                        descripcion=f'Reabastecimiento desde Excel - {categoria.nombreCategoria} - Proveedor: {proveedor.nombreDistribuidor}'
+                        descripcion=descripcion_completa,
+                        lote=lote_a_guardar,
+                        fecha_vencimiento=fecha_venc_a_guardar,
+                        iva=iva_a_guardar,
+                        total_con_iva=total_iva_a_guardar
                     )
                     
-                    # Actualizar stock del producto
+                    # Actualizar stock y precio del producto
                     producto.stock = stock_nuevo
                     producto.save()
+                    
+                    # Convertir fecha a string si es datetime
+                    fecha_venc_str = None
+                    if fecha_vencimiento:
+                        if isinstance(fecha_vencimiento, datetime):
+                            fecha_venc_str = fecha_vencimiento.strftime('%d/%m/%Y')
+                        else:
+                            fecha_venc_str = str(fecha_vencimiento)
                     
                     # Guardar información del producto reabastecido
                     productos_procesados.append({
                         'nombre': producto.nombreProducto,
                         'cantidad': cantidad,
-                        'costo_unitario': float(costo_unitario),
+                        'costo_unitario': float(precio_unitario),
                         'stock_anterior': stock_anterior,
                         'stock_nuevo': stock_nuevo,
-                        'valor_total': float(costo_unitario * Decimal(cantidad))
+                        'valor_total': float(precio_unitario * Decimal(cantidad)),
+                        'lote': str(lote) if lote else None,
+                        'fecha_vencimiento': fecha_venc_str,
+                        'total_con_iva': float(total_con_iva) if total_con_iva else None,
+                        'iva': float(iva_valor) if iva_valor else None
                     })
                     
                 except (ValueError, TypeError) as e:
@@ -1607,3 +1838,404 @@ def enviar_facturas_multiples_view(request):
             messages.error(request, f"Error al enviar facturas: {str(e)}")
     
     return redirect('lista_repartidores')
+
+
+def enviar_reporte_dashboard_view(request):
+    """
+    Vista para enviar un reporte completo del dashboard por correo electrónico
+    con graficos de barras CSS y datos precisos
+    """
+    from django.core.mail import EmailMultiAlternatives
+    from django.db.models import Q, F, Max, Avg, Count, Min
+    from core.models import ConfirmacionEntrega
+    
+    if request.method != 'POST':
+        return redirect('dashboard_admin')
+    
+    try:
+        ahora = timezone.now()
+        una_semana_atras = ahora - timedelta(days=7)
+        dos_semanas_atras = ahora - timedelta(days=14)
+        inicio_mes = ahora.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        
+        # === ESTADÍSTICAS GENERALES ===
+        total_productos = Producto.objects.count()
+        total_clientes = Cliente.objects.count()
+        total_pedidos = Pedido.objects.count()
+        ventas_totales = Pedido.objects.aggregate(total=Sum('total'))['total'] or 0
+        
+        # === CLIENTES NUEVOS (basado en primer pedido) ===
+        # Clientes que hicieron su PRIMER pedido esta semana
+        clientes_con_primer_pedido = Pedido.objects.values('idCliente').annotate(
+            primer_pedido=Min('fechaCreacion')
+        )
+        clientes_nuevos_semana = sum(1 for c in clientes_con_primer_pedido if c['primer_pedido'] and c['primer_pedido'] >= una_semana_atras)
+        clientes_nuevos_semana_pasada = sum(1 for c in clientes_con_primer_pedido if c['primer_pedido'] and dos_semanas_atras <= c['primer_pedido'] < una_semana_atras)
+        
+        # Clientes activos (que compraron) esta semana vs semana pasada
+        clientes_activos_semana = Pedido.objects.filter(fechaCreacion__gte=una_semana_atras).values('idCliente').distinct().count()
+        clientes_activos_semana_pasada = Pedido.objects.filter(fechaCreacion__gte=dos_semanas_atras, fechaCreacion__lt=una_semana_atras).values('idCliente').distinct().count()
+        
+        # === VENTAS POR CATEGORÍA ===
+        ventas_por_categoria = DetallePedido.objects.values(
+            'idProducto__idCategoria__nombreCategoria'
+        ).annotate(
+            total=Sum(F('cantidad') * F('precio_unitario')),
+            cantidad_vendida=Sum('cantidad')
+        ).order_by('-total')
+        
+        # === PRODUCTOS MÁS VENDIDOS ===
+        productos_mas_vendidos = DetallePedido.objects.values(
+            'idProducto__nombreProducto'
+        ).annotate(
+            total_vendido=Sum('cantidad'),
+            ingresos=Sum(F('cantidad') * F('precio_unitario'))
+        ).order_by('-total_vendido')[:10]
+        
+        # === PEDIDOS POR DÍA (últimos 7 días) ===
+        pedidos_por_dia = []
+        for i in range(6, -1, -1):
+            dia = ahora - timedelta(days=i)
+            inicio_dia = dia.replace(hour=0, minute=0, second=0, microsecond=0)
+            fin_dia = dia.replace(hour=23, minute=59, second=59, microsecond=999999)
+            count = Pedido.objects.filter(fechaCreacion__gte=inicio_dia, fechaCreacion__lte=fin_dia).count()
+            ventas_dia = Pedido.objects.filter(fechaCreacion__gte=inicio_dia, fechaCreacion__lte=fin_dia).aggregate(total=Sum('total'))['total'] or 0
+            dias_espanol = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom']
+            dia_nombre = dias_espanol[dia.weekday()]
+            pedidos_por_dia.append({
+                'dia': f"{dia_nombre} {dia.day}",
+                'pedidos': count,
+                'ventas': float(ventas_dia)
+            })
+        
+        # === PRODUCTOS CON INVENTARIO BAJO ===
+        productos_bajo_stock = Producto.objects.filter(stock__lt=10).order_by('stock')
+        
+        # === REABASTECIMIENTOS RECIENTES ===
+        reabastecimientos = MovimientoProducto.objects.filter(
+            tipo_movimiento='AJUSTE_MANUAL_ENTRADA',
+            fecha__gte=una_semana_atras
+        ).select_related('producto').order_by('-fecha')[:15]
+        
+        # === PEDIDOS RECIENTES ===
+        pedidos_recientes = Pedido.objects.select_related('idCliente').order_by('-fechaCreacion')[:15]
+        
+        # === REPARTIDOR ESTRELLA ===
+        repartidores_calificados = ConfirmacionEntrega.objects.filter(
+            fecha_confirmacion__gte=inicio_mes,
+            repartidor__isnull=False
+        ).values(
+            'repartidor__nombreRepartidor',
+            'repartidor__telefono'
+        ).annotate(
+            promedio=Avg('calificacion'),
+            entregas=Count('idConfirmacion')
+        ).order_by('-promedio', '-entregas')
+        
+        repartidor_estrella = repartidores_calificados.first()
+        
+        # === CALIFICACIONES Y ENTREGAS CONFIRMADAS ===
+        total_entregas_confirmadas = ConfirmacionEntrega.objects.filter(
+            fecha_confirmacion__gte=inicio_mes
+        ).count()
+        
+        promedio_calificacion_general = ConfirmacionEntrega.objects.filter(
+            fecha_confirmacion__gte=inicio_mes
+        ).aggregate(promedio=Avg('calificacion'))['promedio'] or 0
+        
+        # === CALCULAR TOTALES DE VENTAS ===
+        ventas_semana = Pedido.objects.filter(
+            fechaCreacion__gte=una_semana_atras
+        ).aggregate(total=Sum('total'))['total'] or 0
+        
+        ventas_mes = Pedido.objects.filter(
+            fechaCreacion__gte=inicio_mes
+        ).aggregate(total=Sum('total'))['total'] or 0
+        
+        pedidos_semana = Pedido.objects.filter(fechaCreacion__gte=una_semana_atras).count()
+        pedidos_mes = Pedido.objects.filter(fechaCreacion__gte=inicio_mes).count()
+        
+        # Calcular máximos para las barras
+        max_ventas_cat = max([c['total'] or 0 for c in ventas_por_categoria]) if ventas_por_categoria else 1
+        max_pedidos_dia = max([p['pedidos'] for p in pedidos_por_dia]) if pedidos_por_dia else 1
+        max_ventas_dia = max([p['ventas'] for p in pedidos_por_dia]) if pedidos_por_dia else 1
+        max_vendido = max([p['total_vendido'] for p in productos_mas_vendidos]) if productos_mas_vendidos else 1
+        
+        # === CONSTRUIR HTML DEL CORREO ===
+        html_content = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body {{ font-family: Arial, sans-serif; background-color: #fffafc; padding: 20px; }}
+                .container {{ max-width: 900px; margin: 0 auto; background: white; border-radius: 15px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }}
+                h1 {{ color: #c2185b; border-bottom: 3px solid #f48fb1; padding-bottom: 10px; }}
+                h2 {{ color: #ad1457; margin-top: 30px; margin-bottom: 15px; }}
+                .stat-box {{ display: inline-block; background: #fce4ec; padding: 15px 25px; border-radius: 10px; margin: 8px; text-align: center; min-width: 120px; }}
+                .stat-number {{ font-size: 1.8rem; font-weight: bold; color: #c2185b; }}
+                .stat-label {{ color: #666; font-size: 0.85rem; }}
+                table {{ width: 100%; border-collapse: collapse; margin: 15px 0; }}
+                th, td {{ padding: 10px; text-align: left; border-bottom: 1px solid #fce4ec; }}
+                th {{ background: #fce4ec; color: #c2185b; }}
+                .highlight {{ background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%); padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #fbc02d; }}
+                .footer {{ text-align: center; color: #999; margin-top: 30px; padding-top: 20px; border-top: 2px solid #fce4ec; }}
+                .bar-container {{ margin: 8px 0; }}
+                .bar-label {{ display: inline-block; width: 150px; font-size: 0.9rem; color: #333; }}
+                .bar-wrapper {{ display: inline-block; width: calc(100% - 250px); background: #f5f5f5; border-radius: 5px; height: 25px; vertical-align: middle; }}
+                .bar {{ height: 25px; border-radius: 5px; display: inline-block; }}
+                .bar-value {{ display: inline-block; width: 80px; text-align: right; font-weight: bold; color: #c2185b; font-size: 0.9rem; }}
+                .chart-vertical {{ display: flex; align-items: flex-end; justify-content: space-around; height: 200px; background: #fafafa; border-radius: 10px; padding: 20px 10px 10px 10px; margin: 15px 0; }}
+                .chart-bar {{ display: flex; flex-direction: column; align-items: center; width: 12%; }}
+                .chart-bar-fill {{ width: 100%; background: linear-gradient(180deg, #ec407a 0%, #f48fb1 100%); border-radius: 5px 5px 0 0; min-height: 5px; }}
+                .chart-bar-label {{ font-size: 0.75rem; color: #666; margin-top: 8px; text-align: center; }}
+                .chart-bar-value {{ font-size: 0.8rem; font-weight: bold; color: #c2185b; margin-bottom: 5px; }}
+                .comparison-box {{ display: inline-block; background: white; padding: 15px 20px; border-radius: 10px; margin: 8px; border: 2px solid #f8bbd0; text-align: center; min-width: 180px; }}
+                .comparison-title {{ font-size: 0.85rem; color: #666; margin-bottom: 5px; }}
+                .comparison-value {{ font-size: 1.5rem; font-weight: bold; color: #c2185b; }}
+                .comparison-change {{ font-size: 0.8rem; padding: 3px 8px; border-radius: 10px; margin-top: 5px; display: inline-block; }}
+                .change-up {{ background: #e8f5e9; color: #2e7d32; }}
+                .change-down {{ background: #ffebee; color: #c62828; }}
+                .change-same {{ background: #f5f5f5; color: #666; }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>Reporte Dashboard - Glam Store</h1>
+                <p style="color: #666;">Generado el {ahora.strftime('%d/%m/%Y')} a las {ahora.strftime('%H:%M')}</p>
+                
+                <h2>Resumen General</h2>
+                <div style="text-align: center;">
+                    <div class="stat-box">
+                        <div class="stat-number">{total_productos}</div>
+                        <div class="stat-label">Productos</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number">{total_clientes}</div>
+                        <div class="stat-label">Clientes</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number">{total_pedidos}</div>
+                        <div class="stat-label">Pedidos Totales</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number">${ventas_totales:,.0f}</div>
+                        <div class="stat-label">Ventas Totales</div>
+                    </div>
+                </div>
+                
+                <h2>Comparativa Semanal</h2>
+                <div style="text-align: center;">
+                    <div class="comparison-box">
+                        <div class="comparison-title">Clientes Nuevos Esta Semana</div>
+                        <div class="comparison-value">{clientes_nuevos_semana}</div>
+                        <div class="comparison-change {'change-up' if clientes_nuevos_semana > clientes_nuevos_semana_pasada else 'change-down' if clientes_nuevos_semana < clientes_nuevos_semana_pasada else 'change-same'}">
+                            vs {clientes_nuevos_semana_pasada} semana pasada
+                        </div>
+                    </div>
+                    <div class="comparison-box">
+                        <div class="comparison-title">Clientes Activos Esta Semana</div>
+                        <div class="comparison-value">{clientes_activos_semana}</div>
+                        <div class="comparison-change {'change-up' if clientes_activos_semana > clientes_activos_semana_pasada else 'change-down' if clientes_activos_semana < clientes_activos_semana_pasada else 'change-same'}">
+                            vs {clientes_activos_semana_pasada} semana pasada
+                        </div>
+                    </div>
+                    <div class="comparison-box">
+                        <div class="comparison-title">Pedidos Esta Semana</div>
+                        <div class="comparison-value">{pedidos_semana}</div>
+                        <div class="comparison-change">
+                            ${ventas_semana:,.0f} en ventas
+                        </div>
+                    </div>
+                    <div class="comparison-box">
+                        <div class="comparison-title">Pedidos Este Mes</div>
+                        <div class="comparison-value">{pedidos_mes}</div>
+                        <div class="comparison-change">
+                            ${ventas_mes:,.0f} en ventas
+                        </div>
+                    </div>
+                </div>
+                
+                <h2>Pedidos por Dia (Ultimos 7 dias)</h2>
+                <table>
+                    <tr>
+                        <th>Dia</th>
+                        <th>Pedidos</th>
+                        <th>Ventas</th>
+                        <th>Grafico</th>
+                    </tr>
+        """
+        
+        for dia in pedidos_por_dia:
+            porcentaje = int((dia['pedidos'] / max_pedidos_dia) * 100) if max_pedidos_dia > 0 else 0
+            html_content += f"""
+                    <tr>
+                        <td style="font-weight: bold;">{dia['dia']}</td>
+                        <td style="text-align: center;">{dia['pedidos']}</td>
+                        <td style="text-align: right;">${dia['ventas']:,.0f}</td>
+                        <td style="width: 40%;">
+                            <div style="background: #f5f5f5; border-radius: 5px; height: 20px; width: 100%;">
+                                <div style="background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%); height: 20px; width: {porcentaje}%; border-radius: 5px;"></div>
+                            </div>
+                        </td>
+                    </tr>
+            """
+        
+        html_content += """
+                </table>
+                
+                <h2>Ventas por Categoria</h2>
+        """
+        
+        for cat in ventas_por_categoria:
+            if cat['idProducto__idCategoria__nombreCategoria']:
+                porcentaje = int((cat['total'] or 0) / max_ventas_cat * 100) if max_ventas_cat > 0 else 0
+                html_content += f"""
+                <div class="bar-container">
+                    <span class="bar-label">{cat['idProducto__idCategoria__nombreCategoria']}</span>
+                    <span class="bar-wrapper">
+                        <span class="bar" style="width: {porcentaje}%; background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%);"></span>
+                    </span>
+                    <span class="bar-value">${cat['total'] or 0:,.0f}</span>
+                </div>
+                """
+        
+        html_content += """
+                
+                <h2>Top 10 Productos Mas Vendidos</h2>
+        """
+        
+        for i, prod in enumerate(productos_mas_vendidos, 1):
+            porcentaje = int((prod['total_vendido'] / max_vendido) * 100) if max_vendido > 0 else 0
+            colores = ['#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#00bcd4', '#009688', '#4caf50', '#8bc34a', '#cddc39']
+            color = colores[(i-1) % len(colores)]
+            html_content += f"""
+                <div class="bar-container">
+                    <span class="bar-label" style="width: 200px;">{i}. {prod['idProducto__nombreProducto'][:25]}</span>
+                    <span class="bar-wrapper" style="width: calc(100% - 300px);">
+                        <span class="bar" style="width: {porcentaje}%; background: {color};"></span>
+                    </span>
+                    <span class="bar-value">{prod['total_vendido']} uds</span>
+                </div>
+            """
+        
+        html_content += """
+                
+                <h2>Inventario Bajo (Stock menor a 10)</h2>
+                <div style="background: #ffebee; padding: 15px; border-radius: 10px; border-left: 4px solid #f44336;">
+        """
+        
+        for prod in productos_bajo_stock:
+            porcentaje_stock = int((prod.stock / 10) * 100)
+            color_barra = '#c62828' if prod.stock < 3 else '#f57c00' if prod.stock < 6 else '#fbc02d'
+            html_content += f"""
+                <div class="bar-container">
+                    <span class="bar-label" style="width: 200px;">{prod.nombreProducto[:25]}</span>
+                    <span class="bar-wrapper" style="width: calc(100% - 280px); background: #ffcdd2;">
+                        <span class="bar" style="width: {porcentaje_stock}%; background: {color_barra};"></span>
+                    </span>
+                    <span class="bar-value" style="color: {color_barra};">{prod.stock} uds</span>
+                </div>
+            """
+        
+        html_content += "</div>"
+        
+        html_content += """
+                
+                <h2>Reabastecimientos Recientes (Ultima Semana)</h2>
+                <table>
+                    <tr><th>Fecha</th><th>Producto</th><th>Cantidad</th><th>Lote</th><th>Vencimiento</th></tr>
+        """
+        
+        for reab in reabastecimientos:
+            html_content += f"""
+                <tr>
+                    <td>{reab.fecha.strftime('%d/%m/%Y')}</td>
+                    <td>{reab.producto.nombreProducto}</td>
+                    <td style="color: #2e7d32; font-weight: bold;">+{reab.cantidad}</td>
+                    <td>{reab.lote or '-'}</td>
+                    <td>{reab.fecha_vencimiento.strftime('%d/%m/%Y') if reab.fecha_vencimiento else '-'}</td>
+                </tr>
+            """
+        
+        html_content += """
+                </table>
+                
+                <h2>Ultimos 15 Pedidos</h2>
+                <table>
+                    <tr><th>#</th><th>Cliente</th><th>Total</th><th>Estado</th><th>Fecha</th></tr>
+        """
+        
+        for ped in pedidos_recientes:
+            estado_color = '#2e7d32' if ped.estado == 'Entregado' else '#f57c00' if ped.estado == 'En camino' else '#1976d2'
+            html_content += f"""
+                <tr>
+                    <td>{ped.idPedido}</td>
+                    <td>{ped.idCliente.nombre if ped.idCliente else 'N/A'}</td>
+                    <td style="font-weight: bold;">${ped.total:,.0f}</td>
+                    <td style="color: {estado_color};">{ped.estado}</td>
+                    <td>{ped.fechaCreacion.strftime('%d/%m/%Y %H:%M')}</td>
+                </tr>
+            """
+        
+        html_content += f"""
+                </table>
+                
+                <h2>Repartidores y Entregas</h2>
+                <div class="highlight" style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-left-color: #4caf50;">
+                    <div style="display: flex; justify-content: space-around; flex-wrap: wrap; text-align: center;">
+                        <div style="padding: 10px;">
+                            <div style="font-size: 2rem; font-weight: bold; color: #2e7d32;">{total_entregas_confirmadas}</div>
+                            <div style="color: #666;">Entregas Confirmadas (Mes)</div>
+                        </div>
+                        <div style="padding: 10px;">
+                            <div style="font-size: 2rem; font-weight: bold; color: #2e7d32;">{promedio_calificacion_general:.1f}/5</div>
+                            <div style="color: #666;">Calificacion Promedio</div>
+                        </div>
+                    </div>
+        """
+        
+        if repartidor_estrella:
+            html_content += f"""
+                    <div style="margin-top: 15px; padding: 15px; background: white; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 1.2rem; color: #fbc02d; margin-bottom: 5px;">ESTRELLA DEL MES</div>
+                        <div style="font-size: 1.5rem; font-weight: bold; color: #2e7d32;">{repartidor_estrella['repartidor__nombreRepartidor']}</div>
+                        <div style="color: #666;">Promedio: {repartidor_estrella['promedio']:.1f}/5 | {repartidor_estrella['entregas']} entregas</div>
+                    </div>
+            """
+        
+        html_content += f"""
+                </div>
+                
+                <div class="footer">
+                    <p style="font-size: 0.9rem;">Este reporte fue generado automaticamente desde el Dashboard de Glam Store</p>
+                    <p style="font-size: 0.8rem; color: #bbb;">{ahora.strftime('%d/%m/%Y %H:%M:%S')}</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        # === ENVIAR CORREO ===
+        from django.conf import settings
+        
+        subject = f'Reporte Dashboard Glam Store - {ahora.strftime("%d/%m/%Y")}'
+        from_email = settings.DEFAULT_FROM_EMAIL
+        to_email = 'glamstore0303777@gmail.com'
+        
+        email = EmailMultiAlternatives(
+            subject=subject,
+            body=f'Reporte del Dashboard de Glam Store generado el {ahora.strftime("%d/%m/%Y %H:%M")}',
+            from_email=from_email,
+            to=[to_email]
+        )
+        email.attach_alternative(html_content, "text/html")
+        email.send()
+        
+        messages.success(request, f'Reporte enviado exitosamente a {to_email}')
+        
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        messages.error(request, f'Error al enviar el reporte: {str(e)}')
+    
+    return redirect('dashboard_admin')

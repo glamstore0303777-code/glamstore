@@ -1,4 +1,5 @@
 {% load static %}
+{% load humanize %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -46,7 +47,7 @@
     
     <div class="pedido-info">
       <p><strong>Pedido #{{ pedido.idPedido }}</strong></p>
-      <p>Total: <strong>${{ pedido.total }}</strong></p>
+      <p>Total: <strong>${{ pedido.total|floatformat:0|intcomma }}</strong></p>
       <p>Estado: <strong>{{ pedido.estado }}</strong></p>
     </div>
     

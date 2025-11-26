@@ -301,6 +301,94 @@
       color: #1565c0;
     }
 
+    /* Stock Bajo */
+    .stock-bajo-container {
+      background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+      border-radius: 15px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      border-left: 5px solid #c62828;
+    }
+
+    .stock-bajo-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      padding-bottom: 0.5rem;
+    }
+
+    .stock-bajo-titulo {
+      color: #c62828;
+      margin: 0;
+      font-size: 1.3rem;
+    }
+
+    .stock-bajo-toggle {
+      color: #c62828;
+      font-size: 1.2rem;
+      transition: transform 0.3s ease;
+    }
+
+    .stock-bajo-toggle.open {
+      transform: rotate(180deg);
+    }
+
+    .stock-bajo-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .stock-bajo-card {
+      background: white;
+      border-radius: 10px;
+      padding: 1rem;
+      min-width: 200px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .stock-critico { border-left: 4px solid #c62828; }
+    .stock-bajo { border-left: 4px solid #ff9800; }
+    .stock-alerta { border-left: 4px solid #ffc107; }
+
+    .stock-bajo-nombre {
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 0.5rem;
+    }
+
+    .stock-bajo-info {
+      margin-bottom: 0.8rem;
+    }
+
+    .stock-bajo-cantidad {
+      font-weight: bold;
+      font-size: 1.1rem;
+      display: block;
+    }
+
+    .texto-critico { color: #c62828; }
+    .texto-bajo { color: #e65100; }
+    .texto-alerta { color: #f57c00; }
+
+    .btn-reabastecer {
+      background: #4caf50;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 15px;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: bold;
+      display: block;
+      text-align: center;
+      width: 100%;
+    }
+
+    .btn-reabastecer:hover {
+      background: #388e3c;
+    }
+
     @media (max-width: 768px) {
       .sidebar {
         width: 100%;
@@ -374,6 +462,28 @@
       </form>
     </div>
 
+    {% if productos_stock_bajo %}
+    <div class="stock-bajo-container">
+      <div class="stock-bajo-header" onclick="toggleStockBajo()">
+        <h2 class="stock-bajo-titulo">Productos con Inventario Bajo ({{ productos_stock_bajo.count }})</h2>
+        <span class="stock-bajo-toggle" id="toggleIcon">▼</span>
+      </div>
+      <div class="stock-bajo-grid" id="stockBajoContent" style="display: none;">
+        {% for producto in productos_stock_bajo %}
+        <div class="stock-bajo-card {% if producto.stock == 0 %}stock-critico{% elif producto.stock < 5 %}stock-bajo{% else %}stock-alerta{% endif %}">
+          <div class="stock-bajo-nombre">{{ producto.nombreProducto }}</div>
+          <div class="stock-bajo-info">
+            <span class="stock-bajo-cantidad {% if producto.stock == 0 %}texto-critico{% elif producto.stock < 5 %}texto-bajo{% else %}texto-alerta{% endif %}">
+              Inventario: {{ producto.stock }}
+            </span>
+          </div>
+          <a href="{% url 'movimientos_producto' producto.idProducto %}" class="btn-reabastecer">Reabastecer</a>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
     <div class="product-grid">
       {% for producto in productos %}
       <div class="product-card">
@@ -389,7 +499,7 @@
           <p class="product-category">{{ producto.idCategoria.nombreCategoria }}</p>
           <div class="product-details">
             <span class="product-price">${{ producto.precio }}</span>
-            <span class="product-stock">Stock: {{ producto.stock }}</span>
+            <span class="product-stock">Inventario: {{ producto.stock }}</span>
           </div>
         </div>
         <div class="product-actions">
@@ -411,5 +521,20 @@
       {% endfor %}
     </div>
   </div>
+
+  <script>
+    function toggleStockBajo() {
+      const content = document.getElementById('stockBajoContent');
+      const icon = document.getElementById('toggleIcon');
+      
+      if (content.style.display === 'none') {
+        content.style.display = 'flex';
+        icon.classList.add('open');
+      } else {
+        content.style.display = 'none';
+        icon.classList.remove('open');
+      }
+    }
+  </script>
 </body>
 </html>

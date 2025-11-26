@@ -98,7 +98,8 @@ def enviar_factura_cliente(pedido):
         
         # Calcular totales
         subtotal_productos = sum(d.subtotal for d in detalles)
-        iva = subtotal_productos * IVA_PORCENTAJE
+        # Calcular IVA sobre el subtotal (se suma adicional)
+        iva = int(subtotal_productos * IVA_PORCENTAJE)
         
         # Determinar si debe pagar envío
         debe_pagar_envio = pedido.estado_pago == 'Pago Parcial'
@@ -201,9 +202,13 @@ def enviar_factura_cliente(pedido):
                                 <td style="padding: 5px 0;"><strong>IVA (19%):</strong></td>
                                 <td style="padding: 5px 0; text-align: right;">${iva:,.0f}</td>
                             </tr>
-                            <tr style="border-top: 1px solid #e5e7eb;">
-                                <td style="padding: 5px 0;"><strong>Total Productos:</strong></td>
-                                <td style="padding: 5px 0; text-align: right;">${subtotal_productos + iva:,.0f}</td>
+                            <tr>
+                                <td style="padding: 5px 0;"><strong>Subtotal:</strong></td>
+                                <td style="padding: 5px 0; text-align: right;">${subtotal_productos:,.0f}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 5px 0;"><strong>IVA (19%):</strong></td>
+                                <td style="padding: 5px 0; text-align: right;">${iva:,.0f}</td>
                             </tr>
                             <tr>
                                 <td style="padding: 5px 0;"><strong>Envío:</strong></td>
@@ -449,9 +454,18 @@ def enviar_correo_repartidor_detallado(repartidor, fecha=None):
             else:
                 fecha_vencimiento = pedido.fecha_vencimiento
             
-            # Calcular días restantes
+            # Calcular días restantes y verificar estado del pedido
             dias_restantes = (fecha_vencimiento - timezone.now().date()).days
-            alerta = 'VENCE HOY' if dias_restantes == 0 else f'Vence en {dias_restantes} días' if dias_restantes > 0 else 'VENCIDO'
+            
+            # Si el pedido está entregado o completado, mostrar "ENTREGADO"
+            if pedido.estado_pedido in ['Entregado', 'Completado']:
+                alerta = 'ENTREGADO'
+            elif dias_restantes == 0:
+                alerta = 'VENCE HOY'
+            elif dias_restantes > 0:
+                alerta = f'Vence en {dias_restantes} días'
+            else:
+                alerta = 'VENCIDO'
             
             # Extraer ciudad/municipio de la dirección
             direccion_completa = pedido.idCliente.direccion or ''
@@ -770,9 +784,18 @@ def generar_pdf_pedidos_repartidor(repartidor, fecha=None):
             else:
                 fecha_vencimiento = pedido.fecha_vencimiento
             
-            # Calcular días restantes
+            # Calcular días restantes y verificar estado del pedido
             dias_restantes = (fecha_vencimiento - timezone.now().date()).days
-            alerta = 'VENCE HOY' if dias_restantes == 0 else f'Vence en {dias_restantes} días' if dias_restantes > 0 else 'VENCIDO'
+            
+            # Si el pedido está entregado o completado, mostrar "ENTREGADO"
+            if pedido.estado_pedido in ['Entregado', 'Completado']:
+                alerta = 'ENTREGADO'
+            elif dias_restantes == 0:
+                alerta = 'VENCE HOY'
+            elif dias_restantes > 0:
+                alerta = f'Vence en {dias_restantes} días'
+            else:
+                alerta = 'VENCIDO'
             
             # Extraer ciudad/municipio y comuna
             direccion_completa = pedido.idCliente.direccion or ''
@@ -801,11 +824,17 @@ def generar_pdf_pedidos_repartidor(repartidor, fecha=None):
         # Crear HTML para el PDF - formato de lista
         lista_pedidos = ""
         for idx, item in enumerate(pedidos_con_info, 1):
-            color_alerta = "#dc2626" if 'VENCE' in item['alerta'] or 'VENCIDO' in item['alerta'] else "#6b7280"
+            # Color verde para ENTREGADO, rojo para VENCE/VENCIDO, gris para otros
+            if item['alerta'] == 'ENTREGADO':
+                color_alerta = "#22c55e"  # Verde brillante
+            elif 'VENCE' in item['alerta'] or 'VENCIDO' in item['alerta']:
+                color_alerta = "#dc2626"  # Rojo
+            else:
+                color_alerta = "#6b7280"  # Gris
             color_cobro = "#dc2626" if item['cobra_envio'] == 'SÍ' else "#6b7280"
             
             lista_pedidos += f"""
-            <div class="pedido-item" style="background-color: {'#fef2f2' if 'VENCE' in item['alerta'] or 'VENCIDO' in item['alerta'] else '#f8fafc'}; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 15px; page-break-inside: avoid;">
+            <div class="pedido-item" style="background-color: {'#dcfce7' if item['alerta'] == 'ENTREGADO' else '#fef2f2' if 'VENCE' in item['alerta'] or 'VENCIDO' in item['alerta'] else '#f8fafc'}; border: 2px solid {'#22c55e' if item['alerta'] == 'ENTREGADO' else '#e2e8f0'}; border-radius: 8px; padding: 15px; margin-bottom: 15px; page-break-inside: avoid;">
                 <div class="pedido-header" style="border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 10px;">
                     <h4 style="margin: 0; color: #7c3aed; font-size: 14px;">PEDIDO #{item['numero_pedido']} - {item['cliente']}</h4>
                     <p style="margin: 2px 0; font-size: 11px; color: {color_alerta}; font-weight: bold;">{item['alerta']}</p>

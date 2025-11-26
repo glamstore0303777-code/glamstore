@@ -107,6 +107,7 @@
     .empty-state { text-align: center; padding: 3rem; color: #999; }
     .empty-state p { font-size: 1.1rem; margin-bottom: 0.5rem; }
     .empty-state small { font-size: 0.9rem; }
+    .pedido-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); transform: translateY(-2px); }
     
     /* RESPONSIVE */
     @media (max-width: 1024px) { .dashboard-grid { grid-template-columns: 1fr; } }
@@ -340,7 +341,7 @@
           <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; max-height: 700px; overflow-y: auto; padding: 10px; background-color: #fafafa; border-radius: 8px; border: 1px solid #ddd;">
             {% if pedidos_asignados %}
               {% for pedido in pedidos_asignados %}
-                <div style="background: white; border: 1px solid #e8e8e8; border-radius: 12px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: all 0.3s ease; position: relative; hover: box-shadow 0 4px 12px rgba(0,0,0,0.1);">
+                <div class="pedido-card" style="background: white; border: 1px solid #e8e8e8; border-radius: 12px; padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: all 0.3s ease; position: relative;">
                   <!-- Checkbox pequeño en la esquina superior izquierda -->
                   <div style="position: absolute; top: 10px; left: 10px;">
                     <input type="checkbox" name="pedido_ids_facturas" value="{{ pedido.idPedido }}" form="formEnvioFacturasMultiple" onchange="updateSelectedCountFacturas()" style="width: 16px; height: 16px; cursor: pointer; margin: 0; accent-color: #4caf50;">

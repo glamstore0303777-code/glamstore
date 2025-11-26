@@ -1,4 +1,5 @@
 {% load static %}
+{% load humanize %}
 <!DOCTYPE html>
 <html lang="es">
 
@@ -308,7 +309,7 @@
         </div>
         <div class="product-info">
           <h3>{{ producto.nombreProducto }}</h3>
-          <span class="product-price">${{ producto.precio_venta|floatformat:2 }}</span>
+          <span class="product-price">${{ producto.precio_venta|floatformat:0|intcomma }}</span>
         </div>
       </a>
       {% endfor %}

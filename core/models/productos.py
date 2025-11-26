@@ -7,6 +7,10 @@ class Producto(models.Model):
     precio = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.IntegerField(default=0)
     descripcion = models.TextField(blank=True, null=True)
+    lote = models.CharField(max_length=100, blank=True, null=True, help_text="Código del lote actual")
+    cantidadDisponible = models.IntegerField(default=0, db_column='cantidadDisponible')
+    fechaIngreso = models.DateTimeField(blank=True, null=True, db_column='fechaIngreso')
+    fechaVencimiento = models.DateField(blank=True, null=True, db_column='fechaVencimiento')
 
     idCategoria = models.ForeignKey(
         'Categoria',
@@ -34,8 +38,8 @@ class Producto(models.Model):
     
     @property
     def precio_venta(self):
-        """Calcula el precio de venta (precio unitario + 30%)"""
+        """Calcula el precio de venta (precio unitario + 15%)"""
         from decimal import Decimal
         if self.precio:
-            return self.precio * Decimal('1.30')
+            return self.precio * Decimal('1.15')
         return 0

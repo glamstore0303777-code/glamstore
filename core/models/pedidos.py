@@ -17,12 +17,12 @@ class Pedido(models.Model):
     ]
     
     idPedido = models.AutoField(primary_key=True)
-    fechaCreacion = models.DateTimeField(db_column='fechaCreacion')
+    fechaCreacion = models.DateTimeField(db_column='fechaCreacion', null=True, blank=True)
     estado = models.CharField(max_length=20, default='Confirmado')  # Mantener para compatibilidad
     estado_pago = models.CharField(max_length=20, choices=ESTADO_PAGO_CHOICES, default='Pago Completo')
     estado_pedido = models.CharField(max_length=20, choices=ESTADO_PEDIDO_CHOICES, default='Confirmado')
-    total = models.DecimalField(max_digits=12, decimal_places=2)
-    idCliente = models.ForeignKey('core.Cliente', on_delete=models.CASCADE, db_column='idCliente')
+    total = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    idCliente = models.ForeignKey('core.Cliente', on_delete=models.CASCADE, db_column='idCliente', null=True, blank=True)
     idRepartidor = models.ForeignKey(
         'core.Repartidor',
         on_delete=models.SET_NULL,
@@ -62,12 +62,16 @@ class DetallePedido(models.Model):
     idPedido = models.ForeignKey(
         Pedido,
         on_delete=models.CASCADE,
-        db_column='idPedido'
+        db_column='idPedido',
+        null=True,
+        blank=True
     )
     idProducto = models.ForeignKey(
         'Producto',
         on_delete=models.CASCADE,
-        db_column='idProducto'
+        db_column='idProducto',
+        null=True,
+        blank=True
     )
     cantidad = models.PositiveIntegerField(default=1, blank=True, null=True)
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
@@ -86,12 +90,16 @@ class PedidoProducto(models.Model):
     idPedido = models.ForeignKey(
         Pedido,
         on_delete=models.CASCADE,
-        db_column='idPedido'
+        db_column='idPedido',
+        null=True,
+        blank=True
     )
     idProducto = models.ForeignKey(
         'Producto',
         on_delete=models.CASCADE,
-        db_column='idProducto'
+        db_column='idProducto',
+        null=True,
+        blank=True
     )
     cantidad = models.IntegerField(blank=True, null=True)
 

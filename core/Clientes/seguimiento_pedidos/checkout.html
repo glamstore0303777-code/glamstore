@@ -331,17 +331,17 @@
       function actualizarTotal() {
         const pagoAhora = document.querySelector('input[name="pago_envio"][value="ahora"]').checked;
 
-        let subtotalConEnvio;
+        // Calcular IVA sobre el subtotal de productos (se suma adicional)
+        const iva = Math.round(subtotal * tasaIVA);
+
+        let totalFinal;
         if (pagoAhora) {
           costoEnvioResumenDiv.style.display = 'flex';
-          subtotalConEnvio = subtotal + costoEnvio;
+          totalFinal = subtotal + iva + costoEnvio;
         } else {
           costoEnvioResumenDiv.style.display = 'none';
-          subtotalConEnvio = subtotal;
+          totalFinal = subtotal + iva;
         }
-
-        const iva = Math.round(subtotal * tasaIVA);
-        const totalFinal = subtotalConEnvio + iva;
 
         baseLiquidaValor.textContent = '$' + subtotal.toLocaleString('es-CO');
         ivaValorResumen.textContent = '$' + iva.toLocaleString('es-CO');

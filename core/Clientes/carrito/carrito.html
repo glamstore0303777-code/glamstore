@@ -203,41 +203,7 @@
       background: #fb7185;
     }
 
-    .descuento {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-    }
 
-    .descuento label {
-      font-weight: bold;
-      color: #7e22ce;
-    }
-
-    .descuento input {
-      padding: 0.4rem;
-      border-radius: 6px;
-      border: 1px solid #d8b4fe;
-      background-color: #faf5ff;
-      color: #7e22ce;
-      font-weight: bold;
-    }
-
-    .btn-descuento {
-      background: #c4b5fd;
-      color: #4c1d95;
-      border: none;
-      padding: 0.4rem 0.8rem;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .btn-descuento:hover {
-      background: #a78bfa;
-    }
 
     .resumen-total {
       background: #fdf4ff;
@@ -353,7 +319,7 @@
             <img src="{{ item.producto.imagen.url }}" alt="{{ item.producto.nombreProducto }}" class="img-carrito">
           </td>
           <td class="col-envio">a calcular</td>
-          <td class="col-precio">${{ item.producto.precio_venta|floatformat:2 }}</td>
+          <td class="col-precio"><span class="precio-formato">{{ item.producto.precio_venta|floatformat:0 }}</span></td>
           <td class="col-cantidad">
             <div class="controles-cantidad">
               <button type="button" class="btn-cantidad"
@@ -364,7 +330,7 @@
                 onclick="incrementarCarrito('{{ item.producto.idProducto }}', '{{ item.producto.stock }}')">+</button>
             </div>
           </td>
-          <td class="col-total">${{ item.subtotal }}</td>
+          <td class="col-total"><span class="precio-formato">{{ item.subtotal|floatformat:0 }}</span></td>
           <td class="col-acciones">
             <form method="POST" action="{% url 'eliminar_del_carrito' %}">
               {% csrf_token %}
@@ -383,21 +349,17 @@
         <button type="submit" class="btn-vaciar">🗑️ Vaciar todo el carrito</button>
       </form>
 
-      <div class="descuento">
-        <label for="codigo">Código de descuento</label>
-        <input type="text" name="codigo" id="codigo" placeholder="Código">
-        <button type="button" class="btn-descuento">Añadir</button>
-      </div>
+
 
       <div class="resumen-total">
-        <p>Subtotal: <strong>${{ total }}</strong></p>
-        <p>Total: <strong>${{ total }}</strong></p>
+        <p>Subtotal: <strong><span class="precio-formato">{{ total|floatformat:0 }}</span></strong></p>
+        <p>Total: <strong><span class="precio-formato">{{ total|floatformat:0 }}</span></strong></p>
       </div>
 
       <div class="terminos">
         <label>
           <input type="checkbox" required checked>
-          He leído y acepto los <a href="#">Términos y Condiciones</a> y la <a href="#">Política de Privacidad</a>.
+          He leído y acepto los <a href="{% url 'terminos_condiciones' %}" target="_blank">Términos y Condiciones</a> y la <a href="{% url 'politica_privacidad' %}" target="_blank">Política de Privacidad</a>.
         </label>
       </div>
 
@@ -414,6 +376,16 @@
   </main>
 
   <script>
+    // Formatear precios en pesos colombianos
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.precio-formato').forEach(function(el) {
+        const valor = parseFloat(el.textContent.replace(/[^0-9.-]+/g, ''));
+        if (!isNaN(valor)) {
+          el.textContent = '$' + valor.toLocaleString('es-CO', {maximumFractionDigits: 0});
+        }
+      });
+    });
+
     // Función para obtener el token CSRF
     function getCookie(name) {
       let cookieValue = null;
