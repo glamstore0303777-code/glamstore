@@ -33,7 +33,7 @@ class Repartidor(models.Model):
                         ADD COLUMN email VARCHAR(100) NULL DEFAULT NULL
                     """)
         except Exception:
-            pass  # Ignorar errores si la columna ya existe
+            pass 
     
     @classmethod
     def ensure_telefono_column_size(cls):
@@ -54,6 +54,6 @@ class Repartidor(models.Model):
                         MODIFY COLUMN telefono VARCHAR(20) NULL
                     """)
         except Exception:
-            pass  # Ignorar errores     
+            pass     
 
         
