@@ -1,0 +1,20 @@
+{
+  "env": {
+    "browser": true,
+    "es2021": true,
+    "node": true
+  },
+  "extends": "eslint:recommended",
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "rules": {
+    "no-unused-vars": "off",
+    "no-undef": "off"
+  },
+  "ignorePatterns": [
+    "*.html",
+    "core/Gestion_admin/Admin/admin_dashboard.html"
+  ]
+}
