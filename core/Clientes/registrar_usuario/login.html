@@ -5,48 +5,23 @@
 <head>
   <meta charset="UTF-8">
   <title>Iniciar Sesión — Glam Store</title>
+  <link rel="stylesheet" href="{% static 'css/sidebar.css' %}">
   <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@1,700&display=swap" rel="stylesheet">
   <link rel="icon" href="{% static 'img/logoglam.png' %}">
   <style>
-    body {
-      margin: 0;
-      font-family: 'Comic Neue', cursive, Arial, sans-serif;
-      background-color: #fffafc;
-      display: flex;
-    }
-
-    .sidebar {
-      background-color: #fce4ec;
-      padding: 2rem;
-      width: 240px;
-      height: 100vh;
-      position: fixed;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      border-right: 2px solid #f8bbd0;
-      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-      z-index: 1000;
-    }
-
-    .logo {
-      width: 100px;
-      border-radius: 50%;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      margin-bottom: 1rem;
-    }
-
-    .sidebar h1 {
-      color: #ad1457;
       font-size: 1.8rem;
       margin: 0.5rem 0;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 4px rgba(168, 85, 247, 0.2);
     }
 
     .sidebar p {
-      color: #d81b60;
-      font-size: 1rem;
+      color: #9333ea;
+      font-size: 0.9rem;
       margin-bottom: 2rem;
+      font-weight: 400;
+      font-style: italic;
     }
 
     .sidebar nav ul {
@@ -57,18 +32,38 @@
 
     .sidebar nav a {
       display: block;
-      padding: 0.8rem 1.5rem;
-      margin-bottom: 0.8rem;
+      padding: 0.75rem 1.2rem;
+      margin-bottom: 0.6rem;
       text-decoration: none;
-      color: #880e4f;
-      font-weight: bold;
-      border-radius: 25px;
-      transition: background-color 0.3s, color 0.3s;
+      color: #1a1a1a;
+      font-weight: 500;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      font-size: 0.95rem;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .sidebar nav a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+      transition: width 0.3s ease;
+      z-index: -1;
     }
 
     .sidebar nav a:hover {
-      background-color: #f8bbd0;
-      color: #fff;
+      color: #ffffff;
+      transform: translateX(5px);
+      box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+    }
+    
+    .sidebar nav a:hover::before {
+      width: 100%;
     }
 
     .main-content {
@@ -83,14 +78,15 @@
 
     /* Estilos específicos del Login */
     .login-container {
-      background-color: #fff0f6;
+      background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
       padding: 2.5rem 3rem;
       border-radius: 20px;
-      box-shadow: 0 6px 20px rgba(216, 27, 96, 0.2);
+      box-shadow: 0 8px 30px rgba(168, 85, 247, 0.2);
       width: 100%;
       max-width: 420px;
       text-align: center;
       animation: fadeInUp 1s ease-out forwards;
+      border: 2px solid #e9d5ff;
     }
 
     @keyframes fadeInUp {
@@ -110,22 +106,23 @@
       height: auto;
       margin-bottom: 1rem;
       border-radius: 50%;
-      box-shadow: 0 2px 6px rgba(216, 27, 96, 0.2);
+      box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
+      border: 2px solid #d8b4fe;
     }
 
     .login-container h2 {
       font-size: 2rem;
-      color: #c2185b;
+      color: #7c3aed;
       margin-bottom: 1.2rem;
-      text-shadow: 1px 1px 2px #fce4ec;
+      font-weight: 600;
     }
 
     label {
       display: block;
       text-align: left;
       margin-top: 1rem;
-      font-weight: bold;
-      color: #ad1457;
+      font-weight: 500;
+      color: #1a1a1a;
     }
 
     input[type="text"],
@@ -134,18 +131,25 @@
       padding: 0.7rem;
       margin-top: 0.4rem;
       border-radius: 10px;
-      border: 1px solid #f8bbd0;
-      background-color: #fffafc;
-      color: #ad1457;
-      font-weight: bold;
-      box-shadow: 0 1px 4px rgba(216, 27, 96, 0.1);
+      border: 1px solid #e9d5ff;
+      background-color: #ffffff;
+      color: #1a1a1a;
+      font-weight: 500;
+      box-shadow: 0 2px 8px rgba(168, 85, 247, 0.1);
       box-sizing: border-box;
-      /* Asegura que el padding no rompa el ancho */
+      transition: all 0.3s;
+    }
+    
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      outline: none;
+      border-color: #a855f7;
+      box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1);
     }
 
     .btn-login {
       margin-top: 2rem;
-      background: #d81b60;
+      background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
       color: white;
       padding: 0.8rem 1.6rem;
       border-radius: 12px;
@@ -153,12 +157,15 @@
       font-size: 1rem;
       border: none;
       cursor: pointer;
-      transition: background 0.3s ease;
+      transition: all 0.3s ease;
       width: 100%;
+      box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
     }
 
     .btn-login:hover {
-      background: #c2185b;
+      background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(168, 85, 247, 0.4);
     }
 
     .extra-links {
@@ -166,19 +173,24 @@
       font-size: 0.9rem;
     }
 
+    .extra-links {
+      color: #1a1a1a;
+    }
+    
     .extra-links a {
-      color: #d81b60;
+      color: #7c3aed;
       text-decoration: none;
-      font-weight: bold;
+      font-weight: 600;
     }
 
     .extra-links a:hover {
       text-decoration: underline;
+      color: #6b21a8;
     }
 
     .btn-volver {
       margin-top: 1rem;
-      background: #f48fb1;
+      background: linear-gradient(135deg, #c084fc 0%, #a855f7 100%);
       color: white;
       padding: 0.6rem 1.2rem;
       border-radius: 10px;
@@ -186,12 +198,13 @@
       font-size: 0.95rem;
       border: none;
       cursor: pointer;
-      transition: background 0.3s ease;
+      transition: all 0.3s ease;
       width: 100%;
     }
 
     .btn-volver:hover {
-      background: #d81b60;
+      background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+      transform: translateY(-2px);
     }
   </style>
 </head>

@@ -16,17 +16,12 @@
     </div>
     <div class="sidebar-user">
       <p>{{ request.session.usuario_nombre }}</p>
-      <p class="rol">Administrador</p>
+      <p class="rol">{{ request.session.usuario_rol }}</p>
     </div>
         <div class="sidebar-nav">
       <a href="{% url 'dashboard_admin' %}">Dashboard</a>
       <a href="{% url 'lista_admin' %}">Mi Perfil</a>
-      <a href="{% url 'notificaciones' %}">
-        Notificaciones
-        {% if total_notificaciones_no_leidas > 0 %}
-        <span class="notification-badge">{{ total_notificaciones_no_leidas }}</span>
-        {% endif %}
-      </a>
+      <a href="{% url 'notificaciones' %}">Notificaciones{% if total_notificaciones_no_leidas > 0 %}<span class="notification-badge">{{ total_notificaciones_no_leidas }}</span>{% endif %}</a>
       <a href="{% url 'lista_clientes' %}">Clientes</a>
      <a href="{% url 'lista_distribuidores' %}">Proveedores</a>
       <a href="{% url 'lista_pedidos' %}" class="active">Pedidos</a>
@@ -114,3 +109,5 @@
   </div>
 </body>
 </html>
+
+

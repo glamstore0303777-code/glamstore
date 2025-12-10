@@ -4,60 +4,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notificaciones de Pedidos — Glam Store</title>
+    <title>Notificaciones de Pedidos | Glam Store</title>
     <link rel="icon" href="{% static 'img/logoglam.png' %}">
-    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/sidebar.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Comic Neue', cursive, Arial, sans-serif; background-color: #fffafc; display: flex; min-height: 100vh; }
-        
-        .sidebar {
-            background-color: #fce4ec;
-            padding: 2rem;
-            width: 240px;
-            height: 100vh;
-            position: fixed;
-            display: flex;
-            flex-direction: column;
-            border-right: 2px solid #f8bbd0;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            overflow-y: auto;
+            margin-bottom: 2rem;
+        }
+
+        .logo-container img {
+            width: 100px;
+            border-radius: 50%;
+            box-shadow: 0 6px 20px rgba(168, 85, 247, 0.3);
+            margin-bottom: 1rem;
+            border: 3px solid #d8b4fe;
+        }
+
+        .logo-container h2 {
+            color: #6b21a8;
+            font-size: 1.8rem;
+            margin: 0.5rem 0;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(168, 85, 247, 0.2);
+        }
+
+        .logo-container p {
+            color: #9333ea;
+            font-size: 0.9rem;
+            font-weight: 400;
+            font-style: italic;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+        }
+
+        .nav-menu li {
+            margin-bottom: 0.8rem;
+        }
+
+        .nav-menu a {
+            display: block;
+            padding: 0.75rem 1.2rem;
+            text-decoration: none;
+            color: #1a1a1a;
+            font-weight: 500;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            position: relative;
+            overflow: hidden;
         }
         
-        .sidebar-header { text-align: center; margin-bottom: 2rem; }
-        .sidebar-header h2 { color: #ad1457; font-size: 1.8rem; margin-bottom: 0.5rem; }
-        .sidebar-header p { color: #d81b60; font-size: 0.9rem; }
+        .nav-menu a::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 0;
+            background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+            transition: width 0.3s ease;
+            z-index: -1;
+        }
+
+        .nav-menu a:hover {
+            color: #ffffff;
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+        }
         
-        .sidebar-user { background-color: #fff; padding: 1rem; border-radius: 10px; margin-bottom: 1.5rem; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05); text-align: center; border: 2px solid #f8bbd0; }
-        .sidebar-user p { margin: 0.3rem 0; color: #c2185b; font-weight: bold; font-size: 1rem; }
-        .sidebar-user .rol { font-size: 0.85rem; color: #d81b60; font-weight: normal; }
+        .nav-menu a:hover::before {
+            width: 100%;
+        }
+
+        .nav-menu a.active {
+            background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+        }
         
-        .sidebar-nav { flex: 1; }
-        .sidebar a { display: block; margin: 0.5rem 0; color: #880e4f; text-decoration: none; font-weight: bold; padding: 0.8rem 1rem; border-radius: 25px; transition: all 0.3s ease; }
-        .sidebar a:hover, .sidebar a.active { background-color: #f8bbd0; color: #fff; }
-        
-        .sidebar-footer { margin-top: auto; padding-top: 1rem; border-top: 2px solid #f8bbd0; }
-        
-        .main-content { margin-left: 240px; padding: 2rem 5rem; width: calc(100% - 240px - 10rem); flex: 1; }
-        
-        .page-header { margin-bottom: 2rem; }
-        .page-header h1 { font-size: 2.2rem; color: #c2185b; border-bottom: 3px solid #f48fb1; padding-bottom: 0.5rem; margin-bottom: 1rem; }
+        /* Main Content */
+        .main-content {
+            margin-left: 240px;
+            padding: 2rem 5rem;
+            width: calc(100% - 240px - 10rem);
+        }
+
+        .header {
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            color: #1a1a1a;
+            border-bottom: 3px solid #a855f7;
+            padding-bottom: 0.8rem;
+            margin-bottom: 2rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
         
         .action-bar { margin-bottom: 2rem; display: flex; gap: 1rem; }
         
         .notificaciones-list { display: flex; flex-direction: column; gap: 1.5rem; }
         
         .notificacion-card {
-            background: white;
+            background: #fff;
             border-radius: 15px;
-            padding: 1.5rem;
+            padding: 2rem;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
-            border-left: 5px solid #f48fb1;
+            border-left: 4px solid #a855f7;
             transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
         }
         
-        .notificacion-card:hover { box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); }
+        .notificacion-card:hover {
+            box-shadow: 0 6px 20px rgba(168, 85, 247, 0.15);
+            transform: translateY(-2px);
+        }
         
         .notificacion-header {
             display: flex;
@@ -67,7 +135,7 @@
         }
         
         .notificacion-titulo {
-            color: #c2185b;
+            color: #7c3aed;
             font-weight: bold;
             font-size: 1.1rem;
         }
@@ -78,17 +146,18 @@
         }
         
         .notificacion-pedido {
-            background: #fce4ec;
+            background: linear-gradient(135deg, #ede9fe 0%, #f3e8ff 100%);
             padding: 0.5rem 1rem;
             border-radius: 20px;
             display: inline-block;
-            color: #ad1457;
+            color: #7c3aed;
             font-weight: bold;
             margin-bottom: 1rem;
+            border: 1px solid #c4b5fd;
         }
         
         .notificacion-motivo {
-            color: #666;
+            color: #000000;
             margin-bottom: 1rem;
             line-height: 1.6;
         }
@@ -150,54 +219,111 @@
             text-align: center;
             padding: 3rem 2rem;
             color: #999;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
         }
         
-        .sin-notificaciones p { font-size: 1.1rem; margin-bottom: 1rem; }
+        .sin-notificaciones p {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            color: #666;
+        }
+
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+            margin-top: 2rem;
+            color: #999;
+            font-size: 0.9rem;
+        }
         
-        .btn {
-            padding: 0.8rem 1.5rem;
-            border-radius: 25px;
-            text-decoration: none;
-            font-weight: bold;
-            transition: all 0.3s ease;
+        .btn-primary {
+            background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+            color: white;
+            padding: 1rem 2rem;
             border: none;
+            border-radius: 12px;
+            font-weight: bold;
             cursor: pointer;
-            font-family: 'Comic Neue', cursive, Arial, sans-serif;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
             font-size: 1rem;
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+            text-decoration: none;
             display: inline-block;
         }
-        
-        .btn-primary { background: linear-gradient(135deg, #f48fb1 0%, #ec407a 100%); color: white; box-shadow: 0 4px 12px rgba(244, 143, 177, 0.3); }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(244, 143, 177, 0.4); }
-        
-        .btn-secondary { background: white; color: #c2185b; border: 2px solid #f48fb1; }
-        .btn-secondary:hover { background: #fce4ec; }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(168, 85, 247, 0.4);
+            background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #7c3aed;
+            padding: 0.8rem 1.5rem;
+            border: 2px solid #a855f7;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(168, 85, 247, 0.2);
+        }
         
         @media (max-width: 768px) {
-            .sidebar { width: 100%; height: auto; position: relative; }
-            .main-content { margin-left: 0; padding: 2rem; width: 100%; }
-            .notificacion-header { flex-direction: column; }
-            .notificacion-fecha { margin-top: 0.5rem; }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 2rem;
+                width: 100%;
+            }
+            .notificacion-header {
+                flex-direction: column;
+            }
+            .notificacion-fecha {
+                margin-top: 0.5rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="sidebar">
-        <div class="sidebar-header">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo-container">
+            <img src="{% static 'img/logoglam.png' %}" alt="Glam Store Logo" class="logo">
             <h2>Glam Store</h2>
             <p>Tu tienda de belleza</p>
         </div>
-        <div class="sidebar-nav">
-            <a href="{% url 'tienda' %}">Tienda</a>
-            <a href="{% url 'ver_carrito' %}">Carrito</a>
-            <a href="{% url 'perfil' %}">Mi Perfil</a>
-            <a href="{% url 'notificaciones_cliente' %}" class="active">Notificaciones</a>
-            <a href="{% url 'logout' %}">Cerrar Sesion</a>
-        </div>
-    </div>
+        <ul class="nav-menu">
+            <li><a href="{% url 'tienda' %}">Tienda</a></li>
+            <li><a href="{% url 'ver_carrito' %}">Carrito</a></li>
+            <li><a href="{% url 'perfil' %}">Mi Perfil</a></li>
+            <li><a href="{% url 'notificaciones_cliente' %}" class="active">Notificaciones</a></li>
+            <li><a href="{% url 'logout' %}">Cerrar Sesión</a></li>
+        </ul>
+    </aside>
     
+    <!-- Main Content -->
     <div class="main-content">
-        <div class="page-header">
+        <div class="header">
             <h1>Notificaciones de Pedidos</h1>
         </div>
         
@@ -247,6 +373,10 @@
                 <a href="{% url 'perfil' %}" class="btn btn-primary">Ir a mis pedidos</a>
             </div>
         {% endif %}
+
+        <footer>
+            <p>&copy; 2025 Glam Store. Todos los derechos reservados.</p>
+        </footer>
     </div>
 </body>
 </html>

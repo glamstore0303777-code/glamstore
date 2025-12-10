@@ -27,6 +27,7 @@ class Producto(models.Model):
     )
 
     imagen = models.ImageField(upload_to='productos/', blank=True, null=True)
+    precio_venta = models.DecimalField(max_digits=10, decimal_places=2, default=0, help_text="Precio de venta calculado automáticamente")
 
     class Meta:
         db_table = 'productos'
@@ -36,10 +37,23 @@ class Producto(models.Model):
     def __str__(self):
         return self.nombreProducto
     
-    @property
-    def precio_venta(self):
-        """Calcula el precio de venta (precio unitario + 15%)"""
+    def calcular_precio_venta(self):
+        """Calcula el precio de venta: Costo × 1.19 (IVA) × 1.06 (ganancia 6%)
+        Redondea al múltiplo de 50 más cercano para precios limpios"""
         from decimal import Decimal
+        import math
         if self.precio:
-            return self.precio * Decimal('1.15')
+            # Convertir precio a Decimal si es string
+            precio_decimal = Decimal(str(self.precio)) if not isinstance(self.precio, Decimal) else self.precio
+            # Precio de Venta = Costo × 1.19 × 1.06
+            precio_calculado = float(precio_decimal * Decimal('1.19') * Decimal('1.06'))
+            # Redondear al múltiplo de 50 más cercano
+            precio_redondeado = round(precio_calculado / 50) * 50
+            return int(precio_redondeado)
         return 0
+    
+    def save(self, *args, **kwargs):
+        """Sobrescribe el método save para calcular automáticamente el precio_venta"""
+        # Calcular precio_venta antes de guardar
+        self.precio_venta = self.calcular_precio_venta()
+        super().save(*args, **kwargs)

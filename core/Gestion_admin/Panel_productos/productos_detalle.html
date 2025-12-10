@@ -1,11 +1,12 @@
 {% load static %}
+{% load humanize %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <title>Detalle del Producto — {{ producto.nombreProducto }} — Glam Store</title>
   <link rel="icon" href="{% static 'img/logoglam.png' %}">
-  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
@@ -15,23 +16,23 @@
 
     body {
       margin: 0;
-      font-family: 'Comic Neue', cursive, Arial, sans-serif;
-      background-color: #fffafc;
+      font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
       display: flex;
       min-height: 100vh;
     }
 
     /* Sidebar */
     .sidebar {
-      background-color: #fce4ec;
+      background: linear-gradient(180deg, #1a1f3a 0%, #0f1419 100%);
       padding: 2rem;
       width: 240px;
       height: 100vh;
       position: fixed;
       display: flex;
       flex-direction: column;
-      border-right: 2px solid #f8bbd0;
-      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      border-right: 1px solid #2a3f5f;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
       z-index: 1000;
       overflow-y: auto;
     }
@@ -41,37 +42,46 @@
       margin-bottom: 2rem;
     }
 
+    .sidebar-logo {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      box-shadow: 0 6px 20px rgba(168, 85, 247, 0.3);
+      margin-bottom: 1rem;
+      border: 3px solid #a855f7;
+    }
+
     .sidebar-header h2 {
-      color: #ad1457;
+      color: #ffffff;
       font-size: 1.8rem;
       margin-bottom: 0.5rem;
     }
 
     .sidebar-header p {
-      color: #d81b60;
+      color: #a0aec0;
       font-size: 0.9rem;
     }
 
     .sidebar-user {
-      background-color: #fff;
+      background-color: rgba(255, 255, 255, 0.08);
       padding: 1rem;
       border-radius: 10px;
       margin-bottom: 1.5rem;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
       text-align: center;
-      border: 2px solid #f8bbd0;
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .sidebar-user p {
       margin: 0.3rem 0;
-      color: #c2185b;
+      color: #ffffff;
       font-weight: bold;
       font-size: 1rem;
     }
 
     .sidebar-user .rol {
       font-size: 0.85rem;
-      color: #d81b60;
+      color: #a0aec0;
       font-weight: normal;
     }
 
@@ -82,33 +92,37 @@
     .sidebar a {
       display: block;
       margin: 0.5rem 0;
-      color: #880e4f;
+      color: #cbd5e0;
       text-decoration: none;
       font-weight: bold;
       padding: 0.8rem 1rem;
-      border-radius: 25px;
+      border-radius: 8px;
       transition: all 0.3s ease;
+      border-left: 3px solid transparent;
     }
 
     .sidebar a:hover,
     .sidebar a.active {
-      background-color: #f8bbd0;
+      background-color: rgba(168, 85, 247, 0.15);
       color: #fff;
+      border-left-color: #a855f7;
     }
 
         .notification-badge {
       position: relative;
-      display: inline-block;
-      background: #f44336;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #ef4444;
       color: white;
       border-radius: 50%;
-      min-width: 20px;
-      height: 20px;
-      padding: 2px 6px;
+      min-width: 22px;
+      height: 22px;
+      padding: 0;
       font-size: 0.7rem;
       font-weight: bold;
       text-align: center;
-      line-height: 16px;
+      flex-shrink: 0;
       margin-left: 8px;
       vertical-align: middle;
     }
@@ -117,7 +131,7 @@
     .sidebar-footer {
       margin-top: auto;
       padding-top: 1rem;
-      border-top: 2px solid #f8bbd0;
+      border-top: 2px solid #a855f7;
     }
 
     /* Main Content */
@@ -134,8 +148,8 @@
 
     .page-header h1 {
       font-size: 2.2rem;
-      color: #c2185b;
-      border-bottom: 3px solid #f48fb1;
+      color: #7c3aed;
+      border-bottom: 3px solid #a855f7;
       padding-bottom: 0.5rem;
       margin-bottom: 1rem;
     }
@@ -146,7 +160,7 @@
     }
 
     .breadcrumb a {
-      color: #c2185b;
+      color: #7c3aed;
       text-decoration: none;
     }
 
@@ -181,12 +195,12 @@
 
     .card-header {
       padding: 1.5rem;
-      background: #fce4ec;
-      border-bottom: 2px solid #f8bbd0;
+      background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+      border-bottom: 2px solid #7c3aed;
     }
 
     .card-header h2 {
-      color: #c2185b;
+      color: #ffffff;
       font-size: 1.4rem;
       margin: 0;
     }
@@ -213,15 +227,15 @@
       height: 400px;
       object-fit: cover;
       border-radius: 15px;
-      border: 3px solid #f8bbd0;
-      box-shadow: 0 8px 25px rgba(244, 143, 177, 0.2);
+      border: 3px solid #a855f7;
+      box-shadow: 0 8px 25px rgba(168, 85, 247, 0.2);
     }
 
     .no-image-placeholder {
       width: 100%;
       max-width: 400px;
       height: 400px;
-      background: linear-gradient(135deg, #f8bbd0 0%, #f48fb1 100%);
+      background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
       border-radius: 15px;
       display: flex;
       align-items: center;
@@ -229,7 +243,7 @@
       color: white;
       font-size: 4rem;
       font-weight: bold;
-      box-shadow: 0 8px 25px rgba(244, 143, 177, 0.2);
+      box-shadow: 0 8px 25px rgba(168, 85, 247, 0.2);
     }
 
     .product-info-section {
@@ -239,15 +253,15 @@
     }
 
     .info-group {
-      background: #fffafc;
+      background: #faf5ff;
       padding: 1.5rem;
       border-radius: 10px;
-      border-left: 4px solid #f48fb1;
+      border-left: 4px solid #a855f7;
     }
 
     .info-label {
       font-weight: bold;
-      color: #c2185b;
+      color: #7c3aed;
       font-size: 0.9rem;
       text-transform: uppercase;
       letter-spacing: 1px;
@@ -263,7 +277,7 @@
     .info-value.large {
       font-size: 1.8rem;
       font-weight: bold;
-      color: #c2185b;
+      color: #7c3aed;
     }
 
     .info-value.price {
@@ -287,18 +301,18 @@
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
       text-align: center;
       transition: all 0.3s ease;
-      border-top: 4px solid #f48fb1;
+      border-top: 4px solid #a855f7;
     }
 
     .stat-card:hover {
       transform: translateY(-5px);
-      box-shadow: 0 6px 20px rgba(244, 143, 177, 0.2);
+      box-shadow: 0 6px 20px rgba(168, 85, 247, 0.2);
     }
 
     .stat-number {
       font-size: 2rem;
       font-weight: bold;
-      color: #c2185b;
+      color: #7c3aed;
       margin: 0.5rem 0;
     }
 
@@ -327,12 +341,12 @@
     th, td {
       padding: 1rem;
       text-align: left;
-      border-bottom: 1px solid #fce4ec;
+      border-bottom: 1px solid #e9d5ff;
     }
 
     th {
-      background: #fce4ec;
-      color: #c2185b;
+      background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+      color: #ffffff;
       font-weight: bold;
       text-transform: uppercase;
       font-size: 0.85rem;
@@ -340,7 +354,7 @@
     }
 
     tbody tr:hover {
-      background-color: #fffafc;
+      background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
     }
 
     /* Buttons */
@@ -352,31 +366,31 @@
       transition: all 0.3s ease;
       border: none;
       cursor: pointer;
-      font-family: 'Comic Neue', cursive, Arial, sans-serif;
+      font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
       font-size: 1rem;
       display: inline-block;
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, #f48fb1 0%, #ec407a 100%);
+      background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
       color: white;
       box-shadow: 0 4px 12px rgba(244, 143, 177, 0.3);
     }
 
     .btn-primary:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(244, 143, 177, 0.4);
-      background: linear-gradient(135deg, #ec407a 0%, #d81b60 100%);
+      box-shadow: 0 6px 16px rgba(168, 85, 247, 0.4);
+      background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);
     }
 
     .btn-secondary {
       background: white;
-      color: #c2185b;
-      border: 2px solid #f48fb1;
+      color: #7c3aed;
+      border: 2px solid #a855f7;
     }
 
     .btn-secondary:hover {
-      background: #fce4ec;
+      background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
     }
 
     .btn-success {
@@ -414,25 +428,6 @@
       color: #e65100;
     }
 
-    /* Future Fields Note */
-    .future-fields {
-      background: #e3f2fd;
-      border: 1px solid #2196f3;
-      border-radius: 10px;
-      padding: 1.5rem;
-      margin-top: 2rem;
-    }
-
-    .future-fields h3 {
-      color: #1565c0;
-      margin-bottom: 1rem;
-    }
-
-    .future-fields ul {
-      color: #1976d2;
-      margin-left: 1.5rem;
-    }
-
     /* Responsive Design */
     @media (max-width: 768px) {
       .sidebar {
@@ -466,24 +461,20 @@
 <body>
   <div class="sidebar">
     <div class="sidebar-header">
+      <img src="{% static 'img/logoglam.png' %}" alt="Logo Glam Store" class="sidebar-logo">
       <h2>Admin Glam</h2>
       <p>Panel de Control</p>
     </div>
 
     <div class="sidebar-user">
       <p>{{ request.session.usuario_nombre }}</p>
-      <p class="rol">Administrador</p>
+      <p class="rol">{{ request.session.usuario_rol }}</p>
     </div>
 
         <div class="sidebar-nav">
       <a href="{% url 'dashboard_admin' %}">Dashboard</a>
       <a href="{% url 'lista_admin' %}">Mi Perfil</a>
-      <a href="{% url 'notificaciones' %}">
-        Notificaciones
-        {% if total_notificaciones_no_leidas > 0 %}
-        <span class="notification-badge">{{ total_notificaciones_no_leidas }}</span>
-        {% endif %}
-      </a>
+      <a href="{% url 'notificaciones' %}">Notificaciones{% if total_notificaciones_no_leidas > 0 %}<span class="notification-badge">{{ total_notificaciones_no_leidas }}</span>{% endif %}</a>
       <a href="{% url 'lista_clientes' %}">Clientes</a>
      <a href="{% url 'lista_distribuidores' %}">Proveedores</a>
       <a href="{% url 'lista_pedidos' %}">Pedidos</a>
@@ -536,7 +527,7 @@
 
         <div class="info-group">
           <div class="info-label">Precio</div>
-          <div class="info-value price">${{ producto.precio }}</div>
+          <div class="info-value price">${{ producto.precio|floatformat:0|intcomma }}</div>
         </div>
 
         <div class="info-group">
@@ -592,8 +583,50 @@
             <div class="stat-label">Stock Actual</div>
           </div>
           <div class="stat-card">
-            <div class="stat-number">${{ producto.precio|floatformat:2 }}</div>
+            <div class="stat-number">${{ producto.precio|floatformat:0|intcomma }}</div>
             <div class="stat-label">Precio Unitario</div>
+          </div>
+        </div>
+        <div class="stats-grid" style="margin-top: 1.5rem;">
+          <div class="stat-card">
+            <div class="stat-number" style="font-size: 1.2rem;">
+              {% if lote_activo %}
+                {{ lote_activo.codigo_lote }}
+              {% else %}
+                Sin lote
+              {% endif %}
+            </div>
+            <div class="stat-label">Lote Actual (FIFO)</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" style="font-size: 1.2rem;">
+              {% if lote_activo and lote_activo.fecha_vencimiento %}
+                {{ lote_activo.fecha_vencimiento|date:"d/m/Y" }}
+              {% else %}
+                Sin fecha
+              {% endif %}
+            </div>
+            <div class="stat-label">Fecha Vencimiento</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">
+              {% if lote_activo %}
+                {{ lote_activo.cantidad_disponible }}
+              {% else %}
+                0
+              {% endif %}
+            </div>
+            <div class="stat-label">Cantidad en Lote</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" style="font-size: 1.2rem;">
+              {% if lote_activo and lote_activo.proveedor %}
+                {{ lote_activo.proveedor }}
+              {% else %}
+                -
+              {% endif %}
+            </div>
+            <div class="stat-label">Proveedor</div>
           </div>
         </div>
       </div>
@@ -611,10 +644,14 @@
               <thead>
                 <tr>
                   <th>Fecha</th>
-                  <th>Tipo</th>
+                  <th>Tipo Movimiento</th>
                   <th>Cantidad</th>
                   <th>Precio Unit.</th>
-                  <th>Descripción</th>
+                  <th>Stock Ant.</th>
+                  <th>Stock Nuevo</th>
+                  <th>Lote</th>
+                  <th>Vencimiento</th>
+                  <th>Descripción / Pedido</th>
                 </tr>
               </thead>
               <tbody>
@@ -635,8 +672,29 @@
                       <span style="color: #c62828; font-weight: bold;">-{{ movimiento.cantidad }}</span>
                     {% endif %}
                   </td>
-                  <td>${{ movimiento.precio_unitario }}</td>
-                  <td>{{ movimiento.descripcion }}</td>
+                  <td>${{ movimiento.precio_unitario|floatformat:0|intcomma }}</td>
+                  <td>{{ movimiento.stock_anterior }}</td>
+                  <td>{{ movimiento.stock_nuevo }}</td>
+                  <td>
+                    {% if movimiento.lote %}
+                      <span style="font-weight: 600; color: #7c3aed;">{{ movimiento.lote }}</span>
+                    {% else %}
+                      <span style="color: #999;">-</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if movimiento.fecha_vencimiento %}
+                      {{ movimiento.fecha_vencimiento|date:"d/m/Y" }}
+                    {% else %}
+                      <span style="color: #999;">-</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {{ movimiento.descripcion }}
+                    {% if movimiento.id_pedido %}
+                      <br><a href="{% url 'detalle_pedido' movimiento.id_pedido.idPedido %}" style="color: #7c3aed; font-weight: 600;">Pedido #{{ movimiento.id_pedido.idPedido }}</a>
+                    {% endif %}
+                  </td>
                 </tr>
                 {% endfor %}
               </tbody>
@@ -654,19 +712,9 @@
       </div>
     </div>
 
-    <!-- Nota sobre Campos Futuros -->
-    <div class="future-fields">
-      <h3>Campos Adicionales (Próximas Actualizaciones)</h3>
-      <p>Los siguientes campos podrían agregarse al modelo de productos en futuras versiones:</p>
-      <ul>
-        <li><strong>Proveedor:</strong> Información del distribuidor o proveedor del producto</li>
-        <li><strong>Número de Lote:</strong> Identificación del lote de producción</li>
-        <li><strong>Fecha de Vencimiento:</strong> Para productos perecederos</li>
-        <li><strong>Código de Barras:</strong> Para identificación rápida</li>
-        <li><strong>Peso/Dimensiones:</strong> Especificaciones físicas del producto</li>
-        <li><strong>Estado:</strong> Activo, Descontinuado, En Desarrollo</li>
-      </ul>
-    </div>
+
   </div>
 </body>
 </html>
+
+

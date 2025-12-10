@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <title>Detalle del Administrador — {{ admin.nombre }} — Glam Store</title>
   <link rel="icon" href="{% static 'img/logoglam.png' %}">
-  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
@@ -15,23 +15,23 @@
 
     body {
       margin: 0;
-      font-family: 'Comic Neue', cursive, Arial, sans-serif;
-      background-color: #fffafc;
+      font-family: 'Poppins', 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
       display: flex;
       min-height: 100vh;
     }
 
     /* Sidebar */
     .sidebar {
-      background-color: #fce4ec;
+      background: linear-gradient(180deg, #1a1f3a 0%, #0f1419 100%);
       padding: 2rem;
       width: 240px;
       height: 100vh;
       position: fixed;
       display: flex;
       flex-direction: column;
-      border-right: 2px solid #f8bbd0;
-      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      border-right: 1px solid #2a3f5f;
+      box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
       z-index: 1000;
       overflow-y: auto;
     }
@@ -42,36 +42,41 @@
     }
 
     .sidebar-header h2 {
-      color: #ad1457;
+      color: #ffffff;
       font-size: 1.8rem;
       margin-bottom: 0.5rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     }
 
     .sidebar-header p {
-      color: #d81b60;
+      color: #a0aec0;
       font-size: 0.9rem;
+      font-weight: 400;
+      font-style: italic;
     }
 
     .sidebar-user {
-      background-color: #fff;
+      background-color: rgba(255, 255, 255, 0.08);
       padding: 1rem;
       border-radius: 10px;
       margin-bottom: 1.5rem;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
       text-align: center;
-      border: 2px solid #f8bbd0;
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .sidebar-user p {
       margin: 0.3rem 0;
-      color: #c2185b;
-      font-weight: bold;
+      color: #ffffff;
+      font-weight: 600;
       font-size: 1rem;
     }
 
     .sidebar-user .rol {
       font-size: 0.85rem;
-      color: #d81b60;
+      color: #a0aec0;
       font-weight: normal;
     }
 
@@ -82,42 +87,64 @@
     .sidebar a {
       display: block;
       margin: 0.5rem 0;
-      color: #880e4f;
+      color: #cbd5e0;
       text-decoration: none;
-      font-weight: bold;
-      padding: 0.8rem 1rem;
-      border-radius: 25px;
+      font-weight: 500;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
       transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: rgba(168, 85, 247, 0.1);
+      transition: width 0.3s ease;
+      z-index: -1;
     }
 
     .sidebar a:hover,
     .sidebar a.active {
-      background-color: #f8bbd0;
-      color: #fff;
+      color: #ffffff;
+      transform: translateX(3px);
+      border-left-color: #a855f7;
+      background: rgba(168, 85, 247, 0.15);
     }
 
-        .notification-badge {
+    .sidebar a:hover::before,
+    .sidebar a.active::before {
+      width: 100%;
+    }
+
+    .notification-badge {
       position: relative;
-      display: inline-block;
-      background: #f44336;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #ef4444;
       color: white;
       border-radius: 50%;
-      min-width: 20px;
-      height: 20px;
-      padding: 2px 6px;
-      font-size: 0.7rem;
+      min-width: 22px;
+      height: 22px;
+      padding: 0;
+      font-size: 0.75rem;
       font-weight: bold;
-      text-align: center;
-      line-height: 16px;
-      margin-left: 8px;
+      margin-left: 6px;
       vertical-align: middle;
+      flex-shrink: 0;
     }
-
 
     .sidebar-footer {
       margin-top: auto;
       padding-top: 1rem;
-      border-top: 2px solid #f8bbd0;
+      border-top: 1px solid rgba(168, 85, 247, 0.2);
     }
 
     /* Main Content */
@@ -134,8 +161,8 @@
 
     .page-header h1 {
       font-size: 2.2rem;
-      color: #c2185b;
-      border-bottom: 3px solid #f48fb1;
+      color: #6b21a8;
+      border-bottom: 3px solid #a855f7;
       padding-bottom: 0.5rem;
       margin-bottom: 1rem;
     }
@@ -146,7 +173,7 @@
     }
 
     .breadcrumb a {
-      color: #c2185b;
+      color: #6b21a8;
       text-decoration: none;
     }
 
@@ -181,12 +208,12 @@
 
     .card-header {
       padding: 1.5rem;
-      background: #fce4ec;
-      border-bottom: 2px solid #f8bbd0;
+      background: #faf5ff;
+      border-bottom: 2px solid #d8b4fe;
     }
 
     .card-header h2 {
-      color: #c2185b;
+      color: #6b21a8;
       font-size: 1.4rem;
       margin: 0;
     }
@@ -210,15 +237,15 @@
     }
 
     .info-group {
-      background: #fffafc;
+      background: #faf5ff;
       padding: 1.5rem;
       border-radius: 10px;
-      border-left: 4px solid #f48fb1;
+      border-left: 4px solid #a855f7;
     }
 
     .info-label {
       font-weight: bold;
-      color: #c2185b;
+      color: #6b21a8;
       font-size: 0.9rem;
       text-transform: uppercase;
       letter-spacing: 1px;
@@ -234,7 +261,7 @@
     .info-value.large {
       font-size: 1.8rem;
       font-weight: bold;
-      color: #c2185b;
+      color: #6b21a8;
     }
 
     /* Admin Avatar */
@@ -247,7 +274,7 @@
       width: 120px;
       height: 120px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #f48fb1 0%, #ec407a 100%);
+      background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -255,13 +282,13 @@
       color: white;
       font-size: 3rem;
       font-weight: bold;
-      box-shadow: 0 8px 25px rgba(244, 143, 177, 0.3);
+      box-shadow: 0 8px 25px rgba(168, 85, 247, 0.3);
     }
 
     .admin-name {
       font-size: 1.5rem;
       font-weight: bold;
-      color: #c2185b;
+      color: #6b21a8;
       margin-bottom: 0.5rem;
     }
 
@@ -287,25 +314,25 @@
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, #f48fb1 0%, #ec407a 100%);
+      background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
       color: white;
-      box-shadow: 0 4px 12px rgba(244, 143, 177, 0.3);
+      box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
     }
 
     .btn-primary:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(244, 143, 177, 0.4);
-      background: linear-gradient(135deg, #ec407a 0%, #d81b60 100%);
+      box-shadow: 0 6px 16px rgba(168, 85, 247, 0.4);
+      background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);
     }
 
     .btn-secondary {
       background: white;
-      color: #c2185b;
-      border: 2px solid #f48fb1;
+      color: #6b21a8;
+      border: 2px solid #a855f7;
     }
 
     .btn-secondary:hover {
-      background: #fce4ec;
+      background: #faf5ff;
     }
 
     .btn-danger {
@@ -409,18 +436,13 @@
 
     <div class="sidebar-user">
       <p>{{ request.session.usuario_nombre }}</p>
-      <p class="rol">Administrador</p>
+      <p class="rol">{{ request.session.usuario_rol }}</p>
     </div>
 
         <div class="sidebar-nav">
       <a href="{% url 'dashboard_admin' %}">Dashboard</a>
       <a href="{% url 'lista_admin' %}" class="active">Mi Perfil</a>
-      <a href="{% url 'notificaciones' %}">
-        Notificaciones
-        {% if total_notificaciones_no_leidas > 0 %}
-        <span class="notification-badge">{{ total_notificaciones_no_leidas }}</span>
-        {% endif %}
-      </a>
+      <a href="{% url 'notificaciones' %}">Notificaciones{% if total_notificaciones_no_leidas > 0 %}<span class="notification-badge">{{ total_notificaciones_no_leidas }}</span>{% endif %}</a>
       <a href="{% url 'lista_clientes' %}">Clientes</a>
      <a href="{% url 'lista_distribuidores' %}">Proveedores</a>
       <a href="{% url 'lista_pedidos' %}">Pedidos</a>
@@ -504,35 +526,234 @@
       </div>
     </div>
 
-    <!-- Permisos y Accesos -->
+    <!-- Mensajes de Alerta -->
+    {% if messages %}
+    <div style="margin-bottom: 2rem;">
+      {% for message in messages %}
+      <div style="padding: 1rem 1.5rem; border-radius: 10px; margin-bottom: 1rem; {% if message.tags %}background: {% if 'error' in message.tags %}#ffebee; border-left: 4px solid #f44336; color: #c62828;{% elif 'success' in message.tags %}#e8f5e9; border-left: 4px solid #4caf50; color: #2e7d32;{% else %}#fff3e0; border-left: 4px solid #ff9800; color: #e65100;{% endif %}{% endif %}">
+        {{ message }}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Editar Información -->
     <div class="card">
       <div class="card-header">
-        <h2>Permisos del Administrador</h2>
+        <h2>Editar Mi Información</h2>
       </div>
       <div class="card-body">
-        <p style="margin-bottom: 1rem; color: #666;">
-          Este administrador tiene acceso completo a todas las funcionalidades del sistema:
-        </p>
-        <div class="permissions-grid">
-          <div class="permission-item">Gestión de Productos</div>
-          <div class="permission-item">Gestión de Pedidos</div>
-          <div class="permission-item">Gestión de Clientes</div>
-          <div class="permission-item">Gestión de Distribuidores</div>
-          <div class="permission-item">Gestión de Repartidores</div>
-          <div class="permission-item">Gestión de Categorías</div>
-          <div class="permission-item">Panel de Estadísticas</div>
-          <div class="permission-item">Configuración del Sistema</div>
-        </div>
+        <form method="POST" action="{% url 'admin_editar' admin.idUsuario %}" id="formEditarAdmin">
+          {% csrf_token %}
+          
+          <!-- Paso 1: Verificación de Seguridad -->
+          <div class="info-group" style="margin-bottom: 2rem; background: #fff3e0; border-left-color: #ff9800;">
+            <div class="info-label" style="color: #e65100;">🔒 Paso 1: Verificación de Seguridad</div>
+            <p style="font-size: 0.9rem; color: #ef6c00; margin-bottom: 1rem;">Ingresa el código de seguridad para habilitar la edición de tus datos.</p>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="password" id="codigoSeguridad" placeholder="Código de seguridad" style="flex: 1; padding: 0.8rem; border: 2px solid #ffb74d; border-radius: 8px; font-size: 1rem; color: #333; font-weight: 500;">
+              <button type="button" id="btnVerificarCodigo" class="btn btn-primary" style="padding: 0.8rem 1.5rem; white-space: nowrap;">Verificar</button>
+            </div>
+            <p id="mensajeVerificacion" style="font-size: 0.85rem; margin-top: 0.8rem; display: none; padding: 0.5rem; border-radius: 5px;"></p>
+          </div>
+
+          <!-- Paso 2: Edición de Datos -->
+          <div id="seccionEdicion" style="display: none;">
+            <div class="info-group" style="margin-bottom: 1.5rem; background: #e8f5e9; border-left-color: #4caf50;">
+              <div class="info-label" style="color: #2e7d32;">✓ Paso 2: Editar Datos</div>
+              <p style="font-size: 0.85rem; color: #2e7d32;">Ahora puedes editar tu información personal.</p>
+            </div>
+
+            <div class="info-group" style="margin-bottom: 1.5rem;">
+              <div class="info-label">Nombre Completo</div>
+              <input type="text" name="nombre" id="inputNombre" value="{{ admin.nombre }}" disabled style="width: 100%; padding: 0.8rem; border: 2px solid #d8b4fe; border-radius: 8px; font-size: 1rem; color: #999; background-color: #f5f5f5; cursor: not-allowed; transition: all 0.3s ease;">
+            </div>
+            
+            <div class="info-group" style="margin-bottom: 1.5rem;">
+              <div class="info-label">Email</div>
+              <input type="email" name="email" id="inputEmail" value="{{ admin.email }}" disabled style="width: 100%; padding: 0.8rem; border: 2px solid #d8b4fe; border-radius: 8px; font-size: 1rem; color: #999; background-color: #f5f5f5; cursor: not-allowed; transition: all 0.3s ease;">
+            </div>
+
+            <div class="info-group" style="margin-bottom: 1.5rem;">
+              <div class="info-label">Nueva Contraseña (Opcional)</div>
+              <input type="password" name="password" id="inputPassword" placeholder="Dejar en blanco para no cambiar" disabled style="width: 100%; padding: 0.8rem; border: 2px solid #d8b4fe; border-radius: 8px; font-size: 1rem; color: #999; background-color: #f5f5f5; cursor: not-allowed; transition: all 0.3s ease;">
+              <p style="font-size: 0.8rem; color: #666; margin-top: 0.5rem;">Mínimo 6 caracteres</p>
+            </div>
+
+            <div class="info-group" style="margin-bottom: 2rem;">
+              <div class="info-label">Confirmar Contraseña</div>
+              <input type="password" name="password_confirm" id="inputPasswordConfirm" placeholder="Confirma la nueva contraseña" disabled style="width: 100%; padding: 0.8rem; border: 2px solid #d8b4fe; border-radius: 8px; font-size: 1rem; color: #999; background-color: #f5f5f5; cursor: not-allowed; transition: all 0.3s ease;">
+            </div>
+          </div>
+
+          <input type="hidden" name="codigo_seguridad" id="codigoSeguroHidden" value="">
+          
+          <div style="display: flex; gap: 1rem;">
+            <button type="submit" id="btnGuardar" class="btn btn-primary" style="flex: 1; opacity: 0.5; cursor: not-allowed;" disabled>💾 Guardar Cambios</button>
+            <a href="{% url 'lista_admin' %}" class="btn btn-secondary" style="flex: 1; text-align: center;">← Cancelar</a>
+          </div>
+        </form>
       </div>
     </div>
 
-    <!-- Información de Seguridad -->
-    <div class="security-notice">
-      <h3>Información de Seguridad</h3>
-      <p><strong>Nota importante:</strong> Los datos de los administradores son de solo lectura por motivos de seguridad.</p>
-      <p><strong>Eliminación:</strong> Solo se puede eliminar un administrador, no editar sus datos.</p>
-      <p><strong>Acceso:</strong> Todos los administradores tienen permisos completos sobre el sistema.</p>
-    </div>
+    <script>
+      const CODIGO_CORRECTO = '12345';
+      const btnVerificar = document.getElementById('btnVerificarCodigo');
+      const inputCodigo = document.getElementById('codigoSeguridad');
+      const mensajeVerificacion = document.getElementById('mensajeVerificacion');
+      const inputNombre = document.getElementById('inputNombre');
+      const inputEmail = document.getElementById('inputEmail');
+      const inputPassword = document.getElementById('inputPassword');
+      const inputPasswordConfirm = document.getElementById('inputPasswordConfirm');
+      const btnGuardar = document.getElementById('btnGuardar');
+      const codigoSeguroHidden = document.getElementById('codigoSeguroHidden');
+      const seccionEdicion = document.getElementById('seccionEdicion');
+      let codigoVerificado = false;
+
+      function habilitarCampos() {
+        // Habilitar campos
+        inputNombre.disabled = false;
+        inputEmail.disabled = false;
+        inputPassword.disabled = false;
+        inputPasswordConfirm.disabled = false;
+        btnGuardar.disabled = false;
+        
+        // Cambiar estilos
+        [inputNombre, inputEmail, inputPassword, inputPasswordConfirm].forEach(input => {
+          input.style.color = '#333';
+          input.style.backgroundColor = '#fff';
+          input.style.cursor = 'text';
+          input.style.borderColor = '#a855f7';
+        });
+        
+        btnGuardar.style.opacity = '1';
+        btnGuardar.style.cursor = 'pointer';
+        
+        // Mostrar sección de edición
+        seccionEdicion.style.display = 'block';
+      }
+
+      function deshabilitarCampos() {
+        // Deshabilitar campos
+        inputNombre.disabled = true;
+        inputEmail.disabled = true;
+        inputPassword.disabled = true;
+        inputPasswordConfirm.disabled = true;
+        btnGuardar.disabled = true;
+        
+        // Cambiar estilos
+        [inputNombre, inputEmail, inputPassword, inputPasswordConfirm].forEach(input => {
+          input.style.color = '#999';
+          input.style.backgroundColor = '#f5f5f5';
+          input.style.cursor = 'not-allowed';
+          input.style.borderColor = '#d8b4fe';
+        });
+        
+        btnGuardar.style.opacity = '0.5';
+        btnGuardar.style.cursor = 'not-allowed';
+        
+        // Ocultar sección de edición
+        seccionEdicion.style.display = 'none';
+      }
+
+      btnVerificar.addEventListener('click', function() {
+        const codigoIngresado = inputCodigo.value.trim();
+        
+        if (!codigoIngresado) {
+          mensajeVerificacion.textContent = '⚠ Por favor ingresa el código de seguridad.';
+          mensajeVerificacion.style.background = '#fff3e0';
+          mensajeVerificacion.style.color = '#e65100';
+          mensajeVerificacion.style.display = 'block';
+          return;
+        }
+        
+        if (codigoIngresado === CODIGO_CORRECTO) {
+          // Código correcto
+          mensajeVerificacion.textContent = '✓ Código verificado correctamente. Ahora puedes editar tus datos.';
+          mensajeVerificacion.style.background = '#e8f5e9';
+          mensajeVerificacion.style.color = '#2e7d32';
+          mensajeVerificacion.style.display = 'block';
+          
+          habilitarCampos();
+          
+          // Guardar código en campo oculto
+          codigoSeguroHidden.value = codigoIngresado;
+          
+          // Deshabilitar campo de código y botón
+          inputCodigo.disabled = true;
+          btnVerificar.disabled = true;
+          inputCodigo.style.backgroundColor = '#e8f5e9';
+          inputCodigo.style.borderColor = '#4caf50';
+          btnVerificar.style.opacity = '0.6';
+          btnVerificar.style.cursor = 'not-allowed';
+          
+          codigoVerificado = true;
+        } else {
+          // Código incorrecto
+          mensajeVerificacion.textContent = '✗ Código incorrecto. Intenta de nuevo.';
+          mensajeVerificacion.style.background = '#ffebee';
+          mensajeVerificacion.style.color = '#c62828';
+          mensajeVerificacion.style.display = 'block';
+          
+          deshabilitarCampos();
+          
+          // Limpiar campo oculto
+          codigoSeguroHidden.value = '';
+          codigoVerificado = false;
+          
+          // Limpiar campo de código
+          inputCodigo.value = '';
+          inputCodigo.focus();
+        }
+      });
+
+      // Permitir verificar con Enter
+      inputCodigo.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          btnVerificar.click();
+        }
+      });
+
+      // Validar antes de enviar
+      document.getElementById('formEditarAdmin').addEventListener('submit', function(e) {
+        if (!codigoVerificado) {
+          e.preventDefault();
+          alert('Por favor verifica el código de seguridad primero.');
+          return false;
+        }
+
+        const nombre = inputNombre.value.trim();
+        const email = inputEmail.value.trim();
+        const password = inputPassword.value;
+        const passwordConfirm = inputPasswordConfirm.value;
+
+        if (!nombre || !email) {
+          e.preventDefault();
+          alert('El nombre y email son obligatorios.');
+          return false;
+        }
+
+        if (password && password.length < 6) {
+          e.preventDefault();
+          alert('La contraseña debe tener al menos 6 caracteres.');
+          return false;
+        }
+
+        if (password && password !== passwordConfirm) {
+          e.preventDefault();
+          alert('Las contraseñas no coinciden.');
+          return false;
+        }
+
+        return true;
+      });
+
+      // Inicializar con campos deshabilitados
+      deshabilitarCampos();
+    </script>
   </div>
 </body>
 </html>
+
+

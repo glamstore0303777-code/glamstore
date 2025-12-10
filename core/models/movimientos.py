@@ -12,6 +12,7 @@ class MovimientoProducto(models.Model):
         ('AJUSTE_MANUAL_ENTRADA', 'Ajuste Manual (Entrada)'),
         ('AJUSTE_MANUAL_SALIDA', 'Ajuste Manual (Salida)'),
         ('SALIDA_VENTA', 'Salida por Venta'),
+        ('EN_PREPARACION_SALIDA', 'En Preparación (Apartado)'),
         ('PERDIDA_VENCIMIENTO', 'Pérdida por Vencimiento'),
     ])
     cantidad = models.IntegerField()

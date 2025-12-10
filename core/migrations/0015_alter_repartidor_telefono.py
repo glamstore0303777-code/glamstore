@@ -1,6 +1,6 @@
-# Generated migration to increase telefono field size
+# Generated migration - already exists in database
 
-from django.db import migrations, models
+from django.db import migrations
 
 
 class Migration(migrations.Migration):
@@ -10,9 +10,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='repartidor',
-            name='telefono',
-            field=models.CharField(max_length=20, null=True),
-        ),
+        # Already exists - no operations needed
     ]

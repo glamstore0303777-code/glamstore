@@ -1,11 +1,12 @@
 {% load static %}
+{% load humanize %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <title>Panel de Productos — Glam Store</title>
   <link rel="icon" href="{% static 'img/logoglam.png' %}">
-  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
@@ -15,23 +16,23 @@
 
     body {
       margin: 0;
-      font-family: 'Comic Neue', cursive, Arial, sans-serif;
-      background-color: #fffafc;
+      font-family: 'Poppins', 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
       display: flex;
       min-height: 100vh;
     }
 
     /* Sidebar */
     .sidebar {
-      background-color: #fce4ec;
+      background: linear-gradient(180deg, #1a1f3a 0%, #0f1419 100%);
       padding: 2rem;
       width: 240px;
       height: 100vh;
       position: fixed;
       display: flex;
       flex-direction: column;
-      border-right: 2px solid #f8bbd0;
-      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      border-right: 1px solid #2a3f5f;
+      box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
       z-index: 1000;
       overflow-y: auto;
     }
@@ -41,37 +42,51 @@
       margin-bottom: 2rem;
     }
 
+    .sidebar-logo {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      box-shadow: 0 6px 20px rgba(168, 85, 247, 0.3);
+      margin-bottom: 1rem;
+      border: 3px solid #a855f7;
+    }
+
     .sidebar-header h2 {
-      color: #ad1457;
+      color: #ffffff;
       font-size: 1.8rem;
       margin-bottom: 0.5rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     }
 
     .sidebar-header p {
-      color: #d81b60;
+      color: #a0aec0;
       font-size: 0.9rem;
+      font-weight: 400;
+      font-style: italic;
     }
 
     .sidebar-user {
-      background-color: #fff;
+      background-color: rgba(255, 255, 255, 0.08);
       padding: 1rem;
       border-radius: 10px;
       margin-bottom: 1.5rem;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
       text-align: center;
-      border: 2px solid #f8bbd0;
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .sidebar-user p {
       margin: 0.3rem 0;
-      color: #c2185b;
-      font-weight: bold;
+      color: #ffffff;
+      font-weight: 600;
       font-size: 1rem;
     }
 
     .sidebar-user .rol {
       font-size: 0.85rem;
-      color: #d81b60;
+      color: #a0aec0;
       font-weight: normal;
     }
 
@@ -82,33 +97,57 @@
     .sidebar a {
       display: block;
       margin: 0.5rem 0;
-      color: #880e4f;
+      color: #cbd5e0;
       text-decoration: none;
-      font-weight: bold;
-      padding: 0.8rem 1rem;
-      border-radius: 25px;
+      font-weight: 500;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
       transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: rgba(168, 85, 247, 0.1);
+      transition: width 0.3s ease;
+      z-index: -1;
     }
 
     .sidebar a:hover,
     .sidebar a.active {
-      background-color: #f8bbd0;
-      color: #fff;
+      color: #ffffff;
+      transform: translateX(3px);
+      border-left-color: #a855f7;
+      background: rgba(168, 85, 247, 0.15);
+    }
+
+    .sidebar a:hover::before,
+    .sidebar a.active::before {
+      width: 100%;
     }
 
         .notification-badge {
       position: relative;
-      display: inline-block;
-      background: #f44336;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #ef4444;
       color: white;
       border-radius: 50%;
-      min-width: 20px;
-      height: 20px;
-      padding: 2px 6px;
+      min-width: 22px;
+      height: 22px;
+      padding: 0;
       font-size: 0.7rem;
       font-weight: bold;
       text-align: center;
-      line-height: 16px;
+      flex-shrink: 0;
       margin-left: 8px;
       vertical-align: middle;
     }
@@ -134,8 +173,8 @@
 
     .page-header h1 {
       font-size: 2.2rem;
-      color: #c2185b;
-      border-bottom: 3px solid #f48fb1;
+      color: #7c3aed;
+      border-bottom: 3px solid #a855f7;
       padding-bottom: 0.5rem;
       margin-bottom: 1rem;
     }
@@ -164,7 +203,7 @@
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, #f48fb1 0%, #ec407a 100%);
+      background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
       color: white;
       box-shadow: 0 4px 12px rgba(244, 143, 177, 0.3);
     }
@@ -177,7 +216,7 @@
 
     .btn-secondary {
       background: white;
-      color: #c2185b;
+      color: #7c3aed;
       border: 2px solid #f48fb1;
     }
 
@@ -192,7 +231,7 @@
 
     .filter-form select {
       padding: 0.8rem 1rem;
-      border: 2px solid #f8bbd0;
+      border: 2px solid #d8b4fe;
       border-radius: 25px;
       font-family: 'Comic Neue', cursive, Arial, sans-serif;
       font-size: 1rem;
@@ -203,7 +242,7 @@
     /* Product Grid */
     .product-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
       gap: 2rem;
     }
 
@@ -213,6 +252,8 @@
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
       overflow: hidden;
       transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
     }
 
     .product-card:hover {
@@ -221,8 +262,8 @@
     }
 
     .product-image {
-      height: 200px;
-      background-color: #fffafc;
+      height: 250px;
+      background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -242,12 +283,16 @@
 
     .product-info {
       padding: 1.5rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
     }
 
     .product-info h3 {
       margin: 0 0 0.5rem 0;
-      font-size: 1.2rem;
-      color: #c2185b;
+      font-size: 1.3rem;
+      color: #7c3aed;
+      font-weight: 700;
     }
 
     .product-category {
@@ -263,12 +308,13 @@
       margin-top: 1rem;
       padding-top: 1rem;
       border-top: 1px solid #fce4ec;
+      flex: 1;
     }
 
     .product-price {
       font-weight: bold;
-      color: #ad1457;
-      font-size: 1.2rem;
+      color: #6b21a8;
+      font-size: 1.3rem;
     }
 
     .product-stock {
@@ -278,29 +324,34 @@
 
     .product-actions {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr 1fr;
-      gap: 1px;
-      background-color: #fce4ec;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      background: linear-gradient(180deg, #faf5ff 0%, #f3e8ff 100%);
+      padding: 0.5rem;
+      margin-top: auto;
     }
 
     .product-actions a,
     .product-actions button {
-      padding: 0.8rem;
+      padding: 0.9rem 0.8rem;
       text-align: center;
       text-decoration: none;
       font-weight: bold;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       border: none;
       cursor: pointer;
       transition: all 0.3s ease;
       background: white;
       color: #666;
+      border-radius: 8px;
     }
 
     .product-actions a:hover,
     .product-actions button:hover {
       background: #fffafc;
-      color: #c2185b;
+      color: #7c3aed;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
     .detalle-btn {
@@ -429,24 +480,20 @@
 <body>
   <div class="sidebar">
     <div class="sidebar-header">
+      <img src="{% static 'img/logoglam.png' %}" alt="Logo Glam Store" class="sidebar-logo">
       <h2>Admin Glam</h2>
       <p>Panel de Control</p>
     </div>
 
     <div class="sidebar-user">
       <p>{{ request.session.usuario_nombre }}</p>
-      <p class="rol">Administrador</p>
+      <p class="rol">{{ request.session.usuario_rol }}</p>
     </div>
 
         <div class="sidebar-nav">
       <a href="{% url 'dashboard_admin' %}">Dashboard</a>
       <a href="{% url 'lista_admin' %}">Mi Perfil</a>
-      <a href="{% url 'notificaciones' %}">
-        Notificaciones
-        {% if total_notificaciones_no_leidas > 0 %}
-        <span class="notification-badge">{{ total_notificaciones_no_leidas }}</span>
-        {% endif %}
-      </a>
+      <a href="{% url 'notificaciones' %}">Notificaciones{% if total_notificaciones_no_leidas > 0 %}<span class="notification-badge">{{ total_notificaciones_no_leidas }}</span>{% endif %}</a>
       <a href="{% url 'lista_clientes' %}">Clientes</a>
      <a href="{% url 'lista_distribuidores' %}">Proveedores</a>
       <a href="{% url 'lista_pedidos' %}">Pedidos</a>
@@ -521,7 +568,7 @@
           <h3>{{ producto.nombreProducto }}</h3>
           <p class="product-category">{{ producto.idCategoria.nombreCategoria }}</p>
           <div class="product-details">
-            <span class="product-price">${{ producto.precio }}</span>
+            <span class="product-price">${{ producto.precio|floatformat:0|intcomma }}</span>
             <span class="product-stock">Inventario: {{ producto.stock }}</span>
           </div>
         </div>
@@ -561,3 +608,6 @@
   </script>
 </body>
 </html>
+
+
+

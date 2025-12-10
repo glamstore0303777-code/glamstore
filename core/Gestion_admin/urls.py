@@ -68,6 +68,7 @@ urlpatterns = [
     path('admin/', views.lista_admin_view, name='lista_admin'), # Esta es la lista principal de administradores
     path('admin/agregar/', views.admin_agregar_view, name='admin_agregar'),
     path('admin/detalle/<int:id>/', views.admin_detalle_view, name='admin_detalle'),
+    path('admin/editar/<int:id>/', views.admin_editar_view, name='admin_editar'),
     path('admin/eliminar/<int:id>/', views.admin_eliminar_view, name='admin_eliminar'),
     path('logout/', views.logout_view, name='logout'), # Usamos tu vista personalizada y la nombramos 'logout'
 
@@ -100,5 +101,8 @@ urlpatterns = [
     
     # Gestión de vencimientos
     path('vencimientos/marcar_perdidos/', views.marcar_lotes_vencidos_view, name='marcar_lotes_vencidos'),
+    
+    # Actualizar IVA en movimientos
+    path('movimientos/actualizar_iva/', views.actualizar_iva_movimientos_view, name='actualizar_iva_movimientos'),
 ]
   

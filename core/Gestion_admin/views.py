@@ -2,7 +2,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, JsonResponse
 from datetime import datetime, timedelta
-from django.db.models import Sum
+from django.db.models import Sum, F, Count
+from decimal import Decimal
 from core.models.distribuidores import Distribuidor
 from core.models.clientes import Cliente
 from core.models.pedidos import Pedido
@@ -12,7 +13,6 @@ from django.contrib.auth import logout
 from django.urls import reverse
 from core.models.repartidores import Repartidor
 from django.template.loader import get_template
-from django.db.models import Count
 from xhtml2pdf import pisa
 from django.http import HttpResponse
 from io import BytesIO
@@ -47,11 +47,41 @@ def dashboard_admin_view(request):
     una_semana_atras = ahora - timedelta(days=7)
     dos_semanas_atras = ahora - timedelta(days=14)
     
-    # === ESTADÍSTICAS GENERALES ===
+    # === ESTADÍSTICAS GENERALES - TIEMPO REAL ===
+    # Contar productos activos (con stock o disponibles)
     total_productos = Producto.objects.count()
+    
+    # Contar todos los clientes registrados
     total_clientes = Cliente.objects.count()
+    
+    # Contar todos los pedidos
     total_pedidos = Pedido.objects.count()
-    ventas_totales = Pedido.objects.aggregate(total=Sum('total'))['total'] or 0
+    
+    # Calcular ventas totales de manera más precisa
+    # Sumar tanto el campo 'total' de pedidos como el cálculo desde detalles
+    ventas_desde_pedidos = Pedido.objects.aggregate(
+        total=Sum('total')
+    )['total'] or 0
+    
+    # Verificar con el cálculo desde detalles para mayor precisión
+    ventas_desde_detalles = DetallePedido.objects.aggregate(
+        total=Sum(F('cantidad') * F('precio_unitario'))
+    )['total'] or 0
+    
+    # Usar el mayor de los dos cálculos (más preciso)
+    ventas_totales = max(ventas_desde_pedidos, ventas_desde_detalles)
+    
+    # === CÁLCULO DE GANANCIAS (6% DE MARGEN) ===
+    # Calcular ganancias totales basadas en el 6% de margen sobre las ventas (pesos colombianos - sin decimales)
+    margen_ganancia_porcentaje = 6  # 6%
+    ganancias_totales = int((float(ventas_totales) * margen_ganancia_porcentaje) / 100)
+    
+    # === CÁLCULO DE GANANCIAS (6% DE MARGEN) ===
+    # Calcular ganancia total con el 6% de margen sobre las ventas
+    ganancia_total = ventas_totales * Decimal('0.06')
+    
+    # Calcular también el costo base (94% de las ventas)
+    costo_base = ventas_totales * Decimal('0.94')
     
     # === PRODUCTOS MÁS VENDIDOS ===
     productos_mas_vendidos = DetallePedido.objects.filter(
@@ -86,7 +116,8 @@ def dashboard_admin_view(request):
     productos_por_surtir = Producto.objects.filter(stock__lt=10).order_by('stock')[:10]
     
     # === ESTADÍSTICAS DE CLIENTES ===
-    # Calcular clientes únicos que hicieron pedidos esta semana y la semana pasada
+    # === CLIENTES ACTIVOS POR SEMANA - DINÁMICO (3 SEMANAS) ===
+    # Obtener clientes que hicieron pedidos por semana (últimas 3 semanas)
     clientes_esta_semana = Pedido.objects.filter(
         fechaCreacion__gte=una_semana_atras
     ).values('idCliente').distinct().count()
@@ -96,29 +127,48 @@ def dashboard_admin_view(request):
         fechaCreacion__lt=una_semana_atras
     ).values('idCliente').distinct().count()
     
+    clientes_hace_2_semanas = Pedido.objects.filter(
+        fechaCreacion__gte=dos_semanas_atras - timedelta(days=7),
+        fechaCreacion__lt=dos_semanas_atras
+    ).values('idCliente').distinct().count()
+    
     # === PEDIDOS NUEVOS ===
     pedidos_nuevos = Pedido.objects.filter(
         fechaCreacion__gte=una_semana_atras
     ).select_related('idCliente').order_by('-fechaCreacion')[:10]
     
-    # === VENTAS POR CATEGORÍA ===
-    ventas_por_categoria = DetallePedido.objects.filter(
-        idPedido__fechaCreacion__gte=una_semana_atras
-    ).values(
-        'idProducto__idCategoria__nombreCategoria'
-    ).annotate(
-        total=Sum(F('cantidad') * F('precio_unitario')),
-        categoria=F('idProducto__idCategoria__nombreCategoria')
-    ).order_by('-total')[:5]
+    # === VENTAS POR CATEGORÍA - COMPLETAMENTE DINÁMICO ===
+    # Obtener TODAS las categorías que tienen productos (sin límite)
+    categorias_existentes = Categoria.objects.filter(
+        producto__isnull=False
+    ).distinct().order_by('nombreCategoria')
     
-    # Limpiar datos para el template
     ventas_categoria_limpio = []
-    for item in ventas_por_categoria:
-        if item['categoria']:
-            ventas_categoria_limpio.append({
-                'categoria': item['categoria'],
-                'total': float(item['total'] or 0)
-            })
+    
+    # Para cada categoría existente, obtener sus ventas reales
+    for categoria in categorias_existentes:
+        # Obtener ventas de todos los tiempos para esta categoría
+        ventas_reales = DetallePedido.objects.filter(
+            idProducto__idCategoria=categoria
+        ).aggregate(
+            total=Sum(F('cantidad') * F('precio_unitario')),
+            cantidad_vendida=Sum('cantidad'),
+            num_pedidos=Count('idPedido', distinct=True),
+            num_productos=Count('idProducto', distinct=True)
+        )
+        
+        # Agregar la categoría con sus datos reales (incluso si es 0)
+        ventas_categoria_limpio.append({
+            'categoria': categoria.nombreCategoria,
+            'total': float(ventas_reales['total'] or 0),
+            'cantidad_vendida': ventas_reales['cantidad_vendida'] or 0,
+            'num_pedidos': ventas_reales['num_pedidos'] or 0,
+            'num_productos': ventas_reales['num_productos'] or 0,
+            'promedio_por_pedido': float(ventas_reales['total'] or 0) / max(ventas_reales['num_pedidos'] or 1, 1)
+        })
+    
+    # Ordenar por total de ventas (de mayor a menor)
+    ventas_categoria_limpio.sort(key=lambda x: x['total'], reverse=True)
     
     # === PRODUCTO MÁS VENDIDO INDIVIDUAL ===
     producto_mas_vendido = productos_mas_vendidos[0] if productos_mas_vendidos else None
@@ -189,7 +239,7 @@ def dashboard_admin_view(request):
 
     # === CALIFICACIONES DE REPARTIDORES ===
     from core.models import ConfirmacionEntrega
-    from django.db.models import Avg, Count
+    from django.db.models import Avg
     
     # Obtener calificaciones recientes (últimas 10)
     calificaciones_recientes = ConfirmacionEntrega.objects.select_related(
@@ -239,27 +289,34 @@ def dashboard_admin_view(request):
     productos_vencidos = resumen_vencimientos['productos_vencidos']
     productos_por_vencer = resumen_vencimientos['productos_por_vencer']
     
+    # === OBTENER TODAS LAS CATEGORÍAS ===
+    categorias = Categoria.objects.all().order_by('nombreCategoria')
+    
     context = {
-        # Estadísticas generales
+        # Estadísticas generales (tiempo real - se actualizan automáticamente)
         'total_productos': total_productos,
         'total_clientes': total_clientes,
         'total_pedidos': total_pedidos,
         'ventas_totales': int(ventas_totales) if ventas_totales else 0,
+        'ganancias_totales': int(ganancias_totales) if ganancias_totales else 0,
+        'margen_ganancia_porcentaje': margen_ganancia_porcentaje,
         
         # Productos
         'productos_mas_vendidos': productos_vendidos_completos,
         'producto_mas_vendido': producto_mas_vendido,
         'productos_por_surtir': productos_por_surtir,
         
-        # Clientes
+        # Clientes activos por semana (3 semanas)
         'clientes_esta_semana': clientes_esta_semana,
         'clientes_semana_pasada': clientes_semana_pasada,
+        'clientes_hace_2_semanas': clientes_hace_2_semanas,
         
         # Pedidos
         'pedidos_nuevos': pedidos_nuevos,
         
-        # Ventas por categoría
+        # Ventas por categoría (dinámico y real)
         'ventas_por_categoria': ventas_categoria_limpio,
+        'categorias': categorias,
         
         # Reabastecimiento reciente
         'reabastecimientos_recientes': reabastecimientos_procesados,
@@ -557,6 +614,9 @@ def movimientos_producto_view(request, id):
         cantidad_disponible__gt=0
     ).order_by('fecha_entrada')
     
+    # Obtener el lote activo (el más antiguo con stock, según FIFO)
+    lote_activo = lotes_disponibles.first() if lotes_disponibles.exists() else None
+    
     # Obtener proveedores (distribuidores)
     proveedores = Distribuidor.objects.all().order_by('nombreDistribuidor')
     
@@ -564,6 +624,7 @@ def movimientos_producto_view(request, id):
         'producto': producto,
         'movimientos': movimientos,
         'lotes_disponibles': lotes_disponibles,
+        'lote_activo': lote_activo,
         'proveedores': proveedores
     })
 
@@ -614,7 +675,36 @@ def ajustar_stock_view(request, id):
                 if total_limpio and total_limpio != '0':
                     total_con_iva_a_registrar = Decimal(total_limpio)
             lote_a_registrar = lote if lote else None
-            fecha_venc_a_registrar = fecha_vencimiento if fecha_vencimiento else None
+            
+            # Validar fecha de vencimiento
+            if fecha_vencimiento:
+                from datetime import datetime, date, timedelta
+                try:
+                    # Convertir la fecha string a objeto date
+                    if isinstance(fecha_vencimiento, str):
+                        fecha_venc_obj = datetime.strptime(fecha_vencimiento, '%Y-%m-%d').date()
+                    else:
+                        fecha_venc_obj = fecha_vencimiento
+                    
+                    # Calcular fecha mínima (hoy + 3 meses)
+                    fecha_minima = date.today() + timedelta(days=90)  # 3 meses = 90 días
+                    
+                    # Verificar que no esté vencida
+                    if fecha_venc_obj <= date.today():
+                        messages.error(request, f"La fecha de vencimiento ({fecha_venc_obj.strftime('%d/%m/%Y')}) ya está vencida o es hoy. No se puede agregar stock con productos vencidos.")
+                        return redirect('movimientos_producto', id=id)
+                    
+                    # Verificar que tenga al menos 3 meses de caducidad
+                    if fecha_venc_obj < fecha_minima:
+                        messages.error(request, f"La fecha de vencimiento ({fecha_venc_obj.strftime('%d/%m/%Y')}) debe tener al menos 3 meses de caducidad. Fecha mínima permitida: {fecha_minima.strftime('%d/%m/%Y')}")
+                        return redirect('movimientos_producto', id=id)
+                    
+                    fecha_venc_a_registrar = fecha_vencimiento
+                except ValueError:
+                    messages.error(request, "Formato de fecha de vencimiento inválido.")
+                    return redirect('movimientos_producto', id=id)
+            else:
+                fecha_venc_a_registrar = None
 
         from core.services import LotesService
         from core.models import LoteProducto
@@ -641,6 +731,17 @@ def ajustar_stock_view(request, id):
                 messages.error(request, f"Solo hay {lote.cantidad_disponible} unidades disponibles en este lote.")
                 return redirect('movimientos_producto', id=id)
             
+            # Calcular IVA para la salida
+            costo_unitario = float(lote.costo_unitario) if lote.costo_unitario else 0
+            precio_venta_unitario = float(producto.precio_venta) if producto.precio_venta else 0
+            
+            # IVA = costo × 0.19
+            iva_por_unidad = costo_unitario * 0.19
+            iva_total = iva_por_unidad * cantidad
+            
+            # Total con IVA = precio_venta × cantidad
+            total_con_iva = precio_venta_unitario * cantidad
+            
             # Crear movimiento de salida
             MovimientoProducto.objects.create(
                 producto=producto, 
@@ -649,11 +750,13 @@ def ajustar_stock_view(request, id):
                 stock_anterior=stock_anterior, 
                 stock_nuevo=stock_nuevo, 
                 descripcion=descripcion,
-                costo_unitario=lote.costo_unitario, 
-                precio_unitario=int(float(producto.precio)) if producto.precio else 0,
+                costo_unitario=int(costo_unitario), 
+                precio_unitario=int(precio_venta_unitario),
                 lote=lote.codigo_lote,
                 fecha_vencimiento=lote.fecha_vencimiento,
-                lote_origen=lote
+                lote_origen=lote,
+                total_con_iva=int(total_con_iva),
+                iva=int(iva_total)
             )
             
             # Actualizar lote y producto
@@ -662,21 +765,49 @@ def ajustar_stock_view(request, id):
             producto.stock = stock_nuevo
             producto.save()
         else:
-            # Lógica anterior para entradas sin lote
-            MovimientoProducto.objects.create(
-                producto=producto, 
-                tipo_movimiento=tipo_movimiento, 
-                cantidad=cantidad,
-                stock_anterior=stock_anterior, 
-                stock_nuevo=stock_nuevo, 
-                descripcion=descripcion,
-                costo_unitario=costo_a_registrar, 
-                precio_unitario=int(float(producto.precio)) if producto.precio else 0,
-                lote=lote_a_registrar,
-                fecha_vencimiento=fecha_venc_a_registrar,
-                iva=iva_a_registrar,
-                total_con_iva=total_con_iva_a_registrar
-            )
+            # Lógica anterior para entradas/salidas sin lote específico
+            # Si es salida, calcular IVA
+            if tipo_ajuste == 'salida':
+                costo_unitario = float(producto.precio) if producto.precio else 0
+                precio_venta_unitario = float(producto.precio_venta) if producto.precio_venta else 0
+                
+                # IVA = costo × 0.19
+                iva_por_unidad = costo_unitario * 0.19
+                iva_total = iva_por_unidad * cantidad
+                
+                # Total con IVA = precio_venta × cantidad
+                total_con_iva_calc = precio_venta_unitario * cantidad
+                
+                MovimientoProducto.objects.create(
+                    producto=producto, 
+                    tipo_movimiento=tipo_movimiento, 
+                    cantidad=cantidad,
+                    stock_anterior=stock_anterior, 
+                    stock_nuevo=stock_nuevo, 
+                    descripcion=descripcion,
+                    costo_unitario=int(costo_unitario), 
+                    precio_unitario=int(precio_venta_unitario),
+                    lote=lote_a_registrar,
+                    fecha_vencimiento=fecha_venc_a_registrar,
+                    iva=int(iva_total),
+                    total_con_iva=int(total_con_iva_calc)
+                )
+            else:
+                # Entrada
+                MovimientoProducto.objects.create(
+                    producto=producto, 
+                    tipo_movimiento=tipo_movimiento, 
+                    cantidad=cantidad,
+                    stock_anterior=stock_anterior, 
+                    stock_nuevo=stock_nuevo, 
+                    descripcion=descripcion,
+                    costo_unitario=costo_a_registrar, 
+                    precio_unitario=int(float(producto.precio)) if producto.precio else 0,
+                    lote=lote_a_registrar,
+                    fecha_vencimiento=fecha_venc_a_registrar,
+                    iva=iva_a_registrar,
+                    total_con_iva=total_con_iva_a_registrar
+                )
             producto.stock = stock_nuevo
             producto.save()
         messages.success(request, "El inventario ha sido ajustado correctamente.")
@@ -725,52 +856,86 @@ def reabastecimiento_view(request):
             # Columnas: Producto, Cantidad, Precio Unitario, Total con IVA, Lote, Fecha Vencimiento, IVA (19%)
             for row_idx, row in enumerate(ws.iter_rows(min_row=2, values_only=True), start=2):
                 try:
-                    nombre_producto = row[0]
-                    cantidad = row[1]
-                    precio_unitario = row[2]
-                    total_con_iva = row[3]
+                    # Saltar filas completamente vacías
+                    if not any(row):
+                        continue
+                    
+                    nombre_producto = row[0] if len(row) > 0 else None
+                    cantidad = row[1] if len(row) > 1 else None
+                    precio_unitario = row[2] if len(row) > 2 else None
+                    total_con_iva = row[3] if len(row) > 3 else None
                     lote = row[4] if len(row) > 4 else None
                     fecha_vencimiento = row[5] if len(row) > 5 else None
                     iva_valor = row[6] if len(row) > 6 else None
                     
-                    # Validar que los datos básicos no sean None
+                    # Limpiar espacios en blanco y saltos de línea del nombre del producto
+                    if nombre_producto:
+                        nombre_producto = str(nombre_producto).strip().replace('\n', ' ').replace('\r', ' ')
+                        # Eliminar espacios múltiples
+                        nombre_producto = ' '.join(nombre_producto.split())
+                    
+                    # Validar que los datos básicos no sean None o vacíos
                     if not nombre_producto or cantidad is None or precio_unitario is None:
-                        errores_lista.append(f"Fila {row_idx}: Datos incompletos (Producto, Cantidad o Precio Unitario)")
+                        errores_lista.append(f"Fila {row_idx}: Datos incompletos - Producto: '{nombre_producto}', Cantidad: {cantidad}, Precio: {precio_unitario}")
                         continue
                     
-                    # Convertir a tipos correctos
-                    cantidad = int(cantidad)
-                    precio_unitario = Decimal(str(precio_unitario))
+                    # Limpiar y convertir cantidad
+                    try:
+                        cantidad = int(float(cantidad))
+                    except (ValueError, TypeError):
+                        errores_lista.append(f"Fila {row_idx}: Cantidad inválida '{cantidad}'")
+                        continue
+                    
+                    # Limpiar y convertir precio unitario (remover $, puntos, comas)
+                    try:
+                        if isinstance(precio_unitario, str):
+                            precio_unitario = precio_unitario.replace('$', '').replace('.', '').replace(',', '').strip()
+                        precio_unitario = Decimal(str(precio_unitario))
+                    except (ValueError, TypeError):
+                        errores_lista.append(f"Fila {row_idx}: Precio unitario inválido '{precio_unitario}'")
+                        continue
                     
                     # Limpiar valores monetarios (remover $, puntos, comas)
-                    if isinstance(total_con_iva, str):
-                        total_con_iva = total_con_iva.replace('$', '').replace('.', '').replace(',', '').strip()
-                    if total_con_iva and str(total_con_iva).strip():
+                    if total_con_iva:
                         try:
-                            total_con_iva = Decimal(str(total_con_iva))
-                        except:
+                            if isinstance(total_con_iva, str):
+                                total_con_iva = total_con_iva.replace('$', '').replace('.', '').replace(',', '').strip()
+                            if total_con_iva:
+                                total_con_iva = Decimal(str(total_con_iva))
+                            else:
+                                total_con_iva = None
+                        except (ValueError, TypeError):
                             total_con_iva = None
-                    else:
-                        total_con_iva = None
                     
-                    if isinstance(iva_valor, str):
-                        iva_valor = iva_valor.replace('$', '').replace('.', '').replace(',', '').strip()
-                    if iva_valor and str(iva_valor).strip():
+                    if iva_valor:
                         try:
-                            iva_valor = Decimal(str(iva_valor))
-                        except:
+                            if isinstance(iva_valor, str):
+                                iva_valor = iva_valor.replace('$', '').replace('.', '').replace(',', '').strip()
+                            if iva_valor:
+                                iva_valor = Decimal(str(iva_valor))
+                            else:
+                                iva_valor = None
+                        except (ValueError, TypeError):
                             iva_valor = None
-                    else:
-                        iva_valor = None
                     
-                    # Buscar el producto por nombre en la categoría
+                    # Buscar el producto por nombre en la categoría (búsqueda exacta primero)
                     producto = Producto.objects.filter(
                         nombreProducto__iexact=nombre_producto,
                         idCategoria=categoria
                     ).first()
                     
+                    # Si no se encuentra, intentar búsqueda parcial
                     if not producto:
-                        errores_lista.append(f"Fila {row_idx}: Producto '{nombre_producto}' no encontrado en la categoría")
+                        producto = Producto.objects.filter(
+                            nombreProducto__icontains=nombre_producto,
+                            idCategoria=categoria
+                        ).first()
+                    
+                    if not producto:
+                        # Mostrar productos disponibles en la categoría para ayudar
+                        productos_disponibles = Producto.objects.filter(idCategoria=categoria).values_list('nombreProducto', flat=True)[:5]
+                        sugerencia = f" Productos disponibles: {', '.join(productos_disponibles)}" if productos_disponibles else ""
+                        errores_lista.append(f"Fila {row_idx}: Producto '{nombre_producto}' no encontrado en la categoría '{categoria.nombreCategoria}'.{sugerencia}")
                         continue
                     
                     # Actualizar el precio del producto con el precio unitario del Excel
@@ -796,9 +961,49 @@ def reabastecimiento_view(request):
                     
                     descripcion_completa = ' | '.join(descripcion_partes)
                     
+                    # Validar fecha de vencimiento
+                    fecha_venc_a_guardar = None
+                    if fecha_vencimiento:
+                        from datetime import timedelta
+                        try:
+                            # Convertir la fecha a objeto date si es necesario
+                            if isinstance(fecha_vencimiento, datetime):
+                                fecha_venc_obj = fecha_vencimiento.date()
+                            elif isinstance(fecha_vencimiento, str):
+                                # Intentar varios formatos de fecha
+                                for fmt in ['%d/%m/%Y', '%Y-%m-%d', '%d-%m-%Y']:
+                                    try:
+                                        fecha_venc_obj = datetime.strptime(fecha_vencimiento, fmt).date()
+                                        break
+                                    except ValueError:
+                                        continue
+                                else:
+                                    errores_lista.append(f"Fila {row_idx}: Formato de fecha de vencimiento inválido '{fecha_vencimiento}'")
+                                    continue
+                            else:
+                                fecha_venc_obj = fecha_vencimiento
+                            
+                            # Calcular fecha mínima (hoy + 3 meses)
+                            hoy = date.today()
+                            fecha_minima = hoy + timedelta(days=90)  # 3 meses = 90 días
+                            
+                            # Verificar que no esté vencida
+                            if fecha_venc_obj <= hoy:
+                                errores_lista.append(f"Fila {row_idx}: Producto '{nombre_producto}' - Fecha de vencimiento ({fecha_venc_obj.strftime('%d/%m/%Y')}) ya está vencida o es hoy")
+                                continue
+                            
+                            # Verificar que tenga al menos 3 meses de caducidad
+                            if fecha_venc_obj < fecha_minima:
+                                errores_lista.append(f"Fila {row_idx}: Producto '{nombre_producto}' - Fecha de vencimiento ({fecha_venc_obj.strftime('%d/%m/%Y')}) debe tener al menos 3 meses de caducidad. Mínimo: {fecha_minima.strftime('%d/%m/%Y')}")
+                                continue
+                            
+                            fecha_venc_a_guardar = fecha_vencimiento
+                        except Exception as e:
+                            errores_lista.append(f"Fila {row_idx}: Error al validar fecha de vencimiento - {str(e)}")
+                            continue
+                    
                     # Preparar valores para guardar
                     lote_a_guardar = lote if lote else None
-                    fecha_venc_a_guardar = fecha_vencimiento if fecha_vencimiento else None
                     iva_a_guardar = Decimal(iva_valor) if iva_valor else None
                     total_iva_a_guardar = Decimal(total_con_iva) if total_con_iva else None
                     
@@ -928,17 +1133,44 @@ def pedido_editar_view(request, id):
             
             # Asignar o desasignar repartidor
             if repartidor_id:
+                # Verificar si es una nueva asignación (no tenía repartidor antes)
+                es_nueva_asignacion = pedido.idRepartidor is None
+                
                 repartidor = get_object_or_404(Repartidor, idRepartidor=repartidor_id)
                 pedido.idRepartidor = repartidor
                 # Cambiar estado del repartidor a "En Ruta" si se asigna
                 repartidor.estado_turno = 'En Ruta'
                 repartidor.save()
+                
+                # Si es una nueva asignación, actualizar movimientos de "EN_PREPARACION_SALIDA" a "SALIDA_VENTA"
+                if es_nueva_asignacion:
+                    movimientos_preparacion = MovimientoProducto.objects.filter(
+                        id_pedido=pedido,
+                        tipo_movimiento='EN_PREPARACION_SALIDA'
+                    )
+                    
+                    for movimiento in movimientos_preparacion:
+                        movimiento.tipo_movimiento = 'SALIDA_VENTA'
+                        movimiento.descripcion = movimiento.descripcion.replace('Preparación', 'Venta')
+                        movimiento.save()
             else:
                 # Si se desasigna el repartidor
                 if pedido.idRepartidor:
                     repartidor_anterior = pedido.idRepartidor
                     repartidor_anterior.estado_turno = 'Disponible'
                     repartidor_anterior.save()
+                    
+                    # Revertir movimientos de "SALIDA_VENTA" a "EN_PREPARACION_SALIDA"
+                    movimientos_venta = MovimientoProducto.objects.filter(
+                        id_pedido=pedido,
+                        tipo_movimiento='SALIDA_VENTA'
+                    )
+                    
+                    for movimiento in movimientos_venta:
+                        movimiento.tipo_movimiento = 'EN_PREPARACION_SALIDA'
+                        movimiento.descripcion = movimiento.descripcion.replace('Venta', 'Preparación')
+                        movimiento.save()
+                        
                 pedido.idRepartidor = None
             
             pedido.save()
@@ -970,10 +1202,22 @@ def pedido_detalle_view(request, id):
     # Calcular total de unidades
     total_unidades = sum(detalle.cantidad for detalle in detalles)
     
+    # Obtener confirmación de entrega del cliente
+    from core.models import ConfirmacionEntrega
+    confirmacion_entrega = ConfirmacionEntrega.objects.filter(pedido=pedido).first()
+    
+    # Calcular fecha estimada de entrega (3 días después de la creación)
+    from datetime import timedelta
+    fecha_estimada_entrega = None
+    if pedido.fechaCreacion:
+        fecha_estimada_entrega = pedido.fechaCreacion + timedelta(days=3)
+    
     return render(request, 'pedidos_detalle.html', {
         'pedido': pedido,
         'detalles': detalles,
-        'total_unidades': total_unidades
+        'total_unidades': total_unidades,
+        'confirmacion_entrega': confirmacion_entrega,
+        'fecha_estimada_entrega': fecha_estimada_entrega
     })
 
 def producto_detalle_view(request, id):
@@ -983,6 +1227,13 @@ def producto_detalle_view(request, id):
     movimientos_recientes = MovimientoProducto.objects.filter(
         producto=id
     ).order_by('-fecha')[:5]
+    
+    # Obtener el lote activo (el más antiguo con stock, según FIFO)
+    from core.models import LoteProducto
+    lote_activo = LoteProducto.objects.filter(
+        producto=producto,
+        cantidad_disponible__gt=0
+    ).order_by('fecha_entrada').first()
     
     # Calcular estadísticas del producto
     total_entradas = MovimientoProducto.objects.filter(
@@ -998,6 +1249,7 @@ def producto_detalle_view(request, id):
     return render(request, 'productos_detalle.html', {
         'producto': producto,
         'movimientos_recientes': movimientos_recientes,
+        'lote_activo': lote_activo,
         'total_entradas': total_entradas,
         'total_salidas': total_salidas
     })
@@ -1017,6 +1269,12 @@ def cliente_detalle_view(request, id):
     pedidos_pendientes = pedidos.filter(estado_pago='Pago Parcial').count()
     pedidos_sin_pago = pedidos.exclude(estado_pago__in=['Pago Completo', 'Pago Parcial']).count()
     
+    # Pedidos confirmados por el cliente (que tienen confirmación de entrega)
+    from core.models import ConfirmacionEntrega
+    pedidos_confirmados_cliente = ConfirmacionEntrega.objects.filter(
+        pedido__idCliente=id
+    ).count()
+    
     # Pedidos recientes (últimos 5)
     pedidos_recientes = pedidos[:5]
     
@@ -1032,6 +1290,7 @@ def cliente_detalle_view(request, id):
         'pedidos_completados': pedidos_completados,
         'pedidos_pendientes': pedidos_pendientes,
         'pedidos_sin_pago': pedidos_sin_pago,
+        'pedidos_confirmados_cliente': pedidos_confirmados_cliente,
         'promedio_gasto': promedio_gasto
     })
 
@@ -1047,6 +1306,71 @@ def admin_detalle_view(request, id):
         'fecha_registro': fecha_registro,
         'ultimo_acceso': ultimo_acceso
     })
+
+def admin_editar_view(request, id):
+    admin = get_object_or_404(Usuario, idUsuario=id, id_rol=1)  # Solo administradores
+    
+    if request.method == 'POST':
+        # Validar código de seguridad primero
+        codigo_seguridad = request.POST.get('codigo_seguridad', '')
+        CODIGO_SEGURIDAD_CORRECTO = '12345'
+        
+        if codigo_seguridad != CODIGO_SEGURIDAD_CORRECTO:
+            messages.error(request, "Código de seguridad incorrecto. No se pueden realizar cambios.")
+            return render(request, 'admin_detalle.html', {'admin': admin})
+        
+        nombre = request.POST.get('nombre')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        password_confirm = request.POST.get('password_confirm')
+        
+        if not all([nombre, email]):
+            messages.error(request, "El nombre y email son obligatorios.")
+            return render(request, 'admin_detalle.html', {'admin': admin})
+        
+        # Verificar si el email ya existe en otro usuario
+        if Usuario.objects.filter(email=email).exclude(idUsuario=id).exists():
+            messages.error(request, "Ya existe un usuario con este correo electrónico.")
+            return render(request, 'admin_detalle.html', {'admin': admin})
+        
+        # Validar contraseña si se proporciona
+        if password or password_confirm:
+            if not password or not password_confirm:
+                messages.error(request, "Debes ingresar y confirmar la nueva contraseña.")
+                return render(request, 'admin_detalle.html', {'admin': admin})
+            
+            if password != password_confirm:
+                messages.error(request, "Las contraseñas no coinciden.")
+                return render(request, 'admin_detalle.html', {'admin': admin})
+            
+            if len(password) < 6:
+                messages.error(request, "La contraseña debe tener al menos 6 caracteres.")
+                return render(request, 'admin_detalle.html', {'admin': admin})
+        
+        try:
+            admin.nombre = nombre
+            admin.email = email
+            
+            # Actualizar contraseña solo si se proporciona
+            if password:
+                admin.password = make_password(password)
+            
+            admin.save()
+            
+            # Actualizar la sesión si es el usuario actual
+            if request.session.get('usuario_id') == admin.idUsuario:
+                request.session['usuario_nombre'] = nombre
+                request.session['usuario_email'] = email
+                request.session.modified = True
+            
+            messages.success(request, "Administrador actualizado correctamente.")
+            return redirect('admin_detalle', id=id)
+        except Exception as e:
+            print(f"Error al actualizar administrador: {str(e)}")
+            messages.error(request, f"Error al actualizar el administrador: {str(e)}")
+            return render(request, 'admin_detalle.html', {'admin': admin})
+    
+    return redirect('admin_detalle', id=id)
 
 # Panel Repartidores
 def calcular_fecha_entrega(pedido):
@@ -1094,7 +1418,6 @@ def lista_repartidores_view(request):
     verificar_y_actualizar_pedidos_entregados()
     
     # Obtener repartidores con conteo de pedidos
-    from django.db.models import Count
     repartidores = Repartidor.objects.annotate(
         pedidos_count=Count('pedido')
     ).order_by('nombreRepartidor')
@@ -1172,7 +1495,61 @@ def repartidor_editar_view(request, id):
 def repartidor_eliminar_view(request, id):
     if request.method == 'POST':
         repartidor = get_object_or_404(Repartidor, idRepartidor=id)
-        repartidor.delete()
+        nombre_repartidor = repartidor.nombreRepartidor
+        
+        print(f"[DEBUG] Intentando eliminar repartidor: {nombre_repartidor} (ID: {id})")
+        
+        try:
+            with transaction.atomic():
+                # Eliminar confirmaciones de entrega del repartidor
+                from core.models import ConfirmacionEntrega
+                confirmaciones_count = ConfirmacionEntrega.objects.filter(repartidor=repartidor).count()
+                if confirmaciones_count > 0:
+                    print(f"[DEBUG] Eliminando {confirmaciones_count} confirmaciones de entrega...")
+                    ConfirmacionEntrega.objects.filter(repartidor=repartidor).delete()
+                
+                # Verificar si tiene pedidos asignados
+                pedidos_asignados = Pedido.objects.filter(idRepartidor=id)
+                pedidos_count = pedidos_asignados.count()
+                
+                print(f"[DEBUG] Pedidos asignados encontrados: {pedidos_count}")
+                
+                if pedidos_count > 0:
+                    # Desasignar el repartidor de todos los pedidos
+                    print(f"[DEBUG] Desasignando {pedidos_count} pedidos...")
+                    pedidos_asignados.update(idRepartidor=None)
+                    
+                    # Actualizar los movimientos de productos de esos pedidos
+                    # Cambiar de SALIDA_VENTA a EN_PREPARACION_SALIDA
+                    for pedido in pedidos_asignados:
+                        MovimientoProducto.objects.filter(
+                            id_pedido=pedido,
+                            tipo_movimiento='SALIDA_VENTA'
+                        ).update(tipo_movimiento='EN_PREPARACION_SALIDA')
+                    
+                    print(f"[DEBUG] Pedidos desasignados correctamente")
+                    messages.warning(
+                        request, 
+                        f"Repartidor {nombre_repartidor} eliminado. Se desasignaron {pedidos_count} pedido(s)."
+                    )
+                else:
+                    print(f"[DEBUG] Sin pedidos asignados")
+                    messages.success(
+                        request, 
+                        f"Repartidor {nombre_repartidor} eliminado exitosamente."
+                    )
+                
+                # Eliminar el repartidor
+                print(f"[DEBUG] Eliminando repartidor de la base de datos...")
+                repartidor.delete()
+                print(f"[DEBUG] Repartidor eliminado correctamente")
+                
+        except Exception as e:
+            print(f"[DEBUG] Error al eliminar: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            messages.error(request, f"Error al eliminar el repartidor: {str(e)}")
+    
     return redirect('lista_repartidores')
 
 def asignar_pedido_repartidor_view(request):
@@ -1196,6 +1573,20 @@ def asignar_pedido_repartidor_view(request):
         # Cambiar el estado del repartidor a "En Ruta"
         repartidor.estado_turno = 'En Ruta'
         repartidor.save()
+        
+        # Actualizar movimientos de "EN_PREPARACION_SALIDA" a "SALIDA_VENTA"
+        # Buscar todos los movimientos de preparación relacionados con este pedido
+        movimientos_preparacion = MovimientoProducto.objects.filter(
+            id_pedido=pedido,
+            tipo_movimiento='EN_PREPARACION_SALIDA'
+        )
+        
+        # Actualizar cada movimiento a "Venta"
+        for movimiento in movimientos_preparacion:
+            movimiento.tipo_movimiento = 'SALIDA_VENTA'
+            # Actualizar la descripción para reflejar que es una venta
+            movimiento.descripcion = movimiento.descripcion.replace('Preparación', 'Venta')
+            movimiento.save()
         
         # Enviar factura al cliente
         if enviar_factura_cliente(pedido):
@@ -1602,6 +1993,17 @@ def asignar_pedidos_multiples_view(request):
                 pedido.save()
                 pedidos_asignados += 1
                 
+                # Actualizar movimientos de "EN_PREPARACION_SALIDA" a "SALIDA_VENTA"
+                movimientos_preparacion = MovimientoProducto.objects.filter(
+                    id_pedido=pedido,
+                    tipo_movimiento='EN_PREPARACION_SALIDA'
+                )
+                
+                for movimiento in movimientos_preparacion:
+                    movimiento.tipo_movimiento = 'SALIDA_VENTA'
+                    movimiento.descripcion = movimiento.descripcion.replace('Preparación', 'Venta')
+                    movimiento.save()
+                
                 # Enviar factura al cliente
                 if enviar_factura_cliente(pedido):
                     facturas_enviadas += 1
@@ -1927,7 +2329,7 @@ def enviar_reporte_dashboard_view(request):
     con graficos de barras CSS y datos precisos
     """
     from django.core.mail import EmailMultiAlternatives
-    from django.db.models import Q, F, Max, Avg, Count, Min
+    from django.db.models import Q, Max, Avg, Min
     from core.models import ConfirmacionEntrega
     from django.conf import settings
     
@@ -2432,3 +2834,88 @@ def enviar_reporte_dashboard_view(request):
         messages.error(request, f'Error al generar el reporte: {str(e)}')
     
     return redirect('dashboard_admin')
+
+
+def actualizar_iva_movimientos_view(request):
+    """
+    Vista para actualizar los valores de IVA en todos los movimientos existentes
+    """
+    if request.method == 'POST':
+        from decimal import Decimal
+        
+        # Obtener todos los movimientos que no tienen IVA calculado
+        movimientos_sin_iva = MovimientoProducto.objects.filter(
+            iva__isnull=True
+        ) | MovimientoProducto.objects.filter(
+            total_con_iva__isnull=True
+        )
+        
+        total_movimientos = movimientos_sin_iva.count()
+        actualizados = 0
+        errores = 0
+        
+        for movimiento in movimientos_sin_iva:
+            try:
+                # Solo actualizar movimientos de salida/venta
+                if 'SALIDA' in movimiento.tipo_movimiento or 'VENTA' in movimiento.tipo_movimiento or 'PREPARACION' in movimiento.tipo_movimiento:
+                    producto = movimiento.producto
+                    
+                    # Obtener el costo unitario
+                    if movimiento.costo_unitario and movimiento.costo_unitario > 0:
+                        costo_unitario = float(movimiento.costo_unitario)
+                    elif movimiento.lote_origen and movimiento.lote_origen.costo_unitario:
+                        costo_unitario = float(movimiento.lote_origen.costo_unitario)
+                    elif producto.precio:
+                        costo_unitario = float(producto.precio)
+                    else:
+                        costo_unitario = 0
+                    
+                    # Obtener el precio de venta
+                    if movimiento.precio_unitario and movimiento.precio_unitario > 0:
+                        precio_venta = float(movimiento.precio_unitario)
+                    elif producto.precio_venta:
+                        precio_venta = float(producto.precio_venta)
+                    else:
+                        # Calcular precio de venta: costo × 1.19 × 1.06
+                        precio_venta = costo_unitario * 1.19 * 1.06
+                    
+                    # Calcular IVA (19% sobre el costo)
+                    iva_por_unidad = costo_unitario * 0.19
+                    iva_total = iva_por_unidad * movimiento.cantidad
+                    
+                    # Calcular total con IVA (precio de venta × cantidad)
+                    total_con_iva = precio_venta * movimiento.cantidad
+                    
+                    # Actualizar el movimiento
+                    movimiento.precio_unitario = int(precio_venta)
+                    movimiento.costo_unitario = int(costo_unitario)
+                    movimiento.iva = int(iva_total)
+                    movimiento.total_con_iva = int(total_con_iva)
+                    movimiento.save()
+                    
+                    actualizados += 1
+                
+            except Exception as e:
+                errores += 1
+        
+        if actualizados > 0:
+            messages.success(request, f'✓ Se actualizaron {actualizados} movimientos correctamente.')
+        if errores > 0:
+            messages.warning(request, f'Se encontraron {errores} errores durante la actualización.')
+        if actualizados == 0 and errores == 0:
+            messages.info(request, 'No se encontraron movimientos para actualizar.')
+        
+        return redirect('dashboard_admin')
+    
+    # Si es GET, mostrar página de confirmación
+    movimientos_sin_iva = MovimientoProducto.objects.filter(
+        iva__isnull=True
+    ) | MovimientoProducto.objects.filter(
+        total_con_iva__isnull=True
+    )
+    
+    total_movimientos = movimientos_sin_iva.count()
+    
+    return render(request, 'confirmar_actualizar_iva.html', {
+        'total_movimientos': total_movimientos
+    })

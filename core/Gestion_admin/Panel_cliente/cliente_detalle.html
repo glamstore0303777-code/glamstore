@@ -1,11 +1,12 @@
 {% load static %}
+{% load custom_filters %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <title>Detalle del Cliente — {{ cliente.nombre }} — Glam Store</title>
   <link rel="icon" href="{% static 'img/logoglam.png' %}">
-  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
@@ -15,23 +16,23 @@
 
     body {
       margin: 0;
-      font-family: 'Comic Neue', cursive, Arial, sans-serif;
-      background-color: #fffafc;
+      font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
       display: flex;
       min-height: 100vh;
     }
 
     /* Sidebar */
     .sidebar {
-      background-color: #fce4ec;
+      background: linear-gradient(180deg, #1a1f3a 0%, #0f1419 100%);
       padding: 2rem;
       width: 240px;
       height: 100vh;
       position: fixed;
       display: flex;
       flex-direction: column;
-      border-right: 2px solid #f8bbd0;
-      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      border-right: 1px solid #2a3f5f;
+      box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
       z-index: 1000;
       overflow-y: auto;
     }
@@ -41,37 +42,51 @@
       margin-bottom: 2rem;
     }
 
+    .sidebar-logo {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      box-shadow: 0 6px 20px rgba(168, 85, 247, 0.3);
+      margin-bottom: 1rem;
+      border: 3px solid #a855f7;
+    }
+
     .sidebar-header h2 {
-      color: #ad1457;
+      color: #ffffff;
       font-size: 1.8rem;
       margin-bottom: 0.5rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     }
 
     .sidebar-header p {
-      color: #d81b60;
+      color: #a0aec0;
       font-size: 0.9rem;
+      font-weight: 400;
+      font-style: italic;
     }
 
     .sidebar-user {
-      background-color: #fff;
+      background-color: rgba(255, 255, 255, 0.08);
       padding: 1rem;
       border-radius: 10px;
       margin-bottom: 1.5rem;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
       text-align: center;
-      border: 2px solid #f8bbd0;
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .sidebar-user p {
       margin: 0.3rem 0;
-      color: #c2185b;
-      font-weight: bold;
+      color: #ffffff;
+      font-weight: 600;
       font-size: 1rem;
     }
 
     .sidebar-user .rol {
       font-size: 0.85rem;
-      color: #d81b60;
+      color: #a0aec0;
       font-weight: normal;
     }
 
@@ -82,42 +97,65 @@
     .sidebar a {
       display: block;
       margin: 0.5rem 0;
-      color: #880e4f;
+      color: #cbd5e0;
       text-decoration: none;
       font-weight: bold;
       padding: 0.8rem 1rem;
-      border-radius: 25px;
+      border-radius: 8px;
       transition: all 0.3s ease;
+      position: relative;
+      border-left: 3px solid transparent;
+      overflow: hidden;
+    }
+
+    .sidebar a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(168, 85, 247, 0.2) 0%, transparent 100%);
+      transition: width 0.3s ease;
+      z-index: -1;
     }
 
     .sidebar a:hover,
     .sidebar a.active {
-      background-color: #f8bbd0;
       color: #fff;
+      border-left-color: #a855f7;
+      background-color: rgba(168, 85, 247, 0.15);
+      transform: translateX(3px);
     }
 
-        .notification-badge {
+    .sidebar a:hover::before,
+    .sidebar a.active::before {
+      width: 100%;
+    }
+
+    .notification-badge {
       position: relative;
-      display: inline-block;
-      background: #f44336;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #ef4444;
       color: white;
       border-radius: 50%;
-      min-width: 20px;
-      height: 20px;
-      padding: 2px 6px;
+      min-width: 22px;
+      height: 22px;
+      padding: 0;
       font-size: 0.7rem;
       font-weight: bold;
       text-align: center;
-      line-height: 16px;
+      flex-shrink: 0;
       margin-left: 8px;
       vertical-align: middle;
     }
 
-
     .sidebar-footer {
       margin-top: auto;
       padding-top: 1rem;
-      border-top: 2px solid #f8bbd0;
+      border-top: 2px solid #a855f7;
     }
 
     /* Main Content */
@@ -134,10 +172,11 @@
 
     .page-header h1 {
       font-size: 2.2rem;
-      color: #c2185b;
-      border-bottom: 3px solid #f48fb1;
+      color: #6b21a8;
+      border-bottom: 3px solid #a855f7;
       padding-bottom: 0.5rem;
       margin-bottom: 1rem;
+      font-weight: 700;
     }
 
     .breadcrumb {
@@ -146,8 +185,9 @@
     }
 
     .breadcrumb a {
-      color: #c2185b;
+      color: #6b21a8;
       text-decoration: none;
+      font-weight: 500;
     }
 
     .breadcrumb a:hover {
@@ -166,29 +206,32 @@
 
     /* Cards */
     .card {
-      background: #fff;
-      border-radius: 15px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+      background: linear-gradient(135deg, #ffffff 0%, #faf5ff 100%);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(168, 85, 247, 0.12);
       margin-bottom: 2rem;
       overflow: hidden;
       transition: all 0.3s ease;
+      border: 1px solid rgba(168, 85, 247, 0.1);
     }
 
     .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 6px 20px rgba(244, 143, 177, 0.2);
+      transform: translateY(-8px);
+      box-shadow: 0 12px 40px rgba(168, 85, 247, 0.2);
+      border-color: rgba(168, 85, 247, 0.2);
     }
 
     .card-header {
       padding: 1.5rem;
-      background: #fce4ec;
-      border-bottom: 2px solid #f8bbd0;
+      background: #faf5ff;
+      border-bottom: 2px solid #d8b4fe;
     }
 
     .card-header h2 {
-      color: #c2185b;
+      color: #6b21a8;
       font-size: 1.4rem;
       margin: 0;
+      font-weight: 600;
     }
 
     .card-body {
@@ -210,15 +253,15 @@
     }
 
     .info-group {
-      background: #fffafc;
+      background: #faf5ff;
       padding: 1.5rem;
       border-radius: 10px;
-      border-left: 4px solid #f48fb1;
+      border-left: 4px solid #a855f7;
     }
 
     .info-label {
       font-weight: bold;
-      color: #c2185b;
+      color: #6b21a8;
       font-size: 0.9rem;
       text-transform: uppercase;
       letter-spacing: 1px;
@@ -229,49 +272,50 @@
       font-size: 1.1rem;
       color: #333;
       line-height: 1.4;
+      word-break: break-word;
     }
 
     .info-value.large {
       font-size: 1.8rem;
       font-weight: bold;
-      color: #c2185b;
+      color: #6b21a8;
     }
 
     /* Statistics Grid */
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
       margin-bottom: 2rem;
     }
 
     .stat-card {
       background: #fff;
-      padding: 1.5rem;
-      border-radius: 15px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
       text-align: center;
       transition: all 0.3s ease;
-      border-top: 4px solid #f48fb1;
+      border-top: 3px solid #a855f7;
     }
 
     .stat-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 6px 20px rgba(244, 143, 177, 0.2);
+      transform: translateY(-3px);
+      box-shadow: 0 4px 15px rgba(168, 85, 247, 0.15);
     }
 
     .stat-number {
-      font-size: 2rem;
+      font-size: 1.5rem;
       font-weight: bold;
-      color: #c2185b;
-      margin: 0.5rem 0;
+      color: #6b21a8;
+      margin: 0.3rem 0;
     }
 
     .stat-label {
       color: #666;
-      font-size: 0.9rem;
+      font-size: 0.8rem;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 0.5px;
       font-weight: 600;
     }
 
@@ -292,12 +336,12 @@
     th, td {
       padding: 1rem;
       text-align: left;
-      border-bottom: 1px solid #fce4ec;
+      border-bottom: 1px solid #e9d5ff;
     }
 
     th {
-      background: #fce4ec;
-      color: #c2185b;
+      background: #faf5ff;
+      color: #6b21a8;
       font-weight: bold;
       text-transform: uppercase;
       font-size: 0.85rem;
@@ -305,7 +349,7 @@
     }
 
     tbody tr:hover {
-      background-color: #fffafc;
+      background: #faf5ff;
     }
 
     /* Buttons */
@@ -317,31 +361,31 @@
       transition: all 0.3s ease;
       border: none;
       cursor: pointer;
-      font-family: 'Comic Neue', cursive, Arial, sans-serif;
+      font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
       font-size: 1rem;
       display: inline-block;
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, #f48fb1 0%, #ec407a 100%);
+      background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
       color: white;
-      box-shadow: 0 4px 12px rgba(244, 143, 177, 0.3);
+      box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
     }
 
     .btn-primary:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(244, 143, 177, 0.4);
-      background: linear-gradient(135deg, #ec407a 0%, #d81b60 100%);
+      box-shadow: 0 6px 16px rgba(168, 85, 247, 0.4);
+      background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);
     }
 
     .btn-secondary {
       background: white;
-      color: #c2185b;
-      border: 2px solid #f48fb1;
+      color: #6b21a8;
+      border: 2px solid #a855f7;
     }
 
     .btn-secondary:hover {
-      background: #fce4ec;
+      background: #faf5ff;
     }
 
     .btn-small {
@@ -385,15 +429,15 @@
       align-items: center;
       padding: 1rem;
       margin-bottom: 0.8rem;
-      background: #fffafc;
+      background: #faf5ff;
       border-radius: 10px;
-      border-left: 4px solid #f48fb1;
+      border-left: 4px solid #a855f7;
       transition: all 0.3s ease;
     }
 
     .order-item:hover {
       transform: translateX(5px);
-      box-shadow: 0 4px 15px rgba(244, 143, 177, 0.2);
+      box-shadow: 0 4px 15px rgba(168, 85, 247, 0.2);
     }
 
     .order-info {
@@ -402,7 +446,7 @@
 
     .order-id {
       font-weight: bold;
-      color: #c2185b;
+      color: #6b21a8;
       margin-bottom: 0.3rem;
       font-size: 1rem;
     }
@@ -435,6 +479,53 @@
       margin-bottom: 1rem;
     }
 
+    /* Orders Grid */
+    .orders-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    /* Collapsible Card */
+    .card {
+      transition: all 0.3s ease;
+    }
+
+    .card-header {
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-header h2 {
+      flex: 1;
+    }
+
+    .collapse-icon {
+      font-size: 1.5rem;
+      transition: transform 0.3s ease;
+      color: #6b21a8;
+    }
+
+    .collapse-icon.collapsed {
+      transform: rotate(-90deg);
+    }
+
+    .card-body {
+      transition: all 0.3s ease;
+    }
+
+    .card-body.collapsed {
+      display: none;
+      height: 0;
+      padding: 0;
+      margin: 0;
+      overflow: hidden;
+    }
+
     /* Responsive Design */
     @media (max-width: 768px) {
       .sidebar {
@@ -456,6 +547,10 @@
       .stats-grid {
         grid-template-columns: repeat(2, 1fr);
       }
+
+      .orders-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 480px) {
@@ -468,24 +563,20 @@
 <body>
   <div class="sidebar">
     <div class="sidebar-header">
+      <img src="{% static 'img/logoglam.png' %}" alt="Logo Glam Store" class="sidebar-logo">
       <h2>Admin Glam</h2>
       <p>Panel de Control</p>
     </div>
 
     <div class="sidebar-user">
       <p>{{ request.session.usuario_nombre }}</p>
-      <p class="rol">Administrador</p>
+      <p class="rol">{{ request.session.usuario_rol }}</p>
     </div>
 
         <div class="sidebar-nav">
       <a href="{% url 'dashboard_admin' %}">Dashboard</a>
       <a href="{% url 'lista_admin' %}">Mi Perfil</a>
-      <a href="{% url 'notificaciones' %}">
-        Notificaciones
-        {% if total_notificaciones_no_leidas > 0 %}
-        <span class="notification-badge">{{ total_notificaciones_no_leidas }}</span>
-        {% endif %}
-      </a>
+      <a href="{% url 'notificaciones' %}">Notificaciones{% if total_notificaciones_no_leidas > 0 %}<span class="notification-badge">{{ total_notificaciones_no_leidas }}</span>{% endif %}</a>
       <a href="{% url 'lista_clientes' %}" class="active">Clientes</a>
      <a href="{% url 'lista_distribuidores' %}">Proveedores</a>
       <a href="{% url 'lista_pedidos' %}">Pedidos</a>
@@ -538,8 +629,8 @@
         </div>
 
         <div class="info-group">
-          <div class="info-label">Fecha de Registro</div>
-          <div class="info-value">{{ cliente.fechaRegistro|date:"d/m/Y H:i" }}</div>
+          <div class="info-label">Cédula</div>
+          <div class="info-value">{{ cliente.cedula|default:"No registrada" }}</div>
         </div>
       </div>
 
@@ -555,11 +646,11 @@
               <div class="stat-label">Total Pedidos</div>
             </div>
             <div class="stat-card">
-              <div class="stat-number">${{ total_gastado|floatformat:2 }}</div>
+              <div class="stat-number">${{ total_gastado|colombian_currency }}</div>
               <div class="stat-label">Total Gastado</div>
             </div>
             <div class="stat-card">
-              <div class="stat-number">${{ promedio_gasto|floatformat:2 }}</div>
+              <div class="stat-number">${{ promedio_gasto|colombian_currency }}</div>
               <div class="stat-label">Promedio por Pedido</div>
             </div>
             <div class="stat-card">
@@ -567,127 +658,141 @@
               <div class="stat-label">Pedidos Completados</div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Resumen de Estados de Pedidos -->
-    <div class="card">
-      <div class="card-header">
-        <h2>Estados de Pedidos</h2>
-      </div>
-      <div class="card-body">
-        <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr);">
-          <div class="stat-card">
-            <div class="stat-number" style="color: #2e7d32;">{{ pedidos_completados }}</div>
-            <div class="stat-label">Pago Completo</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-number" style="color: #e65100;">{{ pedidos_pendientes }}</div>
-            <div class="stat-label">Pago Parcial</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-number" style="color: #c62828;">{{ pedidos_sin_pago }}</div>
-            <div class="stat-label">Sin Pago</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Pedidos Recientes -->
-    <div class="card">
-      <div class="card-header">
-        <h2>Pedidos Recientes</h2>
-      </div>
-      <div class="card-body">
-        {% if pedidos_recientes %}
-          {% for pedido in pedidos_recientes %}
-            <div class="order-item">
-              <div class="order-info">
-                <div class="order-id">Pedido #{{ pedido.idPedido }}</div>
-                <div class="order-date">{{ pedido.fechaCreacion|date:"d/m/Y H:i" }}</div>
-                <div class="order-total">Total: ${{ pedido.total }}</div>
+          <!-- Resumen de Estados de Pedidos -->
+          <div style="margin-top: 2rem; padding-top: 2rem; border-top: 2px solid #e9d5ff;">
+            <h3 style="color: #6b21a8; font-size: 1.1rem; margin-bottom: 1rem; font-weight: 600;">Estados de Pedidos</h3>
+            <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr);">
+              <div class="stat-card">
+                <div class="stat-number" style="color: #2e7d32;">{{ pedidos_completados }}</div>
+                <div class="stat-label">Pago Completo</div>
               </div>
-              <div class="order-actions">
-                {% if pedido.estado == 'Pago Completo' %}
-                  <span class="badge badge-success">{{ pedido.estado }}</span>
-                {% elif pedido.estado == 'Pago Parcial' %}
-                  <span class="badge badge-warning">{{ pedido.estado }}</span>
-                {% else %}
-                  <span class="badge badge-danger">{{ pedido.estado }}</span>
-                {% endif %}
-                <a href="{% url 'detalle_pedido' pedido.idPedido %}" class="btn btn-secondary btn-small">Ver Detalle</a>
+              <div class="stat-card">
+                <div class="stat-number" style="color: #e65100;">{{ pedidos_pendientes }}</div>
+                <div class="stat-label">Pago Parcial</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" style="color: #1565c0;">{{ pedidos_confirmados_cliente }}</div>
+                <div class="stat-label">Recibidos y Confirmados</div>
               </div>
             </div>
-          {% endfor %}
-          
-          {% if total_pedidos > 5 %}
-            <div style="text-align: center; margin-top: 1.5rem;">
-              <p style="color: #666; margin-bottom: 1rem;">
-                Mostrando los 5 pedidos más recientes de {{ total_pedidos }} totales
-              </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pedidos Recientes y Historial Completo -->
+    <div class="orders-grid">
+      <!-- Pedidos Recientes (Primeros 3) -->
+      <div class="card">
+        <div class="card-header" onclick="toggleCollapse(this)">
+          <h2>Pedidos Recientes</h2>
+          <span class="collapse-icon collapsed">▼</span>
+        </div>
+        <div class="card-body collapsed">
+          {% if pedidos_recientes %}
+            {% for pedido in pedidos_recientes|slice:":3" %}
+              <div class="order-item">
+                <div class="order-info">
+                  <div class="order-id">Pedido #{{ pedido.idPedido }}</div>
+                  <div class="order-date">{{ pedido.fechaCreacion|date:"d/m/Y H:i" }}</div>
+                  <div class="order-total">Total: ${{ pedido.total|colombian_currency }}</div>
+                </div>
+                <div class="order-actions">
+                  {% if pedido.estado_pago == 'Pago Completo' %}
+                    <span class="badge badge-success">{{ pedido.estado_pago }}</span>
+                  {% elif pedido.estado_pago == 'Pago Parcial' %}
+                    <span class="badge badge-warning">{{ pedido.estado_pago }}</span>
+                  {% else %}
+                    <span class="badge badge-danger">{{ pedido.estado_pago }}</span>
+                  {% endif %}
+                  <a href="{% url 'detalle_pedido' pedido.idPedido %}" class="btn btn-secondary btn-small">Ver Detalle</a>
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="empty-state">
+              <p>Este cliente no ha realizado pedidos aún</p>
             </div>
           {% endif %}
-        {% else %}
-          <div class="empty-state">
-            <p>Este cliente no ha realizado pedidos aún</p>
-          </div>
-        {% endif %}
-      </div>
-    </div>
-
-    <!-- Todos los Pedidos -->
-    {% if total_pedidos > 5 %}
-    <div class="card">
-      <div class="card-header">
-        <h2>Historial Completo de Pedidos</h2>
-      </div>
-      <div class="card-body">
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>ID Pedido</th>
-                <th>Fecha</th>
-                <th>Total</th>
-                <th>Estado</th>
-                <th>Repartidor</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for pedido in pedidos %}
-              <tr>
-                <td><strong>#{{ pedido.idPedido }}</strong></td>
-                <td>{{ pedido.fechaCreacion|date:"d/m/Y H:i" }}</td>
-                <td><strong>${{ pedido.total }}</strong></td>
-                <td>
-                  {% if pedido.estado == 'Pago Completo' %}
-                    <span class="badge badge-success">{{ pedido.estado }}</span>
-                  {% elif pedido.estado == 'Pago Parcial' %}
-                    <span class="badge badge-warning">{{ pedido.estado }}</span>
-                  {% else %}
-                    <span class="badge badge-danger">{{ pedido.estado }}</span>
-                  {% endif %}
-                </td>
-                <td>
-                  {% if pedido.idRepartidor %}
-                    {{ pedido.idRepartidor.nombreRepartidor }}
-                  {% else %}
-                    <span class="badge badge-info">Sin asignar</span>
-                  {% endif %}
-                </td>
-                <td>
-                  <a href="{% url 'detalle_pedido' pedido.idPedido %}" class="btn btn-secondary btn-small">Ver Detalle</a>
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
         </div>
       </div>
+
+      <!-- Historial Completo de Pedidos -->
+      {% if total_pedidos > 0 %}
+      <div class="card">
+        <div class="card-header" onclick="toggleCollapse(this)">
+          <h2>Historial Completo de Pedidos</h2>
+          <span class="collapse-icon collapsed">▼</span>
+        </div>
+        <div class="card-body collapsed">
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID Pedido</th>
+                  <th>Fecha</th>
+                  <th>Total</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for pedido in pedidos %}
+                <tr>
+                  <td><strong>#{{ pedido.idPedido }}</strong></td>
+                  <td>{{ pedido.fechaCreacion|date:"d/m/Y H:i" }}</td>
+                  <td><strong>${{ pedido.total|colombian_currency }}</strong></td>
+                  <td>
+                    {% if pedido.estado_pago == 'Pago Completo' %}
+                      <span class="badge badge-success">{{ pedido.estado_pago }}</span>
+                    {% elif pedido.estado_pago == 'Pago Parcial' %}
+                      <span class="badge badge-warning">{{ pedido.estado_pago }}</span>
+                    {% else %}
+                      <span class="badge badge-danger">{{ pedido.estado_pago }}</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <a href="{% url 'detalle_pedido' pedido.idPedido %}" class="btn btn-secondary btn-small">Ver Detalle</a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      {% endif %}
     </div>
-    {% endif %}
   </div>
+
+  <script>
+    function toggleCollapse(headerElement) {
+      const cardBody = headerElement.nextElementSibling;
+      const icon = headerElement.querySelector('.collapse-icon');
+      const ordersGrid = headerElement.closest('.orders-grid');
+      
+      if (cardBody && ordersGrid) {
+        // Cerrar todas las otras tarjetas en el mismo grid
+        const otherHeaders = ordersGrid.querySelectorAll('.card-header');
+        otherHeaders.forEach(header => {
+          if (header !== headerElement) {
+            const otherBody = header.nextElementSibling;
+            const otherIcon = header.querySelector('.collapse-icon');
+            if (otherBody) {
+              otherBody.classList.add('collapsed');
+              otherIcon.classList.add('collapsed');
+            }
+          }
+        });
+        
+        // Toggle la tarjeta actual
+        cardBody.classList.toggle('collapsed');
+        icon.classList.toggle('collapsed');
+      }
+    }
+  </script>
 </body>
 </html>
+
+

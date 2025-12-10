@@ -8,7 +8,8 @@ class Pedido(models.Model):
     ]
     
     ESTADO_PEDIDO_CHOICES = [
-        ('Confirmado', 'Confirmado'),
+        ('Pedido Recibido', 'Pedido Recibido'),
+        ('Pago Confirmado', 'Pago Confirmado'),
         ('En Preparación', 'En Preparación'),
         ('En Camino', 'En Camino'),
         ('Entregado', 'Entregado'),
@@ -18,9 +19,9 @@ class Pedido(models.Model):
     
     idPedido = models.AutoField(primary_key=True)
     fechaCreacion = models.DateTimeField(db_column='fechaCreacion', null=True, blank=True)
-    estado = models.CharField(max_length=20, default='Confirmado')  # Mantener para compatibilidad
+    estado = models.CharField(max_length=20, default='Pedido Recibido')  # Mantener para compatibilidad
     estado_pago = models.CharField(max_length=20, choices=ESTADO_PAGO_CHOICES, default='Pago Completo')
-    estado_pedido = models.CharField(max_length=20, choices=ESTADO_PEDIDO_CHOICES, default='Confirmado')
+    estado_pedido = models.CharField(max_length=20, choices=ESTADO_PEDIDO_CHOICES, default='Pedido Recibido')
     total = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     idCliente = models.ForeignKey('core.Cliente', on_delete=models.CASCADE, db_column='idCliente', null=True, blank=True)
     idRepartidor = models.ForeignKey(

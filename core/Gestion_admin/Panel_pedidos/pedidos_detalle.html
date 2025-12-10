@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <title>Detalle del Pedido #{{ pedido.idPedido }} — Glam Store</title>
     <link rel="icon" href="{% static 'img/logoglam.png' %}">
-    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* ========================================
            BASE STYLES
@@ -19,8 +19,8 @@
 
         body {
             margin: 0;
-            font-family: 'Comic Neue', cursive, Arial, sans-serif;
-            background-color: #fffafc;
+            font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
             display: flex;
             min-height: 100vh;
         }
@@ -29,15 +29,15 @@
            SIDEBAR
            ======================================== */
         .sidebar {
-            background-color: #fce4ec;
+            background: linear-gradient(180deg, #1a1f3a 0%, #0f1419 100%);
             padding: 2rem;
             width: 240px;
             height: 100vh;
             position: fixed;
             display: flex;
             flex-direction: column;
-            border-right: 2px solid #f8bbd0;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            border-right: 1px solid #2a3f5f;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
             z-index: 1000;
             overflow-y: auto;
         }
@@ -47,37 +47,51 @@
             margin-bottom: 2rem;
         }
 
+        .sidebar-logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            box-shadow: 0 6px 20px rgba(168, 85, 247, 0.3);
+            margin-bottom: 1rem;
+            border: 3px solid #a855f7;
+        }
+
         .sidebar-header h2 {
-            color: #ad1457;
+            color: #ffffff;
             font-size: 1.8rem;
             margin-bottom: 0.5rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .sidebar-header p {
-            color: #d81b60;
+            color: #a0aec0;
             font-size: 0.9rem;
+            font-weight: 400;
+            font-style: italic;
         }
 
         .sidebar-user {
-            background-color: #fff;
+            background-color: rgba(255, 255, 255, 0.08);
             padding: 1rem;
             border-radius: 10px;
             margin-bottom: 1.5rem;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
             text-align: center;
-            border: 2px solid #f8bbd0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .sidebar-user p {
             margin: 0.3rem 0;
-            color: #c2185b;
-            font-weight: bold;
+            color: #ffffff;
+            font-weight: 600;
             font-size: 1rem;
         }
 
         .sidebar-user .rol {
             font-size: 0.85rem;
-            color: #d81b60;
+            color: #a0aec0;
             font-weight: normal;
         }
 
@@ -88,43 +102,66 @@
         .sidebar a {
             display: block;
             margin: 0.5rem 0;
-            color: #880e4f;
+            color: #cbd5e0;
             text-decoration: none;
-            font-weight: bold;
-            padding: 0.8rem 1rem;
-            border-radius: 25px;
+            font-weight: 500;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
             transition: all 0.3s ease;
-      position: relative;
+            position: relative;
+            overflow: hidden;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar a::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 0;
+            background: rgba(168, 85, 247, 0.1);
+            transition: width 0.3s ease;
+            z-index: -1;
         }
 
         .sidebar a:hover,
         .sidebar a.active {
-            background-color: #f8bbd0;
-            color: #fff;
+            color: #ffffff;
+            transform: translateX(3px);
+            border-left-color: #a855f7;
+            background: rgba(168, 85, 247, 0.15);
+        }
+
+        .sidebar a:hover::before,
+        .sidebar a.active::before {
+            width: 100%;
         }
 
             .notification-badge {
       position: relative;
-      display: inline-block;
-      background: #f44336;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #ef4444;
       color: white;
       border-radius: 50%;
-      min-width: 20px;
-      height: 20px;
-      padding: 2px 6px;
+      min-width: 22px;
+      height: 22px;
+      padding: 0;
       font-size: 0.7rem;
       font-weight: bold;
       text-align: center;
-      line-height: 16px;
+      flex-shrink: 0;
       margin-left: 8px;
       vertical-align: middle;
     }
 
 
-    .sidebar-footer {
+        .sidebar-footer {
             margin-top: auto;
             padding-top: 1rem;
-            border-top: 2px solid #f8bbd0;
+            border-top: 2px solid rgba(216, 180, 254, 0.5);
         }
 
         /* ========================================
@@ -132,34 +169,44 @@
            ======================================== */
         .main-content {
             margin-left: 240px;
-            padding: 2rem 5rem;
+            padding: 2.5rem 5rem;
             width: calc(100% - 240px - 10rem);
             flex: 1;
         }
 
-        .page-header {
+        .action-bar {
             margin-bottom: 2rem;
         }
 
+        .page-header {
+            margin-bottom: 2.5rem;
+        }
+
         .page-header h1 {
-            font-size: 2.2rem;
-            color: #c2185b;
-            border-bottom: 3px solid #f48fb1;
-            padding-bottom: 0.5rem;
+            font-size: 2.3rem;
+            color: #1a1a1a;
+            border-bottom: 3px solid #a855f7;
+            padding-bottom: 0.8rem;
             margin-bottom: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
         }
 
         .breadcrumb {
             color: #999;
-            font-size: 1rem;
+            font-size: 0.95rem;
+            letter-spacing: 0.2px;
         }
 
         .breadcrumb a {
-            color: #c2185b;
+            color: #7c3aed;
             text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
         }
 
         .breadcrumb a:hover {
+            color: #a855f7;
             text-decoration: underline;
         }
 
@@ -169,31 +216,35 @@
         .card {
             background: #fff;
             border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
             margin-bottom: 2rem;
             overflow: hidden;
             transition: all 0.3s ease;
+            border: 1px solid #f3e8ff;
         }
 
         .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 20px rgba(244, 143, 177, 0.2);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(168, 85, 247, 0.15);
         }
 
         .card-header {
-            padding: 1.5rem;
-            background: #fce4ec;
-            border-bottom: 2px solid #f8bbd0;
+            padding: 1.8rem;
+            background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+            border-bottom: 2px solid #7c3aed;
         }
 
         .card-header h2 {
-            color: #c2185b;
-            font-size: 1.4rem;
+            color: #ffffff;
+            font-size: 1.3rem;
             margin: 0;
+            font-weight: 600;
+            letter-spacing: 0.3px;
         }
 
         .card-body {
-            padding: 1.5rem;
+            padding: 2rem;
+            color: #1a1a1a;
         }
 
         /* ========================================
@@ -207,66 +258,85 @@
             width: 100%;
             border-collapse: collapse;
             background: white;
-            border-radius: 10px;
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
         }
 
         th, td {
-            padding: 1rem;
+            padding: 1.2rem;
             text-align: left;
-            border-bottom: 1px solid #fce4ec;
+            border-bottom: 1px solid #e9d5ff;
+            color: #1a1a1a;
         }
 
         th {
-            background: #fce4ec;
-            color: #c2185b;
-            font-weight: bold;
+            background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+            color: #ffffff;
+            font-weight: 600;
             text-transform: uppercase;
-            font-size: 0.85rem;
-            letter-spacing: 1px;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+        }
+
+        tbody tr {
+            transition: all 0.3s ease;
         }
 
         tbody tr:hover {
-            background-color: #fffafc;
+            background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+            transform: scale(1.01);
         }
 
         /* ========================================
            BUTTONS
            ======================================== */
         .btn {
-            padding: 0.8rem 1.5rem;
+            padding: 0.9rem 1.8rem;
             border-radius: 25px;
             text-decoration: none;
-            font-weight: bold;
+            font-weight: 600;
             transition: all 0.3s ease;
             border: none;
             cursor: pointer;
-            font-family: 'Comic Neue', cursive, Arial, sans-serif;
-            font-size: 1rem;
+            font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+            font-size: 0.95rem;
             display: inline-block;
+            letter-spacing: 0.3px;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #f48fb1 0%, #ec407a 100%);
+            background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
             color: white;
-            box-shadow: 0 4px 12px rgba(244, 143, 177, 0.3);
+            box-shadow: 0 4px 16px rgba(168, 85, 247, 0.3);
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(244, 143, 177, 0.4);
-            background: linear-gradient(135deg, #ec407a 0%, #d81b60 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(168, 85, 247, 0.4);
+            background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);
+        }
+
+        .btn-primary:active {
+            transform: translateY(-1px);
         }
 
         .btn-secondary {
             background: white;
-            color: #c2185b;
-            border: 2px solid #f48fb1;
+            color: #7c3aed;
+            border: 2px solid #a855f7;
+            box-shadow: 0 2px 8px rgba(168, 85, 247, 0.1);
         }
 
         .btn-secondary:hover {
-            background: #fce4ec;
+            background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(168, 85, 247, 0.2);
+            border-color: #9333ea;
+        }
+
+        .btn-secondary:active {
+            transform: translateY(-1px);
         }
 
         /* ========================================
@@ -280,32 +350,34 @@
         }
 
         .stat-card {
-            background: #fff;
-            padding: 1.5rem;
+            background: linear-gradient(135deg, #fff 0%, #faf5ff 100%);
+            padding: 1.8rem;
             border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+            box-shadow: 0 4px 16px rgba(168, 85, 247, 0.1);
             text-align: center;
             transition: all 0.3s ease;
-            border-top: 4px solid #f48fb1;
+            border-top: 4px solid #a855f7;
+            border: 1px solid #f3e8ff;
         }
 
         .stat-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 6px 20px rgba(244, 143, 177, 0.2);
+            box-shadow: 0 8px 24px rgba(168, 85, 247, 0.2);
         }
 
         .stat-number {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #c2185b;
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #7c3aed;
             margin: 0.5rem 0;
+            letter-spacing: 0.3px;
         }
 
         .stat-label {
             color: #666;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             font-weight: 600;
         }
 
@@ -314,25 +386,29 @@
            ======================================== */
         .badge {
             display: inline-block;
-            padding: 0.3rem 0.8rem;
-            border-radius: 15px;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
             font-size: 0.75rem;
-            font-weight: bold;
+            font-weight: 600;
+            letter-spacing: 0.3px;
         }
 
         .badge-success {
-            background: #e8f5e9;
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
             color: #2e7d32;
+            box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
         }
 
         .badge-danger {
-            background: #ffebee;
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
             color: #c62828;
+            box-shadow: 0 2px 8px rgba(244, 67, 54, 0.2);
         }
 
         .badge-warning {
-            background: #fff3e0;
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
             color: #e65100;
+            box-shadow: 0 2px 8px rgba(255, 152, 0, 0.2);
         }
 
         /* ========================================
@@ -347,71 +423,77 @@
         .order-info-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1rem;
+            gap: 1.2rem;
             margin-bottom: 2rem;
         }
 
         /* === ORDER STATUS INDICATORS === */
         .order-status {
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-weight: bold;
+            padding: 0.7rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
             text-align: center;
             font-size: 0.9rem;
             transition: all 0.3s ease;
+            letter-spacing: 0.3px;
         }
 
         .status-paid {
-            background: #e8f5e9;
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
             color: #2e7d32;
             border: 2px solid #4caf50;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
         }
 
         .status-partial {
-            background: #fff3e0;
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
             color: #e65100;
             border: 2px solid #ff9800;
+            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.2);
         }
 
         .status-unpaid {
-            background: #ffebee;
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
             color: #c62828;
             border: 2px solid #f44336;
+            box-shadow: 0 4px 12px rgba(244, 67, 54, 0.2);
         }
 
         /* === PRODUCT DISPLAY === */
         .product-image {
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             object-fit: cover;
-            border-radius: 8px;
-            border: 2px solid #f8bbd0;
+            border-radius: 10px;
+            border: 2px solid #d8b4fe;
             transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(168, 85, 247, 0.15);
         }
 
         .product-image:hover {
-            transform: scale(1.2);
-            box-shadow: 0 4px 12px rgba(244, 143, 177, 0.3);
+            transform: scale(1.15);
+            box-shadow: 0 6px 16px rgba(244, 143, 177, 0.3);
         }
 
         /* === ORDER TOTALS === */
         .order-total {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #c2185b;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #7c3aed;
+            letter-spacing: 0.3px;
         }
 
         /* === ACTION BUTTONS === */
         .detail-actions {
-            margin-top: 2rem;
+            margin-top: 2.5rem;
             display: flex;
-            gap: 1rem;
+            gap: 1.2rem;
             flex-wrap: wrap;
         }
 
         /* === ENHANCED TABLE STYLES === */
         .table-container tbody tr:hover {
-            background-color: #fffafc;
+            background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
             transform: scale(1.01);
         }
 
@@ -421,19 +503,20 @@
 
         /* === NOTIFICATION BOXES === */
         .repartidor-info {
-            padding: 1rem;
-            border-radius: 10px;
+            padding: 1.2rem;
+            border-radius: 12px;
             margin-top: 1rem;
             transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
         .repartidor-asignado {
-            background: #e8f5e9;
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
             border-left: 4px solid #4caf50;
         }
 
         .repartidor-sin-asignar {
-            background: #fff3e0;
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
             border-left: 4px solid #ff9800;
         }
 
@@ -490,22 +573,18 @@
 <body>
   <div class="sidebar">
     <div class="sidebar-header">
+      <img src="{% static 'img/logoglam.png' %}" alt="Glam Store Logo" class="sidebar-logo">
       <h2>Admin Glam</h2>
       <p>Panel de Control</p>
     </div>
     <div class="sidebar-user">
       <p>{{ request.session.usuario_nombre }}</p>
-      <p class="rol">Administrador</p>
+      <p class="rol">{{ request.session.usuario_rol }}</p>
     </div>
         <div class="sidebar-nav">
       <a href="{% url 'dashboard_admin' %}">Dashboard</a>
       <a href="{% url 'lista_admin' %}">Mi Perfil</a>
-      <a href="{% url 'notificaciones' %}">
-        Notificaciones
-        {% if total_notificaciones_no_leidas > 0 %}
-        <span class="notification-badge">{{ total_notificaciones_no_leidas }}</span>
-        {% endif %}
-      </a>
+      <a href="{% url 'notificaciones' %}">Notificaciones{% if total_notificaciones_no_leidas > 0 %}<span class="notification-badge">{{ total_notificaciones_no_leidas }}</span>{% endif %}</a>
       <a href="{% url 'lista_clientes' %}">Clientes</a>
      <a href="{% url 'lista_distribuidores' %}">Proveedores</a>
       <a href="{% url 'lista_pedidos' %}" class="active">Pedidos</a>
@@ -571,6 +650,31 @@
             </div>
           </div>
           
+          <!-- Información de Entrega y Confirmación -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+            <div style="padding: 1rem; background: #e3f2fd; border-radius: 10px; border-left: 4px solid #1565c0;">
+              <strong>Fecha Estimada de Entrega:</strong>
+              {% if fecha_estimada_entrega %}
+                <br><span style="font-size: 1.1rem; color: #1565c0; font-weight: 600;">{{ fecha_estimada_entrega|date:"d/m/Y H:i" }}</span>
+              {% else %}
+                <br><span style="color: #666;">No disponible</span>
+              {% endif %}
+            </div>
+            <div style="padding: 1rem; border-radius: 10px; border-left: 4px solid {% if confirmacion_entrega %}#4caf50; background: #e8f5e9;{% else %}#ff9800; background: #fff3e0;{% endif %}">
+              <strong>Estado de Confirmación:</strong>
+              {% if confirmacion_entrega %}
+                <br><span style="font-size: 1.1rem; color: #2e7d32; font-weight: 600;">Confirmado por el Cliente</span>
+                <br><small style="color: #666;">Fecha: {{ confirmacion_entrega.fecha_confirmacion|date:"d/m/Y H:i" }}</small>
+                {% if confirmacion_entrega.calificacion %}
+                  <br><small style="color: #666;">Calificación: {{ confirmacion_entrega.calificacion }}/5</small>
+                {% endif %}
+              {% else %}
+                <br><span style="font-size: 1.1rem; color: #e65100; font-weight: 600;">Pendiente de Confirmación</span>
+                <br><small style="color: #666;">El cliente aún no ha confirmado la recepción</small>
+              {% endif %}
+            </div>
+          </div>
+          
           {% if pedido.idRepartidor %}
             <div style="padding: 1rem; background: #e8f5e9; border-radius: 10px; border-left: 4px solid #4caf50;">
               <strong>Repartidor Asignado:</strong> {{ pedido.idRepartidor.nombreRepartidor }}
@@ -628,7 +732,7 @@
               </td>
               <td><strong>{{ detalle.cantidad }}</strong> unidades</td>
               <td>${{ detalle.precio_unitario|floatformat:0|intcomma }}</td>
-              <td><strong style="color: #c2185b;">${{ detalle.subtotal|floatformat:0|intcomma }}</strong></td>
+              <td><strong style="color: #7c3aed;">${{ detalle.subtotal|floatformat:0|intcomma }}</strong></td>
               <td>
                 <a href="{% url 'producto_detalle' detalle.idProducto.idProducto %}" class="btn btn-secondary btn-small">Ver Producto</a>
               </td>
@@ -685,3 +789,6 @@
   </div>
 </body>
 </html>
+
+
+

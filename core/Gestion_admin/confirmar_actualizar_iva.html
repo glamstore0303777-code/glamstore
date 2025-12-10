@@ -1,0 +1,63 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Actualizar IVA en Movimientos | Glam Store</title>
+    <link rel="icon" href="{% static 'img/logoglam.png' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }
+        .container { background: white; border-radius: 20px; box-shadow: 0 8px 32px rgba(168, 85, 247, 0.2); max-width: 600px; width: 100%; padding: 3rem; }
+        h1 { color: #7c3aed; font-size: 2rem; margin-bottom: 1rem; text-align: center; }
+        .icon { font-size: 4rem; text-align: center; margin-bottom: 1.5rem; }
+        .info { background: #f3e8ff; border-left: 4px solid #a855f7; padding: 1.5rem; border-radius: 10px; margin: 2rem 0; }
+        .info p { color: #6b21a8; margin: 0.5rem 0; }
+        .info strong { color: #7c3aed; font-size: 1.2rem; }
+        .warning { background: #fff3e0; border-left: 4px solid #ff9800; padding: 1rem; border-radius: 10px; margin: 1.5rem 0; }
+        .warning p { color: #e65100; margin: 0; font-size: 0.9rem; }
+        .actions { display: flex; gap: 1rem; margin-top: 2rem; }
+        .btn { flex: 1; padding: 1rem 2rem; border-radius: 25px; font-weight: 600; font-size: 1rem; border: none; cursor: pointer; transition: all 0.3s ease; text-decoration: none; text-align: center; }
+        .btn-primary { background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%); color: white; box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(168, 85, 247, 0.4); }
+        .btn-secondary { background: white; color: #7c3aed; border: 2px solid #a855f7; }
+        .btn-secondary:hover { background: #f3e8ff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">🔄</div>
+        <h1>Actualizar IVA en Movimientos</h1>
+        
+        <div class="info">
+            <p>Se encontraron <strong>{{ total_movimientos }}</strong> movimientos sin valores de IVA.</p>
+            <p style="margin-top: 1rem;">Esta acción calculará y actualizará:</p>
+            <ul style="margin-left: 2rem; margin-top: 0.5rem;">
+                <li>IVA (19% sobre el costo)</li>
+                <li>Total con IVA (precio de venta × cantidad)</li>
+                <li>Precio unitario de venta</li>
+            </ul>
+        </div>
+        
+        {% if total_movimientos > 0 %}
+            <div class="warning">
+                <p><strong>⚠️ Importante:</strong> Esta acción actualizará {{ total_movimientos }} registros en la base de datos. Se recomienda hacer un respaldo antes de continuar.</p>
+            </div>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="actions">
+                    <a href="{% url 'dashboard_admin' %}" class="btn btn-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">Actualizar Ahora</button>
+                </div>
+            </form>
+        {% else %}
+            <p style="text-align: center; color: #666; margin: 2rem 0;">Todos los movimientos ya tienen valores de IVA calculados.</p>
+            <div class="actions">
+                <a href="{% url 'dashboard_admin' %}" class="btn btn-primary" style="flex: none; width: 100%;">Volver al Dashboard</a>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

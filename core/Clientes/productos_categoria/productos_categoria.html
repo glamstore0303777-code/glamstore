@@ -7,16 +7,30 @@
   <meta charset="UTF-8">
   <title>{{ categoria.nombreCategoria }} — GlamStore</title>
   <link rel="icon" href="{% static 'img/logoglam.png' %}">
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    body {
+    * {
       margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
       font-family: 'Comic Neue', cursive, Arial, sans-serif;
-      background-color: #fffafc;
-      display: flex;
+      background-image: 
+        linear-gradient(135deg, rgba(243, 232, 255, 0.7) 0%, rgba(233, 213, 255, 0.7) 100%),
+        url('/static/img/fondo.jpeg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      background-color: #f3e8ff;
+      color: #1a1a1a;
+      scroll-behavior: smooth;
     }
 
     .sidebar {
-      background-color: #fce4ec;
+      background: linear-gradient(180deg, #faf5ff 0%, #f3e8ff 100%);
       padding: 2rem;
       width: 240px;
       height: 100vh;
@@ -25,63 +39,108 @@
       flex-direction: column;
       align-items: center;
       text-align: center;
-      border-right: 2px solid #f8bbd0;
-      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      border-right: 2px solid #d8b4fe;
+      box-shadow: 4px 0 20px rgba(168, 85, 247, 0.15);
       z-index: 1000;
       overflow-y: auto;
-      /* Permitir scroll si hay muchas subcategorías */
     }
 
-    .logo {
-      width: 100px;
-      border-radius: 50%;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      margin-bottom: 1rem;
+    .sidebar img.logo {
+      width: 80px;
+      margin-bottom: 1.5rem;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar img.logo:hover {
+      transform: scale(1.05);
     }
 
     .sidebar h1 {
-      color: #ad1457;
-      font-size: 1.8rem;
-      margin: 0.5rem 0;
+      color: #6b21a8;
+      font-size: 1.3rem;
+      margin: 0 0 0.5rem 0;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      line-height: 1.3;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+
+    .sidebar a h1 {
+      transition: color 0.3s ease;
+    }
+
+    .sidebar a:hover h1 {
+      color: #7c3aed;
     }
 
     .sidebar p {
-      color: #d81b60;
-      font-size: 1rem;
-      margin-bottom: 2rem;
+      color: #9333ea;
+      font-size: 0.85rem;
+      margin: 0 0 2rem 0;
+      font-weight: 400;
+      font-style: italic;
     }
 
     .sidebar nav ul {
       list-style: none;
       padding: 0;
+      margin: 0 0 2rem 0;
+      flex: 1;
       width: 100%;
+    }
+
+    .sidebar nav li {
+      margin-bottom: 0.6rem;
     }
 
     .sidebar nav a {
       display: block;
-      padding: 0.8rem 1.5rem;
-      margin-bottom: 0.8rem;
+      padding: 0.75rem 1.2rem;
       text-decoration: none;
-      color: #880e4f;
-      font-weight: bold;
-      border-radius: 25px;
-      transition: background-color 0.3s, color 0.3s;
+      color: #1a1a1a;
+      font-weight: 500;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      font-size: 0.95rem;
+      position: relative;
+      overflow: hidden;
     }
 
-    .sidebar nav a:hover {
-      background-color: #f8bbd0;
-      color: #fff;
+    .sidebar nav a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+      transition: width 0.3s ease;
+      z-index: -1;
+    }
+
+    .sidebar nav a:hover,
+    .sidebar nav a.active {
+      color: #ffffff;
+      transform: translateX(5px);
+      box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+    }
+
+    .sidebar nav a:hover::before,
+    .sidebar nav a.active::before {
+      width: 100%;
     }
 
     /* Estilos para subcategorías en sidebar */
     .sidebar h2 {
-      color: #ad1457;
+      color: #6b21a8;
       font-size: 1.2rem;
       margin-top: 2rem;
       margin-bottom: 1rem;
-      border-bottom: 2px solid #f8bbd0;
+      border-bottom: 2px solid #d8b4fe;
       padding-bottom: 0.5rem;
       width: 100%;
+      font-weight: 600;
     }
 
     .btn-sub {
@@ -90,11 +149,11 @@
       padding: 0.6rem 1rem;
       margin-bottom: 0.5rem;
       background: none;
-      border: 1px solid #f8bbd0;
-      border-radius: 20px;
-      color: #880e4f;
+      border: 1px solid #e9d5ff;
+      border-radius: 12px;
+      color: #1a1a1a;
       font-family: inherit;
-      font-weight: bold;
+      font-weight: 500;
       cursor: pointer;
       transition: all 0.3s;
       text-align: center;
@@ -102,9 +161,11 @@
 
     .btn-sub:hover,
     .btn-sub.activo {
-      background-color: #f48fb1;
+      background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
       color: white;
-      border-color: #f48fb1;
+      border-color: #a855f7;
+      transform: translateX(3px);
+      box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
     }
 
     .main-content {
@@ -116,72 +177,132 @@
 
     header h2 {
       font-size: 2.2rem;
-      color: #b10f50;
-      border-bottom: 3px solid #f48fb1;
-      padding-bottom: 0.5rem;
+      color: #1a1a1a;
+      border-bottom: 3px solid #a855f7;
+      padding-bottom: 0.8rem;
       margin-bottom: 2rem;
+      font-weight: 700;
+      letter-spacing: 1px;
     }
 
     .product-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 2rem;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
     }
 
     .product-card {
-      background-color: #fff;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      background: #ffffff;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(168, 85, 247, 0.1);
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      transition: all 0.3s ease;
       text-decoration: none;
       color: inherit;
+      border: 1px solid #e9d5ff;
+      position: relative;
+      height: 100%;
+    }
+    
+    .product-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #a855f7, #d946ef, #a855f7);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 1;
     }
 
     .product-card:hover {
       transform: translateY(-5px);
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+      box-shadow: 0 8px 20px rgba(168, 85, 247, 0.2);
+      border-color: #d8b4fe;
+    }
+    
+    .product-card:hover::before {
+      opacity: 1;
     }
 
     .product-image {
-      height: 200px;
-      background-color: #fceef5;
+      height: 180px;
+      background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
       display: flex;
       align-items: center;
       justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .product-image::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(168, 85, 247, 0.05) 0%, rgba(217, 70, 239, 0.05) 100%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .product-card:hover .product-image::after {
+      opacity: 1;
     }
 
     .product-image img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain;
+      padding: 8px;
+      transition: transform 0.3s ease;
+    }
+    
+    .product-card:hover .product-image img {
+      transform: scale(1.03);
     }
 
     .product-info {
-      padding: 15px;
+      padding: 1rem;
       flex-grow: 1;
+      display: flex;
+      flex-direction: column;
     }
 
     .product-info h3 {
-      margin: 0 0 5px 0;
-      font-size: 16px;
-      color: #333;
+      margin: 0 0 0.5rem 0;
+      font-size: 0.95rem;
+      color: #1a1a1a;
+      font-weight: 600;
+      line-height: 1.3;
     }
 
     .product-price {
-      font-weight: bold;
-      color: #d16b8a;
-      margin-top: 10px;
-      display: block;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-top: auto;
+      display: inline-block;
       font-size: 1.1rem;
+    }
+    
+    .product-price::first-letter {
+      color: #7c3aed;
     }
 
     .descripcion {
-      font-size: 0.9rem;
-      color: #666;
-      margin-bottom: 1rem;
+      font-size: 0.8rem;
+      color: #777;
+      margin-bottom: 0.5rem;
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
 
     /* Formulario agregar carrito */
@@ -215,13 +336,13 @@
     .controles-cantidad {
       display: flex;
       align-items: center;
-      background: #fce4ec;
+      background: #f3e8ff;
       border-radius: 20px;
       padding: 2px;
     }
 
     .btn-cantidad {
-      background: #f48fb1;
+      background: #a855f7;
       color: white;
       border: none;
       width: 25px;
@@ -232,11 +353,12 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background 0.3s;
+      transition: all 0.3s;
     }
 
     .btn-cantidad:hover {
-      background: #ec407a;
+      background: #9333ea;
+      transform: scale(1.1);
     }
 
     .controles-cantidad input[type="number"] {
@@ -245,7 +367,7 @@
       border: none;
       background: transparent;
       font-weight: bold;
-      color: #b7387c;
+      color: #6b21a8;
       font-family: inherit;
       -moz-appearance: textfield;
       appearance: textfield;
@@ -259,19 +381,22 @@
     }
 
     .btn-agregar {
-      background-color: #e381a5;
+      background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
       color: white;
       border: none;
       padding: 0.8rem;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
       font-weight: bold;
-      transition: background 0.3s;
+      transition: all 0.3s;
       margin-top: 0.5rem;
+      box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
     }
 
     .btn-agregar:hover {
-      background-color: #f976af;
+      background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(168, 85, 247, 0.4);
     }
 
     .agotado {
@@ -313,11 +438,11 @@
       position: fixed;
       bottom: 2rem;
       right: 2rem;
-      background: linear-gradient(135deg, #eb6a95 0%, #f37aa2 100%);
+      background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
       color: white;
       padding: 1.5rem 2rem;
       border-radius: 15px;
-      box-shadow: 0 8px 25px rgba(236, 64, 122, 0.4);
+      box-shadow: 0 8px 25px rgba(168, 85, 247, 0.4);
       display: none;
       z-index: 10000;
       min-width: 320px;
@@ -374,11 +499,11 @@
 
     .toast-btn-primary {
       background: white;
-      color: #ec407a;
+      color: #7c3aed;
     }
 
     .toast-btn-primary:hover {
-      background: #fce4ec;
+      background: #f3e8ff;
       transform: translateY(-2px);
     }
 
@@ -397,27 +522,23 @@
       display: inline-block;
       margin-top: 0.8rem;
       padding: 0.7rem 1.4rem;
-      background: #f17eb7;
-      /* rosa fuerte glam */
+      background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
       color: #fff;
       font-size: 1rem;
       font-weight: 600;
       text-decoration: none;
-      border-radius: 30px;
+      border-radius: 12px;
       border: none;
-      box-shadow: 0 4px 12px rgba(236, 72, 153, 0.4);
+      box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4);
       transition: all 0.3s ease;
     }
 
-    /* Hover glam */
     .btn-carrito:hover {
-      background: hsl(321, 75%, 75%);
-      /* tono más intenso */
-      box-shadow: 0 6px 16px rgba(236, 72, 153, 0.6);
+      background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);
+      box-shadow: 0 6px 16px rgba(168, 85, 247, 0.6);
       transform: translateY(-2px);
     }
 
-    /* Active (clic) */
     .btn-carrito:active {
       transform: scale(0.95);
     }
@@ -433,7 +554,7 @@
     <a href="{% url 'perfil' %}" style="text-decoration: none; color: inherit;">
       <h1>¡Hola, {{ request.session.usuario_nombre }}!</h1>
     </a>
-    <p>Qué bueno verte de nuevo ✨</p>
+    <p>Qué bueno verte de nuevo</p>
     {% else %}
     <h1>Bienvenida a GlamStore</h1>
     <p>Tu espacio de moda, color y alegría</p>
@@ -470,6 +591,15 @@
 
   <!-- Contenido principal -->
   <main class="main-content">
+    <!-- Messages (hidden - don't display on this page) -->
+    <div style="display: none;">
+      {% if messages %}
+        {% for message in messages %}
+          <div>{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    </div>
+
     <header>
       <h2 class="titulo-seccion">{{ categoria.nombreCategoria }}</h2>
     </header>
@@ -502,7 +632,7 @@
                   onclick="incrementar('{{ producto.idProducto }}', '{{ producto.stock }}')">+</button>
               </div>
             </div>
-            <button type="submit" class="btn-agregar">Añadir 🛒</button>
+            <button type="submit" class="btn-agregar">Añadir al Carrito</button>
           </form>
           {% else %}
           <p class="agotado">Agotado</p>

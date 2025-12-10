@@ -6,6 +6,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Perfil del Cliente | Glam Store</title>
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
@@ -14,15 +15,23 @@
     }
 
     body {
-      margin: 0;
       font-family: 'Comic Neue', cursive, Arial, sans-serif;
-      background-color: #fffafc;
+      background-image: 
+        linear-gradient(135deg, rgba(243, 232, 255, 0.7) 0%, rgba(233, 213, 255, 0.7) 100%),
+        url('/static/img/fondo.jpeg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      background-color: #f3e8ff;
+      color: #1a1a1a;
+      scroll-behavior: smooth;
       display: flex;
+      min-height: 100vh;
     }
 
-    /* Sidebar - Rosa pastel como tienda */
     .sidebar {
-      background-color: #fce4ec;
+      background: linear-gradient(180deg, #faf5ff 0%, #f3e8ff 100%);
       padding: 2rem;
       width: 240px;
       height: 100vh;
@@ -31,113 +40,169 @@
       flex-direction: column;
       align-items: center;
       text-align: center;
-      border-right: 2px solid #f8bbd0;
-      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      border-right: 2px solid #d8b4fe;
+      box-shadow: 4px 0 20px rgba(168, 85, 247, 0.15);
       z-index: 1000;
       overflow-y: auto;
     }
 
-    .logo-container {
-      text-align: center;
-      margin-bottom: 2rem;
+    .sidebar img.logo {
+      width: 80px;
+      margin-bottom: 1.5rem;
+      transition: transform 0.3s ease;
     }
 
-    .logo-container img {
-      width: 100px;
-      border-radius: 50%;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      margin-bottom: 1rem;
+    .sidebar img.logo:hover {
+      transform: scale(1.05);
     }
 
-    .logo-container h2 {
-      color: #ad1457;
-      font-size: 1.8rem;
-      margin: 0.5rem 0;
+    .sidebar h1 {
+      color: #6b21a8;
+      font-size: 1.3rem;
+      margin: 0 0 0.5rem 0;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      line-height: 1.3;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
 
-    .logo-container p {
-      color: #d81b60;
-      font-size: 1rem;
+    .sidebar a h1 {
+      transition: color 0.3s ease;
     }
 
-    .nav-menu {
+    .sidebar a:hover h1 {
+      color: #7c3aed;
+    }
+
+    .sidebar p {
+      color: #9333ea;
+      font-size: 0.85rem;
+      margin: 0 0 2rem 0;
+      font-weight: 400;
+      font-style: italic;
+    }
+
+    .sidebar nav ul {
       list-style: none;
       padding: 0;
+      margin: 0 0 2rem 0;
+      flex: 1;
       width: 100%;
     }
 
-    .nav-menu li {
-      margin-bottom: 0.8rem;
+    .sidebar nav li {
+      margin-bottom: 0.6rem;
     }
 
-    .nav-menu a {
+    .sidebar nav a {
       display: block;
-      padding: 0.8rem 1.5rem;
+      padding: 0.75rem 1.2rem;
       text-decoration: none;
-      color: #880e4f;
-      font-weight: bold;
-      border-radius: 25px;
-      transition: background-color 0.3s, color 0.3s;
+      color: #1a1a1a;
+      font-weight: 500;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      font-size: 0.95rem;
+      position: relative;
+      overflow: hidden;
     }
 
-    .nav-menu a:hover {
-      background-color: #f8bbd0;
-      color: #fff;
+    .sidebar nav a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+      transition: width 0.3s ease;
+      z-index: -1;
     }
 
-    .nav-menu a.active {
-      background-color: #f48fb1;
-      color: #fff;
+    .sidebar nav a:hover,
+    .sidebar nav a.active {
+      color: #ffffff;
+      transform: translateX(5px);
+      box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
     }
 
-    /* Main Content */
+    .sidebar nav a:hover::before,
+    .sidebar nav a.active::before {
+      width: 100%;
+    }
+
+    footer.pie {
+      text-align: center;
+      padding: 1.5rem;
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+      margin-top: 2rem;
+      color: #999;
+      font-size: 0.9rem;
+    }
+
+
+
     .main-content {
       margin-left: 240px;
-      padding: 2rem 5rem;
-      width: calc(100% - 240px - 10rem);
+      padding: 2rem 3rem;
+      width: calc(100% - 240px);
+      min-height: 100vh;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .header {
-      margin-bottom: 2rem;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      padding: 2rem;
+      max-width: 900px;
+      width: 100%;
+      margin-top: 2rem;
     }
 
     .header h1 {
-      font-size: 2.2rem;
-      color: #c2185b;
-      border-bottom: 3px solid #f48fb1;
-      padding-bottom: 0.5rem;
-      margin-bottom: 2rem;
+      color: #6b21a8;
+      font-size: 2rem;
+      margin: 0;
+      font-weight: 700;
+      letter-spacing: 0.5px;
     }
 
     .content-card {
-      background: #fff;
-      padding: 2rem;
-      border-radius: 15px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
-      margin-bottom: 2rem;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      padding: 3rem;
+      max-width: 900px;
+      width: 100%;
+      margin-top: 2rem;
     }
 
     .content-card h2 {
-      color: #c2185b;
+      color: #6b21a8;
       font-size: 1.5rem;
       margin-bottom: 1.5rem;
-      border-bottom: 2px solid #f48fb1;
-      padding-bottom: 0.8rem;
+      border-bottom: 3px solid #a855f7;
+      padding-bottom: 0.5rem;
     }
 
     .content-card h3 {
-      color: #d81b60;
+      color: #6b21a8;
       font-size: 1.2rem;
-      margin-top: 2rem;
+      margin-top: 1.5rem;
       margin-bottom: 1rem;
-      border-bottom: 1px solid #f8bbd0;
-      padding-bottom: 0.5rem;
     }
 
     .info-row {
       display: flex;
       padding: 1rem 0;
-      border-bottom: 1px solid #fdfbff;
+      border-bottom: 1px solid #e9d5ff;
     }
 
     .info-row:last-of-type {
@@ -146,13 +211,13 @@
 
     .info-row strong {
       width: 150px;
-      color: #c2185b;
-      font-weight: bold;
+      color: #6b21a8;
+      font-weight: 600;
     }
 
     .info-row span {
       flex: 1;
-      color: #666;
+      color: #333;
     }
 
     .pedidos-list {
@@ -164,19 +229,19 @@
       padding: 1.2rem 1.5rem;
       margin-bottom: 1rem;
       border-radius: 15px;
-      border-left: 4px solid #f48fb1;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+      border-left: 4px solid #a855f7;
+      box-shadow: 0 4px 15px rgba(168, 85, 247, 0.1);
       transition: all 0.3s ease;
-      color: #555;
+      color: #1a1a1a;
     }
 
     .pedidos-list li:hover {
       transform: translateX(5px);
-      box-shadow: 0 6px 20px rgba(244, 143, 177, 0.2);
+      box-shadow: 0 6px 20px rgba(168, 85, 247, 0.2);
     }
 
     .pedidos-list li strong {
-      color: #c2185b;
+      color: #7c3aed;
     }
 
     .alert-box {
@@ -240,78 +305,80 @@
     }
 
     .form-group {
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.2rem;
     }
 
     .form-group label {
       display: block;
-      font-weight: 500;
-      margin-bottom: 0.6rem;
-      color: #b87a93;
-      font-size: 0.95rem;
+      color: #6b21a8;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
     }
 
-    .form-group input {
+    .form-group input,
+    .form-group textarea {
       width: 100%;
-      padding: 0.9rem;
-      border-radius: 8px;
-      border: 1px solid #f5f0fa;
-      font-family: 'Poppins', 'Segoe UI', sans-serif;
-      font-size: 0.95rem;
-      transition: all 0.3s;
-      background: #fdfbff;
+      padding: 0.8rem 1rem;
+      border: 2px solid #d8b4fe;
+      border-radius: 25px;
+      font-family: inherit;
+      font-size: 1rem;
+      transition: border-color 0.3s, box-shadow 0.3s;
+      background-color: #fdfbff;
+      color: #333;
     }
 
-    .form-group input:focus {
+    .form-group textarea {
+      border-radius: 15px;
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
       outline: none;
-      border-color: #d4c5e0;
-      background: white;
-      box-shadow: 0 0 0 3px rgba(212, 197, 224, 0.1);
-    }
-
-    .form-group input[readonly] {
-      background: #f9f5fc;
-      color: #666;
+      border-color: #a855f7;
+      box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1);
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, #f48fb1 0%, #ec407a 100%);
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
       color: white;
-      padding: 1rem 2rem;
       border: none;
       border-radius: 25px;
+      font-family: inherit;
+      font-size: 1.1rem;
       font-weight: bold;
       cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 12px rgba(244, 143, 177, 0.3);
-      width: 100%;
-      font-size: 1rem;
-      font-family: 'Comic Neue', cursive, Arial, sans-serif;
+      transition: transform 0.3s, box-shadow 0.3s;
+      box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
     }
 
     .btn-primary:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(244, 143, 177, 0.4);
-      background: linear-gradient(135deg, #ec407a 0%, #d81b60 100%);
+      box-shadow: 0 6px 20px rgba(168, 85, 247, 0.4);
+      background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);
     }
 
     .btn-editar {
-      background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%);
+      background: linear-gradient(135deg, #c084fc 0%, #a855f7 100%);
       color: white;
       padding: 0.6rem 1.2rem;
       border: none;
-      border-radius: 20px;
+      border-radius: 10px;
       font-weight: bold;
       cursor: pointer;
       transition: all 0.3s ease;
-      box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+      box-shadow: 0 4px 12px rgba(192, 132, 252, 0.3);
       font-size: 0.9rem;
     }
 
     .btn-editar:hover {
-      background: linear-gradient(135deg, #1976d2 0%, #2196f3 100%);
+      background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
       transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(33, 150, 243, 0.4);
+      box-shadow: 0 6px 16px rgba(168, 85, 247, 0.4);
     }
 
     .btn-cancelar {
@@ -345,19 +412,19 @@
       font-size: 0.9rem;
     }
     .btn-seguimiento {
-      background: linear-gradient(135deg, #f48fb1 0%, #ec407a 100%);
+      background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
       color: #fff;
       padding: 0.5rem 1.2rem;
-      border-radius: 25px;
+      border-radius: 12px;
       text-decoration: none;
       font-weight: bold;
-      box-shadow: 0 4px 12px rgba(244, 143, 177, 0.3);
+      box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
       transition: all 0.3s ease;
     }
 
     .btn-seguimiento:hover {
-      background: linear-gradient(135deg, #ec407a 0%, #d81b60 100%);
-      box-shadow: 0 6px 16px rgba(244, 143, 177, 0.4);
+      background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);
+      box-shadow: 0 6px 16px rgba(168, 85, 247, 0.4);
       transform: translateY(-2px);
     }
 
@@ -531,11 +598,15 @@
   margin-bottom: 1rem;
   padding-bottom: 0.8rem;
   border-bottom: 1px solid #f5f5f5;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  padding: 0.5rem;
 }
 
 .pedido-numero {
   font-size: 1.1rem;
-  color: #c2185b;
+  color: #7c3aed;
+  font-weight: 600;
 }
 
 .pedido-fecha {
@@ -545,7 +616,7 @@
 
 .pedido-estados {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 1rem;
   margin-bottom: 1rem;
 }
@@ -626,14 +697,15 @@
 }
 
 .btn-seguimiento {
-  background: linear-gradient(135deg, #f48fb1 0%, #ec407a 100%);
+  background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
   color: white;
-  box-shadow: 0 2px 8px rgba(244, 143, 177, 0.3);
+  box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
 }
 
 .btn-seguimiento:hover {
+  background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(244, 143, 177, 0.4);
+  box-shadow: 0 6px 16px rgba(168, 85, 247, 0.4);
 }
 
 .sin-pedidos {
@@ -647,6 +719,51 @@
 .sin-pedidos p {
   font-size: 1.1rem;
   margin: 0;
+}
+
+.pedido-header:hover {
+  background-color: #f9f9f9;
+  border-radius: 8px 8px 0 0;
+}
+
+.pedido-header.is-open {
+  border-bottom: 1px solid #e9d5ff;
+}
+
+.pedido-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.desplegable-icon {
+  font-size: 1.8rem;
+  font-weight: 500;
+  color: #9333ea;
+  transition: transform 0.3s ease-out;
+}
+
+.pedido-header.is-open .desplegable-icon {
+  transform: rotate(45deg);
+}
+
+.pedido-body {
+  padding: 1rem;
+  animation: fadeIn 0.4s ease-in-out;
+  display: none;
+  /* Oculto por defecto */
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Responsive para pedidos */
@@ -693,36 +810,53 @@
         btnEditar.style.background = 'linear-gradient(135deg, #ff9800 0%, #ffa726 100%)';
       }
     }
+
+    function togglePedido(headerElement) {
+      const pedidoBody = headerElement.nextElementSibling;
+      const icon = headerElement.querySelector('.desplegable-icon');
+      const isOpen = pedidoBody.style.display === 'block';
+
+      if (isOpen) {
+        pedidoBody.style.display = 'none';
+        icon.textContent = '+';
+        headerElement.classList.remove('is-open');
+      } else {
+        pedidoBody.style.display = 'block';
+        icon.textContent = '−';
+        headerElement.classList.add('is-open');
+      }
+    }
   </script>
 </head>
 
 <body>
-  <!-- Sidebar -->
+  <!-- Barra lateral -->
   <aside class="sidebar">
-    <div class="logo-container">
-      <img src="{% static 'img/logoglam.png' %}" alt="Glam Store Logo" class="logo">
-      <h2>Glam Store</h2>
-      <p>Tu tienda de belleza</p>
-    </div>
-    <ul class="nav-menu">
-      <li><a href="{% url 'tienda' %}">Tienda</a></li>
-      <li><a href="{% url 'ver_carrito' %}">Carrito</a></li>
-      
-      {% if sin_sesion %}
-        {# Usuario sin sesión - mostrar opciones de login/registro #}
-        <li><a href="{% url 'login' %}">Iniciar Sesión</a></li>
-        <li><a href="{% url 'registro' %}">Registrarse</a></li>
-      {% else %}
-        {# Usuario con sesión (registrado o invitado) #}
+    <img src="{% static 'img/logoglam.png' %}" alt="Logo GlamStore" class="logo">
+    {% if request.session.usuario_nombre %}
+    <a href="{% url 'perfil' %}" style="text-decoration: none; color: inherit;">
+      <h1>¡Hola, {{ request.session.usuario_nombre }}!</h1>
+    </a>
+    <p>Qué bueno verte de nuevo</p>
+    {% else %}
+    <h1>Bienvenida a GlamStore</h1>
+    <p>Tu espacio de moda, color y alegría</p>
+    {% endif %}
+    <nav>
+      <ul>
+        {% if request.session.usuario_nombre %}
         <li><a href="{% url 'perfil' %}" class="active">Mi Perfil</a></li>
-        <li><a href="{% url 'notificaciones_cliente' %}">Notificaciones</a></li>
-        {% if tiene_usuario %}
-          <li><a href="{% url 'logout' %}">Cerrar Sesión</a></li>
         {% else %}
-          <li><a href="{% url 'logout' %}">Cerrar Sesión de Invitado</a></li>
+        <li><a href="{% url 'login' %}">Iniciar Sesión / Registrarse</a></li>
         {% endif %}
-      {% endif %}
-    </ul>
+        <li><a href="{% url 'tienda' %}">Tienda</a></li>
+        <li><a href="{% url 'contacto' %}">Contáctanos</a></li>
+        <li><a href="{% url 'ver_carrito' %}">Carrito</a></li>
+        {% if request.session.usuario_nombre %}
+        <li><a href="{% url 'logout' %}">Cerrar sesión</a></li>
+        {% endif %}
+      </ul>
+    </nav>
   </aside>
 
   <!-- Main Content -->
@@ -731,35 +865,12 @@
       <h1>Perfil del Cliente</h1>
     </div>
 
-    <!-- Mensaje para usuarios sin sesión -->
-    {% if sin_sesion %}
-    <div class="content-card" style="text-align: center; padding: 3rem 2rem;">
-      <h2 style="margin-bottom: 1.5rem;">Acceso al Perfil</h2>
-      <p style="font-size: 1.1rem; color: #666; margin-bottom: 2rem;">
-        Para ver tu perfil, necesitas iniciar sesión o registrarte.
-      </p>
-      <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-        <a href="{% url 'tienda' %}"
-          style="background: linear-gradient(135deg, #d4c5e0 0%, #c5b3d4 100%); color: white; padding: 1rem 2rem; border-radius: 8px; text-decoration: none; font-weight: 500; box-shadow: 0 4px 12px rgba(212, 197, 224, 0.25); transition: all 0.3s;">
-          Ir a la Tienda
-        </a>
-        <a href="{% url 'registro' %}"
-          style="background: white; color: #8b7a9b; padding: 1rem 2rem; border-radius: 8px; text-decoration: none; font-weight: 500; border: 2px solid #d4c5e0; transition: all 0.3s;">
-          Registrarse
-        </a>
-        <a href="{% url 'login' %}"
-          style="background: white; color: #8b7a9b; padding: 1rem 2rem; border-radius: 8px; text-decoration: none; font-weight: 500; border: 2px solid #d4c5e0; transition: all 0.3s;">
-          Iniciar Sesión
-        </a>
-      </div>
-    </div>
-    
-    {% else %}
+  
 
     <!-- Información Personal -->
     <div class="content-card">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-        <h2 style="margin: 0;">Información Personal</h2>
+      <div style="margin-bottom: 2rem;">
+        <h2 style="margin: 0 0 1rem 0;">Información Personal</h2>
         <button id="btn-editar" class="btn-editar" onclick="toggleEditMode()">
           Editar Datos
         </button>
@@ -767,25 +878,25 @@
 
       <!-- Vista de solo lectura -->
       <div id="vista-lectura">
-        <div class="info-row">
-          <strong>Nombre:</strong>
-          <span>{{ cliente.nombre }}</span>
+        <div style="background: #faf5ff; padding: 1.5rem; border-radius: 12px; border-left: 4px solid #a855f7; margin-bottom: 1rem;">
+          <div style="color: #6b21a8; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.5rem; text-transform: uppercase;">Nombre Completo</div>
+          <div style="color: #333; font-size: 1.1rem;">{{ cliente.nombre }}</div>
         </div>
-        <div class="info-row">
-          <strong>Correo:</strong>
-          <span>{{ cliente.email }}</span>
+        <div style="background: #faf5ff; padding: 1.5rem; border-radius: 12px; border-left: 4px solid #a855f7; margin-bottom: 1rem;">
+          <div style="color: #6b21a8; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.5rem; text-transform: uppercase;">Correo Electrónico</div>
+          <div style="color: #333; font-size: 1.1rem;">{{ cliente.email }}</div>
         </div>
-        <div class="info-row">
-          <strong>Cédula:</strong>
-          <span>{{ cliente.cedula|default:"No registrada" }}</span>
+        <div style="background: #faf5ff; padding: 1.5rem; border-radius: 12px; border-left: 4px solid #a855f7; margin-bottom: 1rem;">
+          <div style="color: #6b21a8; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.5rem; text-transform: uppercase;">Cédula</div>
+          <div style="color: #333; font-size: 1.1rem;">{{ cliente.cedula|default:"No registrada" }}</div>
         </div>
-        <div class="info-row">
-          <strong>Teléfono:</strong>
-          <span>{{ cliente.telefono|default:"No registrado" }}</span>
+        <div style="background: #faf5ff; padding: 1.5rem; border-radius: 12px; border-left: 4px solid #a855f7; margin-bottom: 1rem;">
+          <div style="color: #6b21a8; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.5rem; text-transform: uppercase;">Teléfono</div>
+          <div style="color: #333; font-size: 1.1rem;">{{ cliente.telefono|default:"No registrado" }}</div>
         </div>
-        <div class="info-row">
-          <strong>Dirección:</strong>
-          <span>{{ cliente.direccion|default:"No registrada" }}</span>
+        <div style="background: #faf5ff; padding: 1.5rem; border-radius: 12px; border-left: 4px solid #a855f7;">
+          <div style="color: #6b21a8; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.5rem; text-transform: uppercase;">Dirección</div>
+          <div style="color: #333; font-size: 1.1rem; line-height: 1.6;">{{ cliente.direccion|default:"No registrada" }}</div>
         </div>
       </div>
 
@@ -857,76 +968,113 @@
       <div class="pedidos-container">
         {% for pedido in pedidos %}
         <div class="pedido-card">
-          <div class="pedido-header">
-            <div class="pedido-numero">
-              <strong>Pedido #{{ pedido.idPedido }}</strong>
+          <div class="pedido-header" onclick="togglePedido(this)">
+            <div class="pedido-info">
+              <div class="pedido-numero">
+                <strong>Pedido #{{ pedido.idPedido }}</strong>
+              </div>
+              <div class="pedido-fecha">
+                {{ pedido.fechaCreacion|date:"d/m/Y" }}
+              </div>
             </div>
-            <div class="pedido-fecha">
-              {{ pedido.fechaCreacion|date:"d/m/Y" }}
-            </div>
+            <span class="desplegable-icon">+</span>
           </div>
-          
-          <div class="pedido-estados">
-            <div class="estado-pago">
-              <span class="estado-label">Estado de Pago:</span>
-              <span class="estado-badge estado-{{ pedido.estado_pago|lower|cut:' ' }}">
-                {% if pedido.estado_pago == 'Pago Completo' %}
+
+          <div class="pedido-body">
+            <div class="pedido-estados">
+              <div class="estado-pago">
+                <span class="estado-label">Estado de Pago:</span>
+                <span class="estado-badge estado-{{ pedido.estado_pago|lower|cut:' ' }}">
+                  {% if pedido.estado_pago == 'Pago Completo' %}
                   Pago Completo
-                {% elif pedido.estado_pago == 'Pago Parcial' %}
+                  {% elif pedido.estado_pago == 'Pago Parcial' %}
                   Pago Parcial
-                {% else %}
+                  {% else %}
                   {{ pedido.estado_pago }}
-                {% endif %}
-              </span>
-            </div>
-            
-            <div class="estado-entrega">
-              <span class="estado-label">Estado de Entrega:</span>
-              <span class="estado-badge {% if pedido.estado == 'Problema en Entrega' %}estado-problemaenentrega{% else %}estado-{{ pedido.estado_pedido|lower|cut:' ' }}{% endif %}">
-                {% if pedido.estado == 'Problema en Entrega' %}
+                  {% endif %}
+                </span>
+              </div>
+
+              <div class="estado-entrega">
+                <span class="estado-label">Estado de Entrega:</span>
+                <span
+                  class="estado-badge {% if pedido.estado == 'Problema en Entrega' %}estado-problemaenentrega{% else %}estado-{{ pedido.estado_pedido|lower|cut:' ' }}{% endif %}">
+                  {% if pedido.estado == 'Problema en Entrega' %}
                   Pedido completado sin entrega
-                {% elif pedido.estado_pedido == 'Confirmado' %}
-                  Confirmado
-                {% elif pedido.estado_pedido == 'En Preparación' %}
+                  {% elif pedido.estado_pedido == 'Pedido Recibido' %}
+                  Pedido Recibido
+                  {% elif pedido.estado_pedido == 'Pago Confirmado' %}
+                  Pago Confirmado
+                  {% elif pedido.estado_pedido == 'En Preparación' %}
                   En Preparación
-                {% elif pedido.estado_pedido == 'En Camino' %}
+                  {% elif pedido.estado_pedido == 'En Camino' %}
                   En Camino
-                {% elif pedido.estado_pedido == 'Entregado' %}
+                  {% elif pedido.estado_pedido == 'Entregado' %}
                   Entregado
-                {% elif pedido.estado_pedido == 'Completado' %}
+                  {% elif pedido.estado_pedido == 'Completado' %}
                   Completado
-                {% else %}
+                  {% else %}
                   {{ pedido.estado_pedido }}
-                {% endif %}
-              </span>
+                  {% endif %}
+                </span>
+                
+                <!-- Indicador de progreso visual -->
+                <div style="margin-top: 0.8rem; display: flex; gap: 0.5rem; align-items: center;">
+                  <div style="flex: 1; height: 6px; background: #e9d5ff; border-radius: 3px; overflow: hidden;">
+                    <div style="height: 100%; background: linear-gradient(90deg, #a855f7 0%, #9333ea 100%); border-radius: 3px; width: {% if pedido.estado_pedido == 'Pedido Recibido' %}75%{% elif pedido.estado_pedido == 'Pago Confirmado' %}75%{% elif pedido.estado_pedido == 'En Preparación' %}75%{% elif pedido.estado_pedido == 'En Camino' %}100%{% elif pedido.estado_pedido == 'Entregado' or pedido.estado_pedido == 'Completado' %}100%{% else %}0%{% endif %};"></div>
+                  </div>
+                  <span style="font-size: 0.75rem; color: #999; white-space: nowrap;">
+                    {% if pedido.estado_pedido == 'Pedido Recibido' or pedido.estado_pedido == 'Pago Confirmado' or pedido.estado_pedido == 'En Preparación' %}
+                    75%
+                    {% elif pedido.estado_pedido == 'En Camino' or pedido.estado_pedido == 'Entregado' or pedido.estado_pedido == 'Completado' %}
+                    100%
+                    {% else %}
+                    0%
+                    {% endif %}
+                  </span>
+                </div>
+                
+                <!-- Mensaje de estado -->
+                <div style="margin-top: 0.6rem; font-size: 0.85rem; color: #666; font-style: italic;">
+                  {% if pedido.estado_pedido == 'Pedido Recibido' or pedido.estado_pedido == 'Pago Confirmado' or pedido.estado_pedido == 'En Preparación' %}
+                  Tu pedido será preparado una vez confirmado el pago.
+                  {% elif pedido.estado_pedido == 'En Camino' %}
+                  Tu pedido está en camino hacia ti.
+                  {% elif pedido.estado_pedido == 'Entregado' %}
+                  Tu pedido ha sido entregado.
+                  {% elif pedido.estado_pedido == 'Completado' %}
+                  Pedido completado.
+                  {% endif %}
+                </div>
+              </div>
             </div>
-          </div>
-          
-          <div class="pedido-footer">
-            <div class="pedido-total">
-              <strong>Total: ${{ pedido.total|floatformat:0|intcomma }}</strong>
-            </div>
-            
-            {% if tiene_usuario %}
-            <div class="pedido-acciones">
-              {% if pedido.estado == 'Problema en Entrega' %}
+
+            <div class="pedido-footer">
+              <div class="pedido-total">
+                <strong>Total: ${{ pedido.total|floatformat:0|intcomma }}</strong>
+              </div>
+
+              {% if tiene_usuario %}
+              <div class="pedido-acciones">
+                {% if pedido.estado == 'Problema en Entrega' %}
                 <div class="accion-problema">
                   <span class="estado-pendiente">Pendiente de respuesta</span>
                   <a href="{% url 'notificaciones_cliente' %}" class="btn-accion btn-problema">
                     Ver reporte del pedido
                   </a>
                 </div>
-              {% elif pedido.estado_pedido == 'Completado' %}
+                {% elif pedido.estado_pedido == 'Completado' %}
                 <a href="{% url 'ver_seguimiento' pedido.idPedido %}" class="btn-accion btn-completado">
                   Ver detalles
                 </a>
-              {% else %}
+                {% else %}
                 <a href="{% url 'ver_seguimiento' pedido.idPedido %}" class="btn-accion btn-seguimiento">
                   Ver seguimiento
                 </a>
+                {% endif %}
+              </div>
               {% endif %}
             </div>
-            {% endif %}
           </div>
         </div>
         {% endfor %}
@@ -976,8 +1124,6 @@
         <button type="submit" class="btn-primary">Crear mi cuenta ahora</button>
       </form>
     </div>
-    {% endif %}
-
     {% endif %}
 
     <footer>

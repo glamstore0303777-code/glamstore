@@ -1,4 +1,4 @@
-# Generated migration for adding facturas_enviadas field
+# Generated migration - already exists in database
 
 from django.db import migrations
 
@@ -10,8 +10,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunSQL(
-            sql="ALTER TABLE pedidos ADD COLUMN facturasEnviadas INT DEFAULT 0 NOT NULL;",
-            reverse_sql="ALTER TABLE pedidos DROP COLUMN facturasEnviadas;",
-        ),
+        # Already exists - no operations needed
     ]

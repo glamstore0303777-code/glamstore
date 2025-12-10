@@ -3,69 +3,237 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Confirmar Recepción | Glam Store</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { margin: 0; font-family: 'Comic Neue', cursive, Arial, sans-serif; background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%); display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-    
-    .container { background: white; padding: 3rem; border-radius: 20px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1); max-width: 500px; width: 90%; text-align: center; }
-    
-    .icon { font-size: 4rem; margin-bottom: 1rem; }
-    
-    h1 { color: #c2185b; font-size: 2rem; margin-bottom: 1rem; }
-    
-    .pedido-info { background: #fce4ec; padding: 1.5rem; border-radius: 10px; margin: 2rem 0; border-left: 4px solid #f48fb1; }
-    
-    .pedido-info p { margin: 0.5rem 0; color: #666; font-size: 1rem; }
-    
-    .pedido-info strong { color: #c2185b; }
-    
-    .question { font-size: 1.2rem; color: #333; margin: 2rem 0 1.5rem 0; font-weight: bold; }
-    
-    .buttons { display: flex; gap: 1rem; margin-top: 2rem; }
-    
-    .btn { flex: 1; padding: 1rem 2rem; border-radius: 25px; text-decoration: none; font-weight: bold; transition: all 0.3s ease; border: none; cursor: pointer; font-family: 'Comic Neue', cursive; font-size: 1.1rem; }
-    
-    .btn-si { background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%); color: white; box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3); }
-    
-    .btn-si:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4); }
-    
-    .btn-no { background: linear-gradient(135deg, #f44336 0%, #e57373 100%); color: white; box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3); }
-    
-    .btn-no:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(244, 67, 54, 0.4); }
-    
-    .back-link { display: block; margin-top: 2rem; color: #c2185b; text-decoration: none; font-weight: bold; }
-    
-    .back-link:hover { text-decoration: underline; }
-  </style>
+    <meta charset="UTF-8">
+    <title>Confirmar Recepción | Glam Store</title>
+    <link rel="stylesheet" href="{% static 'css/sidebar.css' %}">
+    <style>
+        }
+
+        .logo-container img {
+            width: 100px;
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+        }
+
+        .logo-container h2 {
+            color: #6b21a8;
+            font-size: 1.8rem;
+            margin: 0.5rem 0;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(168, 85, 247, 0.2);
+        }
+
+        .logo-container p {
+            color: #9333ea;
+            font-size: 0.9rem;
+            font-weight: 400;
+            font-style: italic;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+        }
+
+        .nav-menu li {
+            margin-bottom: 0.8rem;
+        }
+
+        .nav-menu a {
+            display: block;
+            padding: 0.75rem 1.2rem;
+            text-decoration: none;
+            color: #1a1a1a;
+            font-weight: 500;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-menu a::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 0;
+            background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+            transition: width 0.3s ease;
+            z-index: -1;
+        }
+
+        .nav-menu a:hover {
+            color: #ffffff;
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+        }
+        
+        .nav-menu a:hover::before {
+            width: 100%;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 240px;
+            padding: 2rem 5rem;
+            width: calc(100% - 240px - 10rem);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: #fff;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #7c3aed;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .subtitle {
+            color: #777;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        .pedido-info {
+            background: #fdf6f8;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+            border-left: 4px solid #a855f7;
+            text-align: left;
+        }
+
+        .pedido-info p {
+            margin: 0.5rem 0;
+            color: #666;
+            font-size: 1rem;
+        }
+        
+        .pedido-info strong {
+            color: #7c3aed;
+            font-weight: 600;
+        }
+
+        .question {
+            font-size: 1.2rem;
+            color: #555;
+            margin-top: 2rem;
+            margin-bottom: 1.5rem;
+            font-weight: bold;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-family: 'Comic Neue', cursive;
+            font-size: 1rem;
+        }
+
+        .btn-si {
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-si:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn-no {
+            background: linear-gradient(135deg, #f44336 0%, #e57373 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+        }
+
+        .btn-no:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(244, 67, 54, 0.4);
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 2rem;
+            color: #7c3aed;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <div class="icon">📦</div>
-    <h1>Confirmar Recepción de Pedido</h1>
-    
-    <div class="pedido-info">
-      <p><strong>Pedido #{{ pedido.idPedido }}</strong></p>
-      <p>Total: <strong>${{ pedido.total|floatformat:0|intcomma }}</strong></p>
-      <p>Estado: <strong>{{ pedido.estado }}</strong></p>
+    <aside class="sidebar">
+        <div class="logo-container">
+            <img src="{% static 'img/logoglam.png' %}" alt="Glam Store Logo" class="logo">
+            <h2>Glam Store</h2>
+            <p>Tu tienda de belleza</p>
+        </div>
+        <ul class="nav-menu">
+            <li><a href="{% url 'tienda' %}">Tienda</a></li>
+            <li><a href="{% url 'ver_carrito' %}">Carrito</a></li>
+            <li><a href="{% url 'perfil' %}">Mi Perfil</a></li>
+             <li><a href="{% url 'notificaciones_cliente' %}">Notificaciones</a></li>
+            <li><a href="{% url 'logout' %}">Cerrar Sesión</a></li>
+        </ul>
+    </aside>
+
+    <div class="main-content">
+        <div class="container">
+            <h1>Confirmar tu Pedido</h1>
+            <p class="subtitle">¡Tu opinión es muy importante para nosotros!</p>
+            
+            <div class="pedido-info">
+                <p><strong>Pedido #{{ pedido.idPedido }}</strong></p>
+                <p>Total: <strong>${{ pedido.total|floatformat:0|intcomma }}</strong></p>
+                <p>Estado de entrega: <strong>{{ pedido.estado }}</strong></p>
+            </div>
+            
+            <p class="question">¿Recibiste tu pedido y todo está en orden?</p>
+            
+            <form method="POST">
+                {% csrf_token %}
+                <div class="buttons">
+                    <button type="submit" name="confirmacion" value="si" class="btn btn-si">
+                        Sí, todo perfecto
+                    </button>
+                    <button type="submit" name="confirmacion" value="no" class="btn btn-no">
+                        No, tuve un problema
+                    </button>
+                </div>
+            </form>
+            
+            <a href="{% url 'perfil' %}" class="back-link">Volver a mi perfil</a>
+        </div>
     </div>
-    
-    <p class="question">¿Recibiste tu pedido correctamente?</p>
-    
-    <form method="POST">
-      {% csrf_token %}
-      <div class="buttons">
-        <button type="submit" name="confirmacion" value="si" class="btn btn-si">
-          ✓ Sí, lo recibí
-        </button>
-        <button type="submit" name="confirmacion" value="no" class="btn btn-no">
-          ✗ No lo recibí
-        </button>
-      </div>
-    </form>
-    
-    <a href="{% url 'perfil' %}" class="back-link">← Volver a mi perfil</a>
-  </div>
 </body>
 </html>

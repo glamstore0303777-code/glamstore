@@ -9,7 +9,7 @@
   <meta charset="UTF-8">
   <title>Panel de Administración — Glam Store</title>
   <link rel="icon" href="{% static 'img/logoglam.png' %}">
-  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     /* ========================================
@@ -23,8 +23,8 @@
 
     body {
       margin: 0;
-      font-family: 'Comic Neue', cursive, Arial, sans-serif;
-      background-color: #fffafc;
+      font-family: 'Poppins', 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
       display: flex;
       min-height: 100vh;
     }
@@ -33,15 +33,15 @@
        SIDEBAR
        ======================================== */
     .sidebar {
-      background-color: #fce4ec;
+      background: linear-gradient(180deg, #1a1f3a 0%, #0f1419 100%);
       padding: 2rem;
       width: 240px;
       height: 100vh;
       position: fixed;
       display: flex;
       flex-direction: column;
-      border-right: 2px solid #f8bbd0;
-      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      border-right: 1px solid #2a3f5f;
+      box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
       z-index: 1000;
       overflow-y: auto;
     }
@@ -51,37 +51,51 @@
       margin-bottom: 2rem;
     }
 
+    .sidebar-logo {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      box-shadow: 0 6px 20px rgba(168, 85, 247, 0.3);
+      margin-bottom: 1rem;
+      border: 3px solid #a855f7;
+    }
+
     .sidebar-header h2 {
-      color: #ad1457;
+      color: #ffffff;
       font-size: 1.8rem;
       margin-bottom: 0.5rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     }
 
     .sidebar-header p {
-      color: #d81b60;
+      color: #a0aec0;
       font-size: 0.9rem;
+      font-weight: 400;
+      font-style: italic;
     }
 
     .sidebar-user {
-      background-color: #fff;
+      background-color: rgba(255, 255, 255, 0.08);
       padding: 1rem;
       border-radius: 10px;
       margin-bottom: 1.5rem;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
       text-align: center;
-      border: 2px solid #f8bbd0;
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .sidebar-user p {
       margin: 0.3rem 0;
-      color: #c2185b;
-      font-weight: bold;
+      color: #ffffff;
+      font-weight: 600;
       font-size: 1rem;
     }
 
     .sidebar-user .rol {
       font-size: 0.85rem;
-      color: #d81b60;
+      color: #a0aec0;
       font-weight: normal;
     }
 
@@ -92,42 +106,64 @@
     .sidebar a {
       display: block;
       margin: 0.5rem 0;
-      color: #880e4f;
+      color: #cbd5e0;
       text-decoration: none;
-      font-weight: bold;
-      padding: 0.8rem 1rem;
-      border-radius: 25px;
+      font-weight: 500;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
       transition: all 0.3s ease;
       position: relative;
+      overflow: hidden;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: rgba(168, 85, 247, 0.1);
+      transition: width 0.3s ease;
+      z-index: -1;
     }
 
     .sidebar a:hover,
     .sidebar a.active {
-      background-color: #f8bbd0;
-      color: #fff;
+      color: #ffffff;
+      transform: translateX(3px);
+      border-left-color: #a855f7;
+      background: rgba(168, 85, 247, 0.15);
+    }
+
+    .sidebar a:hover::before,
+    .sidebar a.active::before {
+      width: 100%;
     }
 
     .notification-badge {
       position: relative;
-      display: inline-block;
-      background: #f44336;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #ef4444;
       color: white;
       border-radius: 50%;
-      min-width: 20px;
-      height: 20px;
-      padding: 2px 6px;
-      font-size: 0.7rem;
+      min-width: 22px;
+      height: 22px;
+      padding: 0;
+      font-size: 0.75rem;
       font-weight: bold;
-      text-align: center;
-      line-height: 16px;
-      margin-left: 8px;
+      margin-left: 6px;
       vertical-align: middle;
+      flex-shrink: 0;
     }
 
     .sidebar-footer {
       margin-top: auto;
       padding-top: 1rem;
-      border-top: 2px solid #f8bbd0;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     /* ========================================
@@ -146,19 +182,22 @@
 
     .page-header h1 {
       font-size: 2.2rem;
-      color: #c2185b;
-      border-bottom: 3px solid #f48fb1;
+      color: #1a1a1a;
+      border-bottom: 3px solid #a855f7;
       padding-bottom: 0.5rem;
       margin-bottom: 1rem;
+      font-weight: 700;
+      letter-spacing: 1px;
     }
 
     .breadcrumb {
-      color: #999;
+      color: #666;
       font-size: 1rem;
     }
 
     .breadcrumb strong {
-      color: #c2185b;
+      color: #7c3aed;
+      font-weight: 600;
     }
 
     /* ========================================
@@ -175,7 +214,7 @@
 
     .card:hover {
       transform: translateY(-5px);
-      box-shadow: 0 6px 20px rgba(244, 143, 177, 0.2);
+      box-shadow: 0 6px 20px rgba(168, 85, 247, 0.2);
     }
 
     .card-body {
@@ -192,7 +231,7 @@
        ======================================== */
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(6, 1fr);
       gap: 1.5rem;
       margin-bottom: 2rem;
     }
@@ -204,18 +243,22 @@
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
       text-align: center;
       transition: all 0.3s ease;
-      border-top: 4px solid #f48fb1;
+      border-top: 4px solid #a855f7;
+      cursor: pointer;
+      text-decoration: none;
+      display: block;
+      color: inherit;
     }
 
     .stat-card:hover {
       transform: translateY(-5px);
-      box-shadow: 0 6px 20px rgba(244, 143, 177, 0.2);
+      box-shadow: 0 6px 20px rgba(168, 85, 247, 0.2);
     }
 
     .stat-number {
       font-size: 2.5rem;
-      font-weight: bold;
-      color: #c2185b;
+      font-weight: 700;
+      color: #7c3aed;
       margin: 0.5rem 0;
     }
 
@@ -236,10 +279,11 @@
 
     .section-title {
       font-size: 1.3rem;
-      color: #c2185b;
+      color: #7c3aed;
       margin-bottom: 0.8rem;
-      border-bottom: 2px solid #f48fb1;
+      border-bottom: 2px solid #a855f7;
       padding-bottom: 0.3rem;
+      font-weight: 600;
     }
 
     .dashboard-row {
@@ -269,30 +313,92 @@
     .charts-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
+      gap: 1.5rem;
       margin-bottom: 1.5rem;
+    }
+
+    /* Layout especial para gráficas de estadísticas */
+    .stats-charts-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .full-width-chart {
+      width: 100%;
+      margin: 0 -1.5rem;
+      padding: 2rem;
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
     }
 
     .chart-container {
       background: #fff;
-      padding: 1rem;
+      padding: 1.5rem;
       border-radius: 15px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
-      height: 280px;
+      min-height: 320px;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .chart-container:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(168, 85, 247, 0.15);
+    }
+
+    .chart-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #8b5cf6, #06b6d4, #10b981);
+      border-radius: 15px 15px 0 0;
     }
 
     .chart-title {
-      color: #c2185b;
-      font-size: 1rem;
-      margin-bottom: 0.8rem;
+      color: #7c3aed;
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
       text-align: center;
-      border-bottom: 2px solid #f8bbd0;
-      padding-bottom: 0.3rem;
+      border-bottom: 3px solid #a855f7;
+      padding-bottom: 0.5rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
     }
 
     .chart-container canvas {
-      max-height: 200px !important;
+      flex: 1;
+      position: relative;
     }
+
+    .chart-container select {
+      width: 100%;
+      padding: 0.6rem;
+      border-radius: 8px;
+      border: 2px solid #a855f7;
+      background-color: #fff;
+      color: #1a1a1a;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: 'Poppins', 'Segoe UI', sans-serif;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+    }
+
+    .chart-container select:hover {
+      border-color: #7c3aed;
+      box-shadow: 0 2px 8px rgba(168, 85, 247, 0.2);
+    }
+
+
 
     /* ========================================
        PRODUCT ITEMS - COMPACTOS
@@ -321,13 +427,13 @@
       border-radius: 8px;
       object-fit: cover;
       margin-right: 0.8rem;
-      border: 2px solid #f8bbd0;
+      border: 2px solid #d8b4fe;
       transition: all 0.3s ease;
     }
 
     .product-image:hover {
       transform: scale(1.1);
-      box-shadow: 0 4px 12px rgba(244, 143, 177, 0.3);
+      box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
     }
 
     .product-info {
@@ -335,8 +441,8 @@
     }
 
     .product-name {
-      font-weight: bold;
-      color: #c2185b;
+      font-weight: 600;
+      color: #7c3aed;
       margin-bottom: 0.2rem;
       font-size: 0.9rem;
     }
@@ -380,8 +486,8 @@
     }
 
     .stock-name {
-      font-weight: bold;
-      color: #c2185b;
+      font-weight: 600;
+      color: #7c3aed;
       margin-bottom: 0.1rem;
       font-size: 0.9rem;
     }
@@ -405,15 +511,15 @@
       align-items: center;
       padding: 1rem;
       margin-bottom: 0.8rem;
-      background: #fffafc;
+      background: #faf5ff;
       border-radius: 10px;
-      border-left: 4px solid #f48fb1;
+      border-left: 4px solid #a855f7;
       transition: all 0.3s ease;
     }
 
     .pedido-item:hover {
       transform: translateX(5px);
-      box-shadow: 0 4px 15px rgba(244, 143, 177, 0.2);
+      box-shadow: 0 4px 15px rgba(168, 85, 247, 0.2);
     }
 
     .pedido-info {
@@ -421,8 +527,8 @@
     }
 
     .pedido-id {
-      font-weight: bold;
-      color: #c2185b;
+      font-weight: 600;
+      color: #7c3aed;
       margin-bottom: 0.3rem;
       font-size: 1rem;
     }
@@ -454,31 +560,33 @@
       transition: all 0.3s ease;
       border: none;
       cursor: pointer;
-      font-family: 'Comic Neue', cursive, Arial, sans-serif;
+      font-family: 'Poppins', 'Segoe UI', sans-serif;
       font-size: 1rem;
       display: inline-block;
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, #f48fb1 0%, #ec407a 100%);
+      background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
       color: white;
-      box-shadow: 0 4px 12px rgba(244, 143, 177, 0.3);
+      box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
     }
 
     .btn-primary:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(244, 143, 177, 0.4);
-      background: linear-gradient(135deg, #ec407a 0%, #d81b60 100%);
+      box-shadow: 0 6px 16px rgba(168, 85, 247, 0.4);
+      background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);
     }
 
     .btn-secondary {
       background: white;
-      color: #c2185b;
-      border: 2px solid #f48fb1;
+      color: #7c3aed;
+      border: 2px solid #a855f7;
     }
 
     .btn-secondary:hover {
-      background: #fce4ec;
+      background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(168, 85, 247, 0.2);
     }
 
     .btn-small {
@@ -532,13 +640,13 @@
     }
 
     .btn-details {
-      background: linear-gradient(135deg, #f48fb1 0%, #ec407a 100%);
+      background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
       color: white;
     }
 
     .btn-details:hover {
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(244, 143, 177, 0.3);
+      box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
     }
 
     /* ========================================
@@ -599,24 +707,62 @@
     /* ========================================
        RESPONSIVE DESIGN
        ======================================== */
+    @media (max-width: 1400px) {
+      .charts-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
     @media (max-width: 1024px) {
       .charts-grid {
         grid-template-columns: 1fr;
       }
       
       .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, 1fr);
       }
 
       .dashboard-row {
         grid-template-columns: 1fr;
       }
+
+      .chart-container {
+        min-height: 280px;
+      }
+
+      .full-width-chart {
+        margin: 0;
+        padding: 1.5rem;
+      }
+
+      #ventasCategoriaChart {
+        height: 300px !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .chart-container {
+        min-height: 250px;
+      }
+
+      #ventasCategoriaChart {
+        height: 250px !important;
+      }
+
+      .full-width-chart {
+        padding: 1rem;
+      }
     }
 
     .btn-reporte:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(156, 39, 176, 0.4);
-      background: linear-gradient(135deg, #6a1b9a 0%, #8e24aa 100%);
+      box-shadow: 0 6px 16px rgba(168, 85, 247, 0.4);
+      background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);
     }
 
     @media (max-width: 768px) {
@@ -633,7 +779,7 @@
       }
 
       .stats-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
       }
 
       .product-item,
@@ -673,6 +819,10 @@
     }
 
     @media (max-width: 480px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
       .stat-number {
         font-size: 1.8rem;
       }
@@ -785,24 +935,20 @@
 
   <div class="sidebar">
     <div class="sidebar-header">
+      <img src="{% static 'img/logoglam.png' %}" alt="Logo Glam Store" class="sidebar-logo">
       <h2>Admin Glam</h2>
       <p>Panel de Control</p>
     </div>
 
     <div class="sidebar-user">
       <p>{{ request.session.usuario_nombre }}</p>
-      <p class="rol">Administrador</p>
+      <p class="rol">{{ request.session.usuario_rol }}</p>
     </div>
 
         <div class="sidebar-nav">
       <a href="{% url 'dashboard_admin' %}" class="active">Dashboard</a>
       <a href="{% url 'lista_admin' %}">Mi Perfil</a>
-      <a href="{% url 'notificaciones' %}">
-        Notificaciones
-        {% if total_notificaciones_no_leidas > 0 %}
-        <span class="notification-badge">{{ total_notificaciones_no_leidas }}</span>
-        {% endif %}
-      </a>
+      <a href="{% url 'notificaciones' %}">Notificaciones</a>
       <a href="{% url 'lista_clientes' %}">Clientes</a>
      <a href="{% url 'lista_distribuidores' %}">Proveedores</a>
       <a href="{% url 'lista_pedidos' %}">Pedidos</a>
@@ -819,19 +965,11 @@
   </div>
 
   <div class="main-content">
-    <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
-      <div>
-        <h1>Panel de Administración</h1>
-        <div class="breadcrumb">
-          <span>Bienvenida: <strong>{{ request.session.usuario_nombre }}</strong> | Rol: <strong>Administrador</strong></span>
-        </div>
+    <div class="page-header">
+      <h1>Panel de Administración</h1>
+      <div class="breadcrumb">
+        <span>Bienvenida: <strong>{{ request.session.usuario_nombre }}</strong> | Rol: <strong>Administrador</strong></span>
       </div>
-      <form action="{% url 'enviar_reporte_dashboard' %}" method="post" style="margin: 0;">
-        {% csrf_token %}
-        <button type="submit" class="btn-reporte" style="background: linear-gradient(135deg, #7b1fa2 0%, #9c27b0 100%); color: white; padding: 12px 24px; border-radius: 25px; border: none; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 1rem; box-shadow: 0 4px 12px rgba(156, 39, 176, 0.3); transition: all 0.3s ease;">
-          Enviar Reporte
-        </button>
-      </form>
     </div>
 
     <!-- ALERTA DE CAPACIDAD DE REPARTIDORES -->
@@ -856,41 +994,71 @@
     </div>
     {% endif %}
 
-    <!-- Estadísticas Generales -->
+    <!-- Estadísticas Generales - Tiempo Real -->
     <div class="stats-grid">
-      <div class="stat-card">
+      <a href="{% url 'lista_productos' %}" class="stat-card">
         <div class="stat-number">{{ total_productos }}</div>
         <div class="stat-label">Productos</div>
-      </div>
-      <div class="stat-card">
+      </a>
+      <a href="{% url 'lista_clientes' %}" class="stat-card">
         <div class="stat-number">{{ total_clientes }}</div>
         <div class="stat-label">Clientes</div>
-      </div>
-      <div class="stat-card">
+      </a>
+      <a href="{% url 'lista_pedidos' %}" class="stat-card">
         <div class="stat-number">{{ total_pedidos }}</div>
         <div class="stat-label">Pedidos</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-number">{{ ventas_totales|floatformat:0|intcomma }}</div>
+      </a>
+      <a href="{% url 'dashboard_admin' %}" class="stat-card">
+        <div class="stat-number">${{ ventas_totales|floatformat:0|intcomma }}</div>
         <div class="stat-label">Ventas Totales</div>
-      </div>
+      </a>
+      <a href="{% url 'dashboard_admin' %}" class="stat-card" style="border-top: 4px solid #10b981;">
+        <div class="stat-number" style="color: #10b981;">${{ ganancias_totales|floatformat:0|intcomma }}</div>
+        <div class="stat-label">Ganancias ({{ margen_ganancia_porcentaje }}%)</div>
+      </a>
+      <a href="{% url 'notificaciones' %}" class="stat-card" style="{% if total_notificaciones_no_leidas > 0 %}border-top: 4px solid #ef4444;{% endif %}">
+        <div class="stat-number" style="{% if total_notificaciones_no_leidas > 0 %}color: #ef4444;{% endif %}">{{ total_notificaciones_no_leidas }}</div>
+        <div class="stat-label">Notificaciones</div>
+      </a>
     </div>
 
-    <!-- Gráficos de Estadísticas - Layout Horizontal Compacto -->
+    <!-- Gráficos de Estadísticas - Layout Reorganizado -->
     <div class="dashboard-section">
-      <h2 class="section-title">Estadísticas de Ventas</h2>
-      <div class="charts-grid">
+      <h2 class="section-title">
+        Estadísticas Semanales
+        <span id="actualizacion-indicator" style="display: none; margin-left: 10px; color: #10b981; font-size: 0.8rem;">
+          🔄 Actualizando...
+        </span>
+      </h2>
+      
+      <!-- Primera fila: Dos gráficas lado a lado -->
+      <div class="dashboard-row" style="margin-bottom: 2rem;">
         <div class="chart-container">
           <h3 class="chart-title">Productos Más Vendidos</h3>
-          <canvas id="productosChart"></canvas>
+          <canvas id="productosChart" style="max-height: 280px;"></canvas>
         </div>
         <div class="chart-container">
-          <h3 class="chart-title">Clientes por Semana</h3>
-          <canvas id="clientesChart"></canvas>
+          <h3 class="chart-title">Clientes Activos</h3>
+          <canvas id="clientesChart" style="max-height: 280px;"></canvas>
         </div>
-        <div class="chart-container">
-          <h3 class="chart-title">Ventas por Categoría</h3>
-          <canvas id="categoriasChart"></canvas>
+      </div>
+      
+      <!-- Segunda fila: Gráfica de ventas por categoría de borde a borde -->
+      <div class="chart-container" style="width: 100%; margin: 0; padding: 2rem; background: linear-gradient(135deg, #fafbff 0%, #f8fafc 100%); border: 1px solid #e2e8f0;">
+        <h3 class="chart-title" style="font-size: 1.4rem; margin-bottom: 1.5rem;">Ventas por Categoría</h3>
+        <div id="chartLoader" style="display: flex; align-items: center; justify-content: center; height: 350px; color: #8b5cf6;">
+          <div style="text-align: center;">
+            <div style="font-size: 0.9rem;">Cargando gráfica...</div>
+          </div>
+        </div>
+        <svg id="ventasCategoriaChart" style="width: 100%; height: 350px; margin-top: 0.5rem; display: none;"></svg>
+        <div style="margin-top: 1rem; padding: 0.8rem; background: #f8fafc; border-radius: 8px; border-left: 4px solid #8b5cf6;">
+          <div style="font-size: 0.8rem; color: #64748b; text-align: center;">
+            <strong>Información:</strong> Pasa el cursor sobre los puntos para ver detalles completos de cada categoría (ventas, unidades, pedidos y promedio)
+          </div>
+          <div id="ultima-actualizacion" style="font-size: 0.7rem; color: #9ca3af; text-align: center; margin-top: 0.5rem;">
+            Última actualización: <span id="timestamp"></span>
+          </div>
         </div>
       </div>
     </div>
@@ -903,26 +1071,26 @@
           {% if reabastecimientos_recientes %}
             <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
               <thead>
-                <tr style="background: #fce4ec; border-bottom: 1px solid #f48fb1;">
-                  <th style="padding: 0.5rem; text-align: left; color: #c2185b; font-weight: bold; font-size: 0.8rem;">Producto</th>
-                  <th style="padding: 0.5rem; text-align: center; color: #c2185b; font-weight: bold; font-size: 0.8rem;">Cant.</th>
-                  <th style="padding: 0.5rem; text-align: center; color: #c2185b; font-weight: bold; font-size: 0.8rem;">Precio Unit.</th>
-                  <th style="padding: 0.5rem; text-align: center; color: #c2185b; font-weight: bold; font-size: 0.8rem;">Total IVA</th>
-                  <th style="padding: 0.5rem; text-align: center; color: #c2185b; font-weight: bold; font-size: 0.8rem;">Lote</th>
-                  <th style="padding: 0.5rem; text-align: center; color: #c2185b; font-weight: bold; font-size: 0.8rem;">Vencimiento</th>
-                  <th style="padding: 0.5rem; text-align: center; color: #c2185b; font-weight: bold; font-size: 0.8rem;">IVA</th>
-                  <th style="padding: 0.5rem; text-align: center; color: #c2185b; font-weight: bold; font-size: 0.8rem;">Inv. Ant.</th>
-                  <th style="padding: 0.5rem; text-align: center; color: #c2185b; font-weight: bold; font-size: 0.8rem;">Inv. Nuevo</th>
-                  <th style="padding: 0.5rem; text-align: left; color: #c2185b; font-weight: bold; font-size: 0.8rem;">Fuente</th>
+                <tr style="background: #e9d5ff; border-bottom: 1px solid #a855f7;">
+                  <th style="padding: 0.5rem; text-align: left; color: #7c3aed; font-weight: 600; font-size: 0.8rem;">Producto</th>
+                  <th style="padding: 0.5rem; text-align: center; color: #7c3aed; font-weight: 600; font-size: 0.8rem;">Cant.</th>
+                  <th style="padding: 0.5rem; text-align: center; color: #7c3aed; font-weight: 600; font-size: 0.8rem;">Precio Unit.</th>
+                  <th style="padding: 0.5rem; text-align: center; color: #7c3aed; font-weight: 600; font-size: 0.8rem;">Total IVA</th>
+                  <th style="padding: 0.5rem; text-align: center; color: #7c3aed; font-weight: 600; font-size: 0.8rem;">Lote</th>
+                  <th style="padding: 0.5rem; text-align: center; color: #7c3aed; font-weight: 600; font-size: 0.8rem;">Vencimiento</th>
+                  <th style="padding: 0.5rem; text-align: center; color: #7c3aed; font-weight: 600; font-size: 0.8rem;">IVA</th>
+                  <th style="padding: 0.5rem; text-align: center; color: #7c3aed; font-weight: 600; font-size: 0.8rem;">Inv. Ant.</th>
+                  <th style="padding: 0.5rem; text-align: center; color: #7c3aed; font-weight: 600; font-size: 0.8rem;">Inv. Nuevo</th>
+                  <th style="padding: 0.5rem; text-align: left; color: #7c3aed; font-weight: 600; font-size: 0.8rem;">Fuente</th>
                 </tr>
               </thead>
               <tbody>
                 {% for reab in reabastecimientos_recientes %}
-                <tr style="border-bottom: 1px solid #fce4ec;">
-                  <td style="padding: 0.5rem; color: #333; font-size: 0.85rem;">{{ reab.producto|truncatewords:2 }}</td>
-                  <td style="padding: 0.5rem; text-align: center; color: #333;">{{ reab.cantidad }}</td>
-                  <td style="padding: 0.5rem; text-align: center; color: #333;">{{ reab.costo_unitario|intcomma }}</td>
-                  <td style="padding: 0.5rem; text-align: center; color: #2e7d32; font-weight: bold;">
+                <tr style="border-bottom: 1px solid #e9d5ff;">
+                  <td style="padding: 0.5rem; color: #1a1a1a; font-size: 0.85rem;">{{ reab.producto|truncatewords:2 }}</td>
+                  <td style="padding: 0.5rem; text-align: center; color: #1a1a1a;">{{ reab.cantidad }}</td>
+                  <td style="padding: 0.5rem; text-align: center; color: #1a1a1a;">{{ reab.costo_unitario|intcomma }}</td>
+                  <td style="padding: 0.5rem; text-align: center; color: #2e7d32; font-weight: 600;">
                     {% if reab.total_con_iva is not None %}
                       {{ reab.total_con_iva|intcomma }}
                     {% else %}
@@ -943,7 +1111,7 @@
                       -
                     {% endif %}
                   </td>
-                  <td style="padding: 0.5rem; text-align: center; color: #c2185b; font-weight: bold;">
+                  <td style="padding: 0.5rem; text-align: center; color: #7c3aed; font-weight: 600;">
                     {% if reab.iva is not None %}
                       {{ reab.iva|intcomma }}
                     {% else %}
@@ -951,7 +1119,7 @@
                     {% endif %}
                   </td>
                   <td style="padding: 0.5rem; text-align: center; color: #666;">{{ reab.stock_anterior }}</td>
-                  <td style="padding: 0.5rem; text-align: center; color: #2e7d32; font-weight: bold;">{{ reab.stock_nuevo }}</td>
+                  <td style="padding: 0.5rem; text-align: center; color: #2e7d32; font-weight: 600;">{{ reab.stock_nuevo }}</td>
                   <td style="padding: 0.5rem; color: #666; font-size: 0.8rem;">
                     <span class="badge-fuente {% if reab.fuente == 'Excel' %}fuente-excel{% else %}fuente-manual{% endif %}">{{ reab.fuente }}</span>
                   </td>
@@ -1081,23 +1249,23 @@
           {% if pedidos_por_asignar %}
             <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
               <thead>
-                <tr style="background: #fce4ec; border-bottom: 1px solid #f48fb1;">
-                  <th style="padding: 0.5rem; text-align: left; color: #c2185b; font-weight: bold; font-size: 0.8rem;">#Pedido</th>
-                  <th style="padding: 0.5rem; text-align: left; color: #c2185b; font-weight: bold; font-size: 0.8rem;">Cliente</th>
-                  <th style="padding: 0.5rem; text-align: left; color: #c2185b; font-weight: bold; font-size: 0.8rem;">Dirección</th>
-                  <th style="padding: 0.5rem; text-align: center; color: #c2185b; font-weight: bold; font-size: 0.8rem;">Total</th>
-                  <th style="padding: 0.5rem; text-align: center; color: #c2185b; font-weight: bold; font-size: 0.8rem;">Estado Pago</th>
-                  <th style="padding: 0.5rem; text-align: center; color: #c2185b; font-weight: bold; font-size: 0.8rem;">Fecha</th>
-                  <th style="padding: 0.5rem; text-align: center; color: #c2185b; font-weight: bold; font-size: 0.8rem;">Acción</th>
+                <tr style="background: #e9d5ff; border-bottom: 1px solid #a855f7;">
+                  <th style="padding: 0.5rem; text-align: left; color: #7c3aed; font-weight: 600; font-size: 0.8rem;">#Pedido</th>
+                  <th style="padding: 0.5rem; text-align: left; color: #7c3aed; font-weight: 600; font-size: 0.8rem;">Cliente</th>
+                  <th style="padding: 0.5rem; text-align: left; color: #7c3aed; font-weight: 600; font-size: 0.8rem;">Dirección</th>
+                  <th style="padding: 0.5rem; text-align: center; color: #7c3aed; font-weight: 600; font-size: 0.8rem;">Total</th>
+                  <th style="padding: 0.5rem; text-align: center; color: #7c3aed; font-weight: 600; font-size: 0.8rem;">Estado Pago</th>
+                  <th style="padding: 0.5rem; text-align: center; color: #7c3aed; font-weight: 600; font-size: 0.8rem;">Fecha</th>
+                  <th style="padding: 0.5rem; text-align: center; color: #7c3aed; font-weight: 600; font-size: 0.8rem;">Acción</th>
                 </tr>
               </thead>
               <tbody>
                 {% for pedido in pedidos_por_asignar %}
-                <tr style="border-bottom: 1px solid #fce4ec;">
-                  <td style="padding: 0.5rem; color: #333; font-weight: bold;">#{{ pedido.idPedido }}</td>
-                  <td style="padding: 0.5rem; color: #333;">{{ pedido.idCliente.nombre|truncatewords:3 }}</td>
+                <tr style="border-bottom: 1px solid #e9d5ff;">
+                  <td style="padding: 0.5rem; color: #1a1a1a; font-weight: 600;">#{{ pedido.idPedido }}</td>
+                  <td style="padding: 0.5rem; color: #1a1a1a;">{{ pedido.idCliente.nombre|truncatewords:3 }}</td>
                   <td style="padding: 0.5rem; color: #666; font-size: 0.8rem;">{{ pedido.idCliente.direccion|truncatewords:5 }}</td>
-                  <td style="padding: 0.5rem; text-align: center; color: #2e7d32; font-weight: bold;">${{ pedido.total|floatformat:0|intcomma }}</td>
+                  <td style="padding: 0.5rem; text-align: center; color: #2e7d32; font-weight: 600;">${{ pedido.total|floatformat:0|intcomma }}</td>
                   <td style="padding: 0.5rem; text-align: center;">
                     <span class="{% if pedido.estado_pago == 'Pago Completo' %}estado-pago-completo{% elif pedido.estado_pago == 'Pago Parcial' %}estado-pago-parcial{% else %}estado-pago-pendiente{% endif %}" style="padding: 0.2rem 0.5rem; border-radius: 10px; font-size: 0.75rem; font-weight: bold;">
                       {{ pedido.estado_pago }}
@@ -1106,9 +1274,9 @@
                   <td style="padding: 0.5rem; text-align: center; color: #666; font-size: 0.8rem;">{{ pedido.fechaCreacion|date:"d/m/Y H:i" }}</td>
                   <td style="padding: 0.5rem; text-align: center;">
                     <a href="{% url 'lista_repartidores' %}" 
-                       style="background: linear-gradient(135deg, #f48fb1 0%, #ec407a 100%); 
+                       style="background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%); 
                               color: white; padding: 0.3rem 0.8rem; border-radius: 15px; 
-                              text-decoration: none; font-size: 0.75rem; font-weight: bold;
+                              text-decoration: none; font-size: 0.75rem; font-weight: 600;
                               display: inline-block; transition: all 0.3s ease;">
                       Asignar
                     </a>
@@ -1235,8 +1403,8 @@
                 <div style="font-size: 1.5rem; font-weight: bold; color: #ffc107;">{{ repartidor_estrella.promedio_calificacion|floatformat:1 }}</div>
                 <div style="color: #666; font-size: 0.85rem;">Promedio</div>
               </div>
-              <div style="background: #fffafc; padding: 1rem 1.5rem; border-radius: 10px; border: 2px solid #c2185b;">
-                <div style="font-size: 1.5rem; font-weight: bold; color: #c2185b;">{{ repartidor_estrella.total_entregas }}</div>
+              <div style="background: #faf5ff; padding: 1rem 1.5rem; border-radius: 10px; border: 2px solid #7c3aed;">
+                <div style="font-size: 1.5rem; font-weight: 700; color: #7c3aed;">{{ repartidor_estrella.total_entregas }}</div>
                 <div style="color: #666; font-size: 0.85rem;">Entregas</div>
               </div>
             </div>
@@ -1306,37 +1474,59 @@
         data: [
           {% for producto in productos_mas_vendidos %}{{ producto.total_vendido }}{% if not forloop.last %},{% endif %}{% endfor %}
         ],
-        backgroundColor: ['#f48fb1', '#ec407a', '#e91e63', '#c2185b', '#ad1457'],
+        backgroundColor: [
+          '#a855f7',  // Púrpura vibrante
+          '#3b82f6',  // Azul brillante
+          '#10b981',  // Verde esmeralda
+          '#f59e0b',  // Naranja dorado
+          '#ef4444'   // Rojo coral
+        ],
         borderColor: '#fff',
-        borderWidth: 2
+        borderWidth: 3
       }]
     };
 
     const clientesData = {
-      labels: ['Semana Pasada', 'Esta Semana'],
+      labels: ['Hace 2 Semanas', 'Semana Pasada', 'Esta Semana'],
       datasets: [{
-        label: 'Nuevos Clientes',
-        data: [{{ clientes_semana_pasada }}, {{ clientes_esta_semana }}],
-        backgroundColor: ['#f8bbd0', '#f48fb1'],
-        borderColor: '#c2185b',
-        borderWidth: 2
+        label: 'Clientes Activos (con Pedidos)',
+        data: [{{ clientes_hace_2_semanas }}, {{ clientes_semana_pasada }}, {{ clientes_esta_semana }}],
+        backgroundColor: [
+          '#8b5cf6',  // Púrpura medio
+          '#10b981',  // Verde
+          '#06b6d4'   // Cyan brillante
+        ],
+        borderColor: [
+          '#7c3aed',
+          '#059669',
+          '#0891b2'
+        ],
+        borderWidth: 2,
+        borderRadius: 8,
+        borderSkipped: false
       }]
     };
 
-    const categoriasData = {
+    const ventasCategoriaData = {
       labels: [
         {% for categoria in ventas_por_categoria %}'{{ categoria.categoria }}'{% if not forloop.last %},{% endif %}{% endfor %}
       ],
-      datasets: [{
-        label: 'Ventas ($)',
-        data: [
-          {% for categoria in ventas_por_categoria %}{{ categoria.total }}{% if not forloop.last %},{% endif %}{% endfor %}
-        ],
-        backgroundColor: ['#fce4ec', '#f8bbd0', '#f48fb1', '#ec407a', '#e91e63'],
-        borderColor: '#c2185b',
-        borderWidth: 1
-      }]
+      data: [
+        {% for categoria in ventas_por_categoria %}{{ categoria.total }}{% if not forloop.last %},{% endif %}{% endfor %}
+      ],
+      detalles: [
+        {% for categoria in ventas_por_categoria %}{
+          categoria: '{{ categoria.categoria }}',
+          total: {{ categoria.total }},
+          cantidad_vendida: {{ categoria.cantidad_vendida }},
+          num_pedidos: {{ categoria.num_pedidos }},
+          num_productos: {{ categoria.num_productos }},
+          promedio_por_pedido: {{ categoria.promedio_por_pedido|floatformat:0 }}
+        }{% if not forloop.last %},{% endif %}{% endfor %}
+      ]
     };
+
+
 
     const chartOptions = {
       responsive: true,
@@ -1353,51 +1543,729 @@
     };
 
     document.addEventListener('DOMContentLoaded', function() {
+      // Actualizar timestamp inicial
+      actualizarTimestamp();
+      // Gráfico de productos más vendidos (esta semana)
       const productosCtx = document.getElementById('productosChart');
-      if (productosCtx) {
+      if (productosCtx && productosData.labels.length > 0) {
         new Chart(productosCtx.getContext('2d'), {
           type: 'doughnut',
           data: productosData,
-          options: chartOptions
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+              legend: {
+                position: 'bottom',
+                labels: {
+                  padding: 15,
+                  usePointStyle: true,
+                  font: { size: 11, family: 'Poppins' }
+                }
+              },
+              tooltip: {
+                backgroundColor: '#1f2937',
+                titleColor: '#ffffff',
+                bodyColor: '#d1d5db',
+                borderColor: '#8b5cf6',
+                borderWidth: 2,
+                cornerRadius: 8,
+                titleFont: { family: 'Poppins', weight: 'bold' },
+                bodyFont: { family: 'Poppins' },
+                callbacks: {
+                  label: function(context) {
+                    return `${context.label}: ${context.parsed} unidades`;
+                  }
+                }
+              }
+            }
+          }
         });
+      } else if (productosCtx) {
+        productosCtx.parentElement.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 200px; color: #9ca3af; flex-direction: column;"><div>Sin ventas esta semana</div><div style="font-size: 0.8rem; margin-top: 0.5rem;">Los productos aparecerán cuando se registren ventas</div></div>';
       }
 
+      // Gráfico de clientes nuevos por semana
       const clientesCtx = document.getElementById('clientesChart');
       if (clientesCtx) {
         new Chart(clientesCtx.getContext('2d'), {
           type: 'bar',
           data: clientesData,
-          options: Object.assign({}, chartOptions, {
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+              legend: {
+                position: 'bottom',
+                labels: {
+                  padding: 15,
+                  usePointStyle: true,
+                  font: { size: 11, family: 'Poppins' }
+                }
+              },
+              tooltip: {
+                backgroundColor: '#1f2937',
+                titleColor: '#ffffff',
+                bodyColor: '#d1d5db',
+                borderColor: '#06b6d4',
+                borderWidth: 2,
+                cornerRadius: 8,
+                titleFont: { family: 'Poppins', weight: 'bold' },
+                bodyFont: { family: 'Poppins' },
+                callbacks: {
+                  label: function(context) {
+                    return `${context.parsed.y} clientes activos`;
+                  }
+                }
+              }
+            },
             scales: {
               y: {
                 beginAtZero: true,
+                title: {
+                  display: true,
+                  text: 'Número de Clientes',
+                  font: { family: 'Poppins', weight: 'bold' },
+                  color: '#374151'
+                },
                 ticks: {
-                  stepSize: 1
+                  stepSize: 1,
+                  font: { size: 10, family: 'Poppins' },
+                  color: '#6b7280'
+                },
+                grid: {
+                  color: '#e5e7eb'
+                }
+              },
+              x: {
+                title: {
+                  display: true,
+                  text: 'Período',
+                  font: { family: 'Poppins', weight: 'bold' },
+                  color: '#374151'
+                },
+                ticks: {
+                  font: { size: 9, family: 'Poppins' },
+                  color: '#6b7280',
+                  maxRotation: 45
+                },
+                grid: {
+                  display: false
                 }
               }
             }
-          })
+          }
         });
       }
 
-      const categoriasCtx = document.getElementById('categoriasChart');
-      if (categoriasCtx) {
-        new Chart(categoriasCtx.getContext('2d'), {
-          type: 'line',
-          data: categoriasData,
-          options: Object.assign({}, chartOptions, {
-            scales: {
-              y: {
-                beginAtZero: true
-              }
-            }
-          })
+      // Gráfico de ventas por categoría (Línea mejorada con más detalles)
+      const svg = document.getElementById('ventasCategoriaChart');
+      const loader = document.getElementById('chartLoader');
+      
+      if (svg && ventasCategoriaData.labels.length > 0) {
+        // Ocultar loader y mostrar gráfica
+        if (loader) loader.style.display = 'none';
+        svg.style.display = 'block';
+        const datos = ventasCategoriaData.data;
+        const categorias = ventasCategoriaData.labels;
+        
+        // Asegurar que tenemos datos válidos
+        if (datos.length === 0 || categorias.length === 0) {
+          svg.innerHTML = '<text x="50%" y="50%" text-anchor="middle" fill="#999">No hay categorías disponibles</text>';
+          return;
+        }
+        
+        // Filtrar datos para mostrar solo categorías con al menos algún producto
+        const datosValidos = [];
+        const categoriasValidas = [];
+        const detallesValidos = [];
+        
+        for (let i = 0; i < datos.length; i++) {
+          if (ventasCategoriaData.detalles[i] && ventasCategoriaData.detalles[i].num_productos > 0) {
+            datosValidos.push(datos[i]);
+            categoriasValidas.push(categorias[i]);
+            detallesValidos.push(ventasCategoriaData.detalles[i]);
+          }
+        }
+        
+        // Usar los datos filtrados
+        const datosFinales = datosValidos.length > 0 ? datosValidos : datos;
+        const categoriasFinales = categoriasValidas.length > 0 ? categoriasValidas : categorias;
+        const detallesFinales = detallesValidos.length > 0 ? detallesValidos : ventasCategoriaData.detalles;
+        
+        // Dimensiones optimizadas para layout de borde a borde
+        const width = 1000;
+        const height = 350;
+        const padding = { top: 50, right: 80, bottom: 120, left: 140 };
+        const chartWidth = width - padding.left - padding.right;
+        const chartHeight = height - padding.top - padding.bottom;
+        
+        // Configurar SVG
+        svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+        svg.style.width = '100%';
+        svg.style.height = '350px';
+        
+        // Encontrar máximo y mínimo valor con mejor margen
+        const maxValor = Math.max(...datosFinales) * 1.15; // 15% de margen superior
+        const minValor = Math.max(0, Math.min(...datosFinales) * 0.9); // 10% de margen inferior, mínimo 0
+        
+        // Escalas mejoradas
+        const escalaY = chartHeight / (maxValor - minValor);
+        const escalaX = categoriasFinales.length > 1 ? chartWidth / (categoriasFinales.length - 1) : chartWidth / 2;
+        
+        // Limpiar SVG
+        svg.innerHTML = '';
+        
+        // Crear grupo principal
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('transform', `translate(${padding.left}, ${padding.top})`);
+        
+        // Gradiente para el área bajo la línea
+        const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+        const gradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+        gradient.setAttribute('id', 'areaGradient');
+        gradient.setAttribute('x1', '0%');
+        gradient.setAttribute('y1', '0%');
+        gradient.setAttribute('x2', '0%');
+        gradient.setAttribute('y2', '100%');
+        
+        const stop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+        stop1.setAttribute('offset', '0%');
+        stop1.setAttribute('stop-color', '#8b5cf6');
+        stop1.setAttribute('stop-opacity', '0.3');
+        
+        const stop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+        stop2.setAttribute('offset', '100%');
+        stop2.setAttribute('stop-color', '#8b5cf6');
+        stop2.setAttribute('stop-opacity', '0.05');
+        
+        gradient.appendChild(stop1);
+        gradient.appendChild(stop2);
+        defs.appendChild(gradient);
+        svg.appendChild(defs);
+        
+        // Dibujar líneas de cuadrícula mejoradas
+        const numLineas = 6;
+        for (let i = 0; i <= numLineas; i++) {
+          const y = (chartHeight / numLineas) * i;
+          const valor = maxValor - ((maxValor - minValor) / numLineas) * i;
+          
+          // Línea horizontal de cuadrícula
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', 0);
+          line.setAttribute('y1', y);
+          line.setAttribute('x2', chartWidth);
+          line.setAttribute('y2', y);
+          line.setAttribute('stroke', i === numLineas ? '#374151' : '#e5e7eb');
+          line.setAttribute('stroke-width', i === numLineas ? 2 : 1);
+          line.setAttribute('stroke-dasharray', i === numLineas ? 'none' : '3,3');
+          g.appendChild(line);
+          
+          // Etiqueta Y (valores de ventas) mejorada
+          const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          text.setAttribute('x', -20);
+          text.setAttribute('y', y + 5);
+          text.setAttribute('text-anchor', 'end');
+          text.setAttribute('font-size', '12');
+          text.setAttribute('fill', '#4b5563');
+          text.setAttribute('font-family', 'Poppins, Arial, sans-serif');
+          text.setAttribute('font-weight', '500');
+          
+          // Formatear valor como moneda colombiana
+          const valorFormateado = new Intl.NumberFormat('es-CO', {
+            style: 'currency',
+            currency: 'COP',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+            notation: valor >= 1000000 ? 'compact' : 'standard'
+          }).format(Math.round(valor));
+          
+          text.textContent = valorFormateado;
+          g.appendChild(text);
+        }
+        
+        // Dibujar líneas verticales de cuadrícula para cada categoría
+        categoriasFinales.forEach((categoria, index) => {
+          const x = categoriasFinales.length === 1 ? chartWidth / 2 : escalaX * index;
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', x);
+          line.setAttribute('y1', 0);
+          line.setAttribute('x2', x);
+          line.setAttribute('y2', chartHeight);
+          line.setAttribute('stroke', '#f3f4f6');
+          line.setAttribute('stroke-width', 1);
+          line.setAttribute('stroke-dasharray', '2,4');
+          g.appendChild(line);
         });
+        
+        // Dibujar ejes principales
+        const ejeY = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        ejeY.setAttribute('x1', 0);
+        ejeY.setAttribute('y1', 0);
+        ejeY.setAttribute('x2', 0);
+        ejeY.setAttribute('y2', chartHeight);
+        ejeY.setAttribute('stroke', '#374151');
+        ejeY.setAttribute('stroke-width', 3);
+        g.appendChild(ejeY);
+        
+        const ejeX = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        ejeX.setAttribute('x1', 0);
+        ejeX.setAttribute('y1', chartHeight);
+        ejeX.setAttribute('x2', chartWidth);
+        ejeX.setAttribute('y2', chartHeight);
+        ejeX.setAttribute('stroke', '#374151');
+        ejeX.setAttribute('stroke-width', 3);
+        g.appendChild(ejeX);
+        
+        // Crear puntos para la línea con información detallada
+        const puntos = datosFinales.map((valor, index) => {
+          // Distribuir puntos uniformemente, incluso si hay solo una categoría
+          const x = categoriasFinales.length === 1 ? chartWidth / 2 : (chartWidth / (categoriasFinales.length - 1)) * index;
+          const y = chartHeight - ((valor - minValor) * escalaY);
+          const detalle = detallesFinales[index] || {};
+          return { 
+            x, 
+            y, 
+            valor, 
+            categoria: categoriasFinales[index],
+            cantidad_vendida: detalle.cantidad_vendida || 0,
+            num_pedidos: detalle.num_pedidos || 0,
+            num_productos: detalle.num_productos || 0,
+            promedio_por_pedido: detalle.promedio_por_pedido || 0
+          };
+        });
+        
+        // Dibujar área bajo la línea
+        if (puntos.length > 1) {
+          let areaPath = `M 0 ${chartHeight}`;
+          puntos.forEach((punto, index) => {
+            if (index === 0) {
+              areaPath += ` L ${punto.x} ${punto.y}`;
+            } else {
+              areaPath += ` L ${punto.x} ${punto.y}`;
+            }
+          });
+          areaPath += ` L ${puntos[puntos.length - 1].x} ${chartHeight} Z`;
+          
+          const area = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          area.setAttribute('d', areaPath);
+          area.setAttribute('fill', 'url(#areaGradient)');
+          g.appendChild(area);
+        }
+        
+        // Dibujar línea principal con curvas suaves
+        if (puntos.length > 1) {
+          let pathData = `M ${puntos[0].x} ${puntos[0].y}`;
+          
+          for (let i = 1; i < puntos.length; i++) {
+            // Crear curvas suaves entre puntos
+            const prevPunto = puntos[i - 1];
+            const currentPunto = puntos[i];
+            const controlX = (prevPunto.x + currentPunto.x) / 2;
+            
+            pathData += ` Q ${controlX} ${prevPunto.y} ${currentPunto.x} ${currentPunto.y}`;
+          }
+          
+          const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          path.setAttribute('d', pathData);
+          path.setAttribute('stroke', '#8b5cf6');
+          path.setAttribute('stroke-width', 4);
+          path.setAttribute('fill', 'none');
+          path.setAttribute('stroke-linecap', 'round');
+          path.setAttribute('stroke-linejoin', 'round');
+          path.style.filter = 'drop-shadow(0 2px 4px rgba(139, 92, 246, 0.3))';
+          g.appendChild(path);
+        }
+        
+        // Dibujar puntos mejorados con animaciones
+        puntos.forEach((punto, index) => {
+          // Círculo exterior (sombra)
+          const outerCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          outerCircle.setAttribute('cx', punto.x);
+          outerCircle.setAttribute('cy', punto.y);
+          outerCircle.setAttribute('r', 8);
+          outerCircle.setAttribute('fill', '#8b5cf6');
+          outerCircle.setAttribute('opacity', '0.2');
+          g.appendChild(outerCircle);
+          
+          // Círculo principal
+          const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          circle.setAttribute('cx', punto.x);
+          circle.setAttribute('cy', punto.y);
+          circle.setAttribute('r', 6);
+          circle.setAttribute('fill', '#8b5cf6');
+          circle.setAttribute('stroke', '#ffffff');
+          circle.setAttribute('stroke-width', 3);
+          circle.style.cursor = 'pointer';
+          circle.style.filter = 'drop-shadow(0 2px 6px rgba(139, 92, 246, 0.4))';
+          
+          // Efectos hover mejorados
+          circle.addEventListener('mouseover', function() {
+            circle.setAttribute('r', 9);
+            circle.setAttribute('fill', '#7c3aed');
+            outerCircle.setAttribute('r', 12);
+            outerCircle.setAttribute('opacity', '0.3');
+            
+            // Tooltip detallado mejorado
+            const tooltip = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            tooltip.setAttribute('id', 'tooltip-' + index);
+            
+            // Fondo del tooltip más grande para más información
+            const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            rect.setAttribute('x', punto.x - 100);
+            rect.setAttribute('y', punto.y - 85);
+            rect.setAttribute('width', 200);
+            rect.setAttribute('height', 75);
+            rect.setAttribute('fill', '#1f2937');
+            rect.setAttribute('rx', 10);
+            rect.setAttribute('ry', 10);
+            rect.style.filter = 'drop-shadow(0 6px 20px rgba(0, 0, 0, 0.4))';
+            tooltip.appendChild(rect);
+            
+            // Título de categoría
+            const textCategoria = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            textCategoria.setAttribute('x', punto.x);
+            textCategoria.setAttribute('y', punto.y - 65);
+            textCategoria.setAttribute('text-anchor', 'middle');
+            textCategoria.setAttribute('font-size', '12');
+            textCategoria.setAttribute('fill', '#8b5cf6');
+            textCategoria.setAttribute('font-family', 'Poppins, Arial, sans-serif');
+            textCategoria.setAttribute('font-weight', 'bold');
+            textCategoria.textContent = punto.categoria;
+            tooltip.appendChild(textCategoria);
+            
+            // Ventas totales
+            const textVentas = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            textVentas.setAttribute('x', punto.x);
+            textVentas.setAttribute('y', punto.y - 48);
+            textVentas.setAttribute('text-anchor', 'middle');
+            textVentas.setAttribute('font-size', '11');
+            textVentas.setAttribute('fill', '#ffffff');
+            textVentas.setAttribute('font-family', 'Poppins, Arial, sans-serif');
+            textVentas.setAttribute('font-weight', 'bold');
+            
+            const valorFormateado = new Intl.NumberFormat('es-CO', {
+              style: 'currency',
+              currency: 'COP',
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 0
+            }).format(punto.valor);
+            
+            textVentas.textContent = valorFormateado;
+            tooltip.appendChild(textVentas);
+            
+            // Información adicional línea 1
+            const textInfo1 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            textInfo1.setAttribute('x', punto.x);
+            textInfo1.setAttribute('y', punto.y - 32);
+            textInfo1.setAttribute('text-anchor', 'middle');
+            textInfo1.setAttribute('font-size', '9');
+            textInfo1.setAttribute('fill', '#d1d5db');
+            textInfo1.setAttribute('font-family', 'Poppins, Arial, sans-serif');
+            textInfo1.textContent = `${punto.cantidad_vendida} unidades • ${punto.num_pedidos} pedidos`;
+            tooltip.appendChild(textInfo1);
+            
+            // Información adicional línea 2
+            const textInfo2 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            textInfo2.setAttribute('x', punto.x);
+            textInfo2.setAttribute('y', punto.y - 20);
+            textInfo2.setAttribute('text-anchor', 'middle');
+            textInfo2.setAttribute('font-size', '9');
+            textInfo2.setAttribute('fill', '#d1d5db');
+            textInfo2.setAttribute('font-family', 'Poppins, Arial, sans-serif');
+            
+            const promedioFormateado = new Intl.NumberFormat('es-CO', {
+              style: 'currency',
+              currency: 'COP',
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 0
+            }).format(punto.promedio_por_pedido);
+            
+            textInfo2.textContent = `${punto.num_productos} productos • ${promedioFormateado}/pedido`;
+            tooltip.appendChild(textInfo2);
+            
+            g.appendChild(tooltip);
+          });
+          
+          circle.addEventListener('mouseout', function() {
+            circle.setAttribute('r', 6);
+            circle.setAttribute('fill', '#8b5cf6');
+            outerCircle.setAttribute('r', 8);
+            outerCircle.setAttribute('opacity', '0.2');
+            
+            const tooltip = document.getElementById('tooltip-' + index);
+            if (tooltip) {
+              tooltip.remove();
+            }
+          });
+          
+          g.appendChild(circle);
+          
+          // Etiqueta X mejorada (nombre de categoría)
+          const textX = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          textX.setAttribute('x', punto.x);
+          textX.setAttribute('y', chartHeight + 25);
+          textX.setAttribute('text-anchor', 'middle');
+          textX.setAttribute('font-size', '12');
+          textX.setAttribute('fill', '#374151');
+          textX.setAttribute('font-family', 'Poppins, Arial, sans-serif');
+          textX.setAttribute('font-weight', '600');
+          
+          // Truncar texto si es muy largo
+          let textoCategoria = punto.categoria;
+          if (textoCategoria.length > 15) {
+            textoCategoria = textoCategoria.substring(0, 13) + '...';
+          }
+          textX.textContent = textoCategoria;
+          g.appendChild(textX);
+          
+          // Valor debajo de cada punto
+          const valorText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          valorText.setAttribute('x', punto.x);
+          valorText.setAttribute('y', chartHeight + 45);
+          valorText.setAttribute('text-anchor', 'middle');
+          valorText.setAttribute('font-size', '10');
+          valorText.setAttribute('fill', '#8b5cf6');
+          valorText.setAttribute('font-family', 'Poppins, Arial, sans-serif');
+          valorText.setAttribute('font-weight', 'bold');
+          
+          const valorCompacto = new Intl.NumberFormat('es-CO', {
+            style: 'currency',
+            currency: 'COP',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+            notation: 'compact'
+          }).format(punto.valor);
+          
+          valorText.textContent = valorCompacto;
+          g.appendChild(valorText);
+        });
+        
+        // Etiquetas de ejes mejoradas
+        const labelY = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        labelY.setAttribute('transform', `rotate(-90)`);
+        labelY.setAttribute('y', -80);
+        labelY.setAttribute('x', -chartHeight / 2);
+        labelY.setAttribute('text-anchor', 'middle');
+        labelY.setAttribute('font-size', '14');
+        labelY.setAttribute('fill', '#374151');
+        labelY.setAttribute('font-weight', 'bold');
+        labelY.setAttribute('font-family', 'Poppins, Arial, sans-serif');
+        labelY.textContent = 'Ventas Totales (COP)';
+        g.appendChild(labelY);
+        
+        const labelX = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        labelX.setAttribute('x', chartWidth / 2);
+        labelX.setAttribute('y', chartHeight + 75);
+        labelX.setAttribute('text-anchor', 'middle');
+        labelX.setAttribute('font-size', '14');
+        labelX.setAttribute('fill', '#374151');
+        labelX.setAttribute('font-weight', 'bold');
+        labelX.setAttribute('font-family', 'Poppins, Arial, sans-serif');
+        labelX.textContent = 'Categorías de Productos';
+        g.appendChild(labelX);
+        
+        svg.appendChild(g);
+      } else if (svg) {
+        // Ocultar loader y mostrar mensaje cuando no hay datos
+        if (loader) loader.style.display = 'none';
+        svg.style.display = 'block';
+        svg.innerHTML = `
+          <g transform="translate(50, 50)">
+            <rect x="0" y="0" width="500" height="150" fill="#f9fafb" stroke="#e5e7eb" stroke-width="2" rx="10"/>
+            <text x="250" y="80" text-anchor="middle" font-size="16" fill="#6b7280" font-family="Poppins, Arial, sans-serif" font-weight="500">
+              Sin datos de ventas por categoría
+            </text>
+            <text x="250" y="105" text-anchor="middle" font-size="12" fill="#9ca3af" font-family="Poppins, Arial, sans-serif">
+              Los datos aparecerán cuando se registren ventas en la última semana
+            </text>
+          </g>
+        `;
       }
     });
+
+    // Variables globales para las gráficas
+    let productosChartInstance = null;
+    let clientesChartInstance = null;
+
+    // Función para actualizar el timestamp
+    function actualizarTimestamp() {
+      const timestampElement = document.getElementById('timestamp');
+      if (timestampElement) {
+        const ahora = new Date();
+        const opciones = { 
+          year: 'numeric', 
+          month: '2-digit', 
+          day: '2-digit', 
+          hour: '2-digit', 
+          minute: '2-digit', 
+          second: '2-digit' 
+        };
+        timestampElement.textContent = ahora.toLocaleDateString('es-CO', opciones);
+      }
+    }
+
+    // Función para actualizar datos via AJAX
+    async function actualizarDatosGraficas() {
+      const indicator = document.getElementById('actualizacion-indicator');
+      
+      try {
+        // Mostrar indicador de actualización
+        if (indicator) {
+          indicator.style.display = 'inline';
+        }
+        
+        const response = await fetch(window.location.href, {
+          method: 'GET',
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        if (response.ok) {
+          // Actualizar timestamp antes de recargar
+          actualizarTimestamp();
+          
+          // Pequeña pausa para mostrar el indicador
+          setTimeout(() => {
+            window.location.reload();
+          }, 500);
+        }
+      } catch (error) {
+        console.log('Error actualizando datos:', error);
+        // Ocultar indicador en caso de error
+        if (indicator) {
+          indicator.style.display = 'none';
+        }
+      }
+    }
+
+    // Función específica para verificar cambios en estadísticas principales
+    async function verificarCambiosEstadisticas() {
+      try {
+        const response = await fetch('/gestion/dashboard/admin/?stats_only=1', {
+          method: 'GET',
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          
+          // Verificar si hay cambios en las estadísticas principales
+          const currentStats = {
+            productos: parseInt(document.querySelector('.stats-grid .stat-card:nth-child(1) .stat-number').textContent),
+            clientes: parseInt(document.querySelector('.stats-grid .stat-card:nth-child(2) .stat-number').textContent),
+            pedidos: parseInt(document.querySelector('.stats-grid .stat-card:nth-child(3) .stat-number').textContent),
+            notificaciones: parseInt(document.querySelector('.stats-grid .stat-card:nth-child(6) .stat-number').textContent)
+          };
+          
+          // Si hay cambios, actualizar
+          if (data.total_productos !== currentStats.productos || 
+              data.total_clientes !== currentStats.clientes || 
+              data.total_pedidos !== currentStats.pedidos || 
+              data.total_notificaciones_no_leidas !== currentStats.notificaciones) {
+            
+            console.log('📊 Cambios detectados en estadísticas principales, actualizando...');
+            actualizarDatosGraficas();
+          }
+        }
+      } catch (error) {
+        console.log('Error verificando estadísticas:', error);
+      }
+    }
+
+    // Función para actualizar las gráficas automáticamente
+    function iniciarActualizacionAutomatica() {
+      // Actualizar cada 2 minutos
+      setInterval(actualizarDatosGraficas, 120000); // 2 minutos = 120000 ms
+      
+      // Actualizar cada vez que la ventana vuelve a estar activa
+      let inactivo = false;
+      
+      window.addEventListener('blur', function() {
+        inactivo = true;
+      });
+      
+      window.addEventListener('focus', function() {
+        if (inactivo) {
+          inactivo = false;
+          // Actualizar inmediatamente cuando vuelve el foco
+          setTimeout(actualizarDatosGraficas, 500);
+        }
+      });
+      
+      // Actualizar cuando la página vuelve a estar visible
+      document.addEventListener('visibilitychange', function() {
+        if (!document.hidden && inactivo) {
+          setTimeout(actualizarDatosGraficas, 500);
+        }
+      });
+    }
+
+    // Función para detectar cambios en los datos
+    function verificarCambiosEnDatos() {
+      let ultimaActualizacion = Date.now();
+      
+      // Verificar cada 30 segundos si hay cambios
+      setInterval(function() {
+        // Verificar si hay nuevos pedidos o cambios en las ventas
+        fetch('/gestion/dashboard/admin/?ajax=1&timestamp=' + ultimaActualizacion, {
+          method: 'GET',
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        }).then(response => response.json())
+        .then(data => {
+          if (data && data.actualizar) {
+            console.log('Detectados cambios en los datos, actualizando...');
+            actualizarDatosGraficas();
+            ultimaActualizacion = Date.now();
+          }
+        }).catch(error => {
+          console.log('Error verificando cambios:', error);
+        });
+      }, 30000); // 30 segundos
+    }
+
+    // Función para actualizar automáticamente cuando se agregan nuevos datos
+    function monitorearCambiosEnTiempoReal() {
+      // Verificar cambios más frecuentemente (cada 10 segundos)
+      setInterval(function() {
+        const ahora = new Date();
+        const minutos = ahora.getMinutes();
+        
+        // Actualizar automáticamente cada 5 minutos
+        if (minutos % 5 === 0 && ahora.getSeconds() < 10) {
+          console.log('Actualización programada cada 5 minutos');
+          actualizarDatosGraficas();
+        }
+      }, 10000); // 10 segundos
+    }
+
+    // Iniciar todas las actualizaciones automáticas
+    iniciarActualizacionAutomatica();
+    verificarCambiosEnDatos();
+    monitorearCambiosEnTiempoReal();
+    
+    // Verificar estadísticas principales cada 15 segundos
+    setInterval(verificarCambiosEstadisticas, 15000);
+
+    // Mensaje de confirmación en consola
+    console.log('✅ Sistema de actualización automática completo activado');
+    console.log('📊 Gráficas: actualización cada 2 minutos');
+    console.log('📈 Estadísticas principales: verificación cada 15 segundos');
+    console.log('🔍 Verificación de cambios cada 30 segundos');
+    console.log('⚡ Actualización automática cada 5 minutos');
+    console.log('🔴 Todas las estadísticas son en TIEMPO REAL');
+
     /* stylelint-enable */
     /* eslint-enable */
   </script>
 
 </body>
 </html>
+
+

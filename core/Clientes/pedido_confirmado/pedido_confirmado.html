@@ -8,75 +8,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pedido Confirmado #{{ pedido.idPedido }} | Glam Store</title>
   <link rel="icon" href="{% static 'img/logoglam.png' %}">
+  <link rel="stylesheet" href="{% static 'css/sidebar.css' %}">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
 
-    body {
-      margin: 0;
-      font-family: 'Comic Neue', cursive, Arial, sans-serif;
-      background-color: #fffafc;
-      display: flex;
-    }
-
-    /* Sidebar */
-    .sidebar {
-      background-color: #fce4ec;
-      padding: 2rem;
-      width: 240px;
-      height: 100vh;
-      position: fixed;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      border-right: 2px solid #f8bbd0;
-      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-      z-index: 1000;
-    }
-
-    .logo {
-      width: 100px;
-      border-radius: 50%;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      margin-bottom: 1rem;
-    }
-
-    .sidebar h1 {
-      color: #ad1457;
-      font-size: 1.8rem;
-      margin: 0.5rem 0;
-    }
-
-    .sidebar p {
-      color: #d81b60;
-      font-size: 1rem;
-      margin-bottom: 2rem;
-    }
-
-    .sidebar nav ul {
-      list-style: none;
-      padding: 0;
-      width: 100%;
-    }
-
-    .sidebar nav a {
-      display: block;
-      padding: 0.8rem 1.5rem;
-      margin-bottom: 0.8rem;
-      text-decoration: none;
-      color: #880e4f;
-      font-weight: bold;
-      border-radius: 25px;
-      transition: background-color 0.3s, color 0.3s;
+    .sidebar nav a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+      transition: width 0.3s ease;
+      z-index: -1;
     }
 
     .sidebar nav a:hover {
-      background-color: #f8bbd0;
-      color: #fff;
+      color: #ffffff;
+      transform: translateX(4px);
+      box-shadow: 0 6px 16px rgba(168, 85, 247, 0.25);
+    }
+
+    .sidebar nav a:hover::before {
+      width: 100%;
     }
 
     /* Main Content */
@@ -97,22 +51,60 @@
     }
 
     .header {
-      background: linear-gradient(135deg, #f48fb1 0%, #ec407a 100%);
-      padding: 2.5rem;
+      background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+      padding: 3rem 2.5rem;
       text-align: center;
       color: white;
       border-radius: 15px 15px 0 0;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 6px 20px rgba(168, 85, 247, 0.25);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+      animation: pulse-bg 4s ease-in-out infinite;
+    }
+
+    @keyframes pulse-bg {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
     }
 
     .header h1 {
-      font-size: 2rem;
+      font-size: 2.2rem;
       margin-bottom: 0.5rem;
+      font-weight: 700;
+      position: relative;
+      z-index: 1;
+      letter-spacing: 0.5px;
+    }
+
+    .header p {
+      position: relative;
+      z-index: 1;
+      font-size: 1.05rem;
+      opacity: 0.95;
     }
 
     .header .check-icon {
-      font-size: 4rem;
+      font-size: 4.5rem;
       margin-bottom: 1rem;
+      position: relative;
+      z-index: 1;
+      animation: bounce 0.6s ease-out;
+    }
+
+    @keyframes bounce {
+      0% { transform: scale(0) rotate(-45deg); opacity: 0; }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1) rotate(0); opacity: 1; }
     }
 
     .content {
@@ -154,26 +146,35 @@
     }
 
     .pedido-info {
-      background: #fffafc;
-      padding: 1.5rem;
+      background: #fff;
+      padding: 2rem;
       border-radius: 15px;
       margin-bottom: 2rem;
-      border: 2px solid #f8bbd0;
+      border: 1px solid #e9d5ff;
+      box-shadow: 0 4px 16px rgba(168, 85, 247, 0.12);
+      transition: all 0.3s ease;
+    }
+
+    .pedido-info:hover {
+      box-shadow: 0 6px 24px rgba(168, 85, 247, 0.15);
     }
 
     .pedido-info h2 {
-      color: #c2185b;
-      font-size: 1.5rem;
+      color: #7c3aed;
+      font-size: 1.4rem;
       margin-bottom: 1.5rem;
-      border-bottom: 2px solid #f48fb1;
+      border-bottom: 3px solid #a855f7;
       padding-bottom: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.3px;
     }
 
     .info-row {
       display: flex;
       justify-content: space-between;
-      padding: 0.8rem 0;
-      border-bottom: 1px solid #fce4ec;
+      padding: 1rem 0;
+      border-bottom: 1px solid #f3e8ff;
+      align-items: center;
     }
 
     .info-row:last-child {
@@ -181,73 +182,96 @@
     }
 
     .info-row strong {
-      color: #c2185b;
-      font-weight: bold;
+      color: #7c3aed;
+      font-weight: 600;
+      min-width: 150px;
     }
 
     .info-row span {
-      color: #666;
+      color: #1a1a1a;
       text-align: right;
       flex: 1;
       margin-left: 1rem;
+      font-weight: 500;
     }
 
     .total-row {
-      background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
-      padding: 1rem 1.5rem;
-      border-radius: 10px;
-      margin-top: 1rem;
+      background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+      padding: 1.2rem 1.5rem;
+      border-radius: 12px;
+      margin-top: 1.5rem;
+      border: 1px solid #d8b4fe;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
     .total-row strong {
-      color: #ad1457;
-      font-size: 1.2rem;
+      color: #7c3aed;
+      font-size: 1.1rem;
+      font-weight: 600;
     }
 
     .total-row span {
-      color: #ad1457;
-      font-size: 1.3rem;
-      font-weight: bold;
+      color: #7c3aed;
+      font-size: 1.4rem;
+      font-weight: 700;
     }
 
     .buttons {
       display: flex;
-      gap: 1rem;
-      margin-top: 2rem;
+      gap: 1.2rem;
+      margin-top: 2.5rem;
       flex-wrap: wrap;
     }
 
     .btn {
       flex: 1;
-      padding: 1rem 2rem;
+      padding: 1.1rem 2rem;
       border-radius: 25px;
       text-decoration: none;
       text-align: center;
-      font-weight: bold;
+      font-weight: 600;
       transition: all 0.3s ease;
       min-width: 150px;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      letter-spacing: 0.3px;
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, #f48fb1 0%, #ec407a 100%);
+      background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
       color: white;
-      box-shadow: 0 4px 12px rgba(244, 143, 177, 0.3);
+      box-shadow: 0 4px 16px rgba(168, 85, 247, 0.3);
     }
 
     .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(244, 143, 177, 0.4);
-      background: linear-gradient(135deg, #ec407a 0%, #d81b60 100%);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(168, 85, 247, 0.4);
+      background: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);
+    }
+
+    .btn-primary:active {
+      transform: translateY(-1px);
     }
 
     .btn-secondary {
       background: white;
-      color: #c2185b;
-      border: 2px solid #f48fb1;
+      color: #7c3aed;
+      border: 2px solid #a855f7;
+      box-shadow: 0 2px 8px rgba(168, 85, 247, 0.1);
     }
 
     .btn-secondary:hover {
-      background: #fce4ec;
+      background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 16px rgba(168, 85, 247, 0.2);
+      border-color: #9333ea;
+    }
+
+    .btn-secondary:active {
+      transform: translateY(-1px);
     }
 
     @media (max-width: 768px) {
@@ -280,7 +304,7 @@
       }
     }
   </style>
-  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -339,7 +363,7 @@
               {% if pedido.estado_pago == 'Pago Completo' %}
                 ✓ Pago Completo
               {% elif pedido.estado_pago == 'Pago Parcial' %}
-                ⏳ Pago Parcial (Envío contra entrega)
+                Pago Parcial (Envío contra entrega)
               {% else %}
                 {{ pedido.estado_pago }}
               {% endif %}
@@ -349,15 +373,15 @@
             <strong>Estado del Pedido:</strong>
             <span>
               {% if pedido.estado_pedido == 'Confirmado' %}
-                ✓ Confirmado
+                Confirmado
               {% elif pedido.estado_pedido == 'En Preparación' %}
-                📋 En Preparación
+                En Preparación
               {% elif pedido.estado_pedido == 'En Camino' %}
-                🚚 En Camino
+                En Camino
               {% elif pedido.estado_pedido == 'Entregado' %}
-                📦 Entregado
+                Entregado
               {% elif pedido.estado_pedido == 'Completado' %}
-                ✅ Completado
+                Completado
               {% else %}
                 {{ pedido.estado_pedido }}
               {% endif %}

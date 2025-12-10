@@ -25,7 +25,8 @@ from datetime import timedelta, date
 # ✅ Función auxiliar: filtra productos que no están vencidos
 def filtrar_productos_no_vencidos(productos_queryset):
     """
-    Filtra productos que tienen lotes disponibles no vencidos
+    Filtra productos que tienen lotes disponibles no vencidos.
+    Si un producto no tiene lotes, se muestra si tiene stock > 0.
     """
     from core.models.lotes import LoteProducto
     from django.db.models import Q, Sum
@@ -34,22 +35,31 @@ def filtrar_productos_no_vencidos(productos_queryset):
     hoy = date.today()
     
     for producto in productos_queryset:
-        # Verificar si el producto tiene lotes no vencidos con stock disponible
-        lotes_validos = LoteProducto.objects.filter(
-            producto=producto,
-            cantidad_disponible__gt=0
-        ).filter(
-            Q(fecha_vencimiento__isnull=True) | Q(fecha_vencimiento__gt=hoy)
-        )
+        # Verificar si el producto tiene lotes
+        tiene_lotes = LoteProducto.objects.filter(producto=producto).exists()
         
-        if lotes_validos.exists():
-            # Calcular stock disponible real basado en lotes válidos
-            stock_valido = lotes_validos.aggregate(
-                total=Sum('cantidad_disponible')
-            )['total'] or 0
+        if tiene_lotes:
+            # Si tiene lotes, verificar que haya lotes no vencidos con stock disponible
+            lotes_validos = LoteProducto.objects.filter(
+                producto=producto,
+                cantidad_disponible__gt=0
+            ).filter(
+                Q(fecha_vencimiento__isnull=True) | Q(fecha_vencimiento__gt=hoy)
+            )
             
-            if stock_valido > 0:
-                producto.stock_real = stock_valido
+            if lotes_validos.exists():
+                # Calcular stock disponible real basado en lotes válidos
+                stock_valido = lotes_validos.aggregate(
+                    total=Sum('cantidad_disponible')
+                )['total'] or 0
+                
+                if stock_valido > 0:
+                    producto.stock_real = stock_valido
+                    productos_validos.append(producto)
+        else:
+            # Si no tiene lotes, mostrar si tiene stock > 0 (productos sin sistema de lotes)
+            if producto.stock > 0:
+                producto.stock_real = producto.stock
                 productos_validos.append(producto)
     
     return productos_validos
@@ -385,168 +395,290 @@ from django.db import transaction
 from core.models import DetallePedido
 
 def simular_pago(request):
+    """
+    Simula el procesamiento de un pago y crea el pedido
+    """
+    print("\n" + "="*50)
+    print("INICIO DE SIMULAR_PAGO")
+    print("="*50)
+    
     carrito_raw = request.session.get('carrito', {})
+    print(f"1. Carrito obtenido: {carrito_raw}")
+    
     if not carrito_raw:
+        print("ERROR: Carrito vacío")
         messages.error(request, "Tu carrito está vacío.")
         return redirect('ver_carrito')
 
+    if request.method != 'POST':
+        print("ERROR: Método no es POST")
+        return redirect('checkout')
+    
+    print("2. Método es POST - Continuando...")
+
     try:
+        # Debug: Imprimir datos recibidos
+        print("=== DATOS RECIBIDOS EN SIMULAR_PAGO ===")
+        print(f"POST data: {dict(request.POST)}")
+        print(f"Carrito: {carrito_raw}")
+        
+        # Obtener datos del formulario
+        correo = request.POST.get('correo')
+        nombre = request.POST.get('nombre', '')
+        apellidos = request.POST.get('apellidos', '')
+        documento = request.POST.get('documento', '')
+        telefono = request.POST.get('telefono', '')
+        departamento = request.POST.get('departamento')
+        municipio = request.POST.get('municipio')
+        comuna = request.POST.get('comuna', '')
+        direccion = request.POST.get('direccion')
+        info_adicional = request.POST.get('info_adicional', '')
+        metodo_pago = request.POST.get('metodo_pago')
+        pago_envio = request.POST.get('pago_envio', 'ahora')
+        
+        print(f"Correo: {correo}, Método pago: {metodo_pago}")
+        
+        # Validar campos requeridos
+        print("4. Validando campos...")
+        
+        if not metodo_pago:
+            print("ERROR: Método de pago no seleccionado")
+            messages.error(request, "Por favor selecciona un método de pago.")
+            return redirect('checkout')
+        
+        if not all([correo, departamento, municipio, direccion]):
+            print(f"ERROR: Campos faltantes - correo:{correo}, depto:{departamento}, mun:{municipio}, dir:{direccion}")
+            messages.error(request, "Por favor completa todos los campos requeridos.")
+            return redirect('checkout')
+        
+        print("5. Campos validados correctamente (incluyendo términos)")
+
+        # Construir dirección completa
+        direccion_completa = f"{direccion}, {comuna}, {municipio}, {departamento}"
+        if info_adicional:
+            direccion_completa += f" - {info_adicional}"
+        print(f"6. Dirección completa: {direccion_completa}")
+
+        # Buscar o crear cliente
+        print("7. Buscando/creando cliente...")
+        cliente = Cliente.objects.filter(email=correo).first()
+        if cliente:
+            print(f"   Cliente existente encontrado: {cliente.idCliente}")
+            # Actualizar datos del cliente
+            cliente.nombre = f"{nombre} {apellidos}"
+            cliente.cedula = documento
+            cliente.telefono = telefono
+            cliente.direccion = direccion_completa
+            cliente.save()
+            print("   Cliente actualizado")
+        else:
+            print("   Creando nuevo cliente...")
+            # Crear nuevo cliente
+            cliente = Cliente.objects.create(
+                nombre=f"{nombre} {apellidos}",
+                email=correo,
+                cedula=documento,
+                telefono=telefono,
+                direccion=direccion_completa
+            )
+            print(f"   Nuevo cliente creado: {cliente.idCliente}")
+
+        # Calcular total
+        print("8. Calculando total...")
+        total = sum(
+            Producto.objects.get(idProducto=int(pid)).precio_venta * int(qty)
+            for pid, qty in carrito_raw.items()
+        )
+        print(f"   Total calculado: ${total}")
+
+        # Determinar estado según tipo de pago
+        if pago_envio == 'entrega':
+            estado = 'Pago Parcial'
+        else:
+            estado = 'Pago Completo'
+        print(f"9. Estado determinado: {estado}")
+
+        # Crear pedido
+        print("10. Iniciando transacción para crear pedido...")
         with transaction.atomic():
-            # 1. Obtener o crear el cliente con los datos del formulario
-            correo = request.POST.get('correo')
-            nombre = request.POST.get('nombre')
-            apellidos = request.POST.get('apellidos')
-            documento = request.POST.get('documento')
-            telefono = request.POST.get('telefono')
-            
-            # DEBUG: Imprimir datos recibidos
-            print(f"DEBUG - Datos recibidos:")
-            print(f"  Correo: {correo}")
-            print(f"  Nombre: {nombre} {apellidos}")
-            print(f"  Documento: {documento}")
-            print(f"  Teléfono: {telefono}")
-            
-            # Datos de entrega
-            departamento = request.POST.get('departamento')
-            municipio = request.POST.get('municipio')
-            comuna = request.POST.get('comuna')
-            direccion = request.POST.get('direccion')
-            info_adicional = request.POST.get('info_adicional', '')
-            
-            # Construir dirección completa
-            direccion_completa = f"{direccion}, {comuna}, {municipio}, {departamento}"
-            if info_adicional:
-                direccion_completa += f" ({info_adicional})"
-            
-            print(f"  Dirección completa: {direccion_completa}")
-            print(f"  Longitud dirección: {len(direccion_completa)} caracteres")
-            
-            # Buscar si ya existe un cliente con ese email
-            try:
-                cliente = Cliente.objects.get(email=correo)
-                print(f"DEBUG - Cliente existente encontrado: ID {cliente.idCliente}")
-                # Actualizar datos del cliente
-                cliente.nombre = f"{nombre} {apellidos}"
-                cliente.cedula = documento
-                cliente.telefono = telefono
-                cliente.direccion = direccion_completa
-                cliente.save()
-                print(f"DEBUG - Cliente actualizado exitosamente")
-            except Cliente.DoesNotExist:
-                print(f"DEBUG - Creando nuevo cliente...")
-                # Crear nuevo cliente
-                cliente = Cliente.objects.create(
-                    email=correo,
-                    nombre=f"{nombre} {apellidos}",
-                    cedula=documento,
-                    telefono=telefono,
-                    direccion=direccion_completa
-                )
-                print(f"DEBUG - Cliente creado exitosamente: ID {cliente.idCliente}")
-
-            # 2. Calcular el total y preparar los detalles del pedido
-            total_pedido = 0
-            detalles_para_crear = []
-            for id_str, cantidad in carrito_raw.items():
-                producto = Producto.objects.get(idProducto=int(id_str))
-                if producto.stock < cantidad:
-                    raise Exception(f"No hay suficiente stock para {producto.nombreProducto}")
-                
-                subtotal = producto.precio_venta * cantidad
-                total_pedido += subtotal
-                detalles_para_crear.append((producto, cantidad, subtotal))
-
-            # Decidir el estado y el total final basado en el pago del envío
-            from decimal import Decimal
-            pago_envio = request.POST.get('pago_envio', 'ahora')
-            costo_envio = 10000
-            tasa_iva = Decimal('0.19')  # 19% de IVA
-            
-            # Calcular IVA sobre el subtotal de productos (se suma adicional)
-            subtotal_productos = int(total_pedido)
-            iva = int(total_pedido * tasa_iva)
-            
-            # El total y estado dependen del tipo de pago
-            if pago_envio == 'ahora':
-                # Cliente paga productos + IVA + envío
-                total_final = subtotal_productos + iva + costo_envio
-                estado_pago = 'Pago Completo'
-            else:
-                # Cliente paga productos + IVA, envío contra entrega
-                total_final = subtotal_productos + iva
-                estado_pago = 'Pago Parcial'
-
-            print(f"DEBUG - Creando pedido:")
-            print(f"  Subtotal productos: {subtotal_productos}")
-            print(f"  IVA (19%): {iva}")
-            print(f"  Total productos + IVA: {subtotal_productos + iva}")
-            print(f"  Envío: {costo_envio if pago_envio == 'ahora' else 0}")
-            print(f"  Total final: {total_final}")
-            print(f"  Estado Pago: {estado_pago}")
-
-            # 3. Crear el Pedido principal en la base de datos
-            nuevo_pedido = Pedido.objects.create(
+            from django.utils import timezone
+            pedido = Pedido.objects.create(
                 idCliente=cliente,
-                estado_pago=estado_pago,
-                estado_pedido='Confirmado',
-                total=total_final,
-                fechaCreacion=datetime.now()
+                total=total,
+                estado='En Preparación',
+                estado_pago=estado,
+                estado_pedido='En Preparación',
+                fechaCreacion=timezone.now()
             )
             
-            print(f"DEBUG - Pedido creado exitosamente: ID {nuevo_pedido.idPedido}")
+            print(f"Pedido creado: {pedido.idPedido}")
 
-            # 4. Crear los Detalles del Pedido y actualizar el stock de productos
-            for producto, cantidad, subtotal in detalles_para_crear:
+            # Crear detalles del pedido, movimientos y actualizar stock
+            for id_producto, cantidad in carrito_raw.items():
+                producto = Producto.objects.get(idProducto=int(id_producto))
+                cantidad_int = int(cantidad)
+                subtotal = producto.precio_venta * cantidad_int
+
                 DetallePedido.objects.create(
-                    idPedido=nuevo_pedido,
+                    idPedido=pedido,
                     idProducto=producto,
-                    cantidad=cantidad,
+                    cantidad=cantidad_int,
                     precio_unitario=producto.precio_venta,
                     subtotal=subtotal
                 )
-                # Usar el servicio de lotes para procesar la salida con trazabilidad FIFO
-                try:
-                    from core.services import LotesService
-                    movimientos = LotesService.procesar_salida_fifo(
-                        producto=producto,
-                        cantidad_salida=cantidad,
-                        id_pedido=nuevo_pedido,
-                        descripcion=f'Venta en pedido #{nuevo_pedido.idPedido}'
-                    )
-                except ValueError as e:
-                    # Si no hay lotes disponibles, usar la lógica anterior como respaldo
-                    producto.stock -= cantidad
+                
+                print(f"Detalle creado: Producto {producto.idProducto}, Cantidad: {cantidad_int}")
+
+                # Procesar salida con lotes usando FIFO - Motivo: Preparación (apartado)
+                from core.models import LoteProducto
+                
+                # Verificar si hay lotes disponibles
+                lotes_disponibles = LoteProducto.objects.filter(
+                    producto=producto,
+                    cantidad_disponible__gt=0
+                ).order_by('fecha_entrada')
+                
+                if lotes_disponibles.exists():
+                    # Procesar salida con lotes FIFO
+                    cantidad_restante = cantidad_int
+                    stock_anterior = producto.stock
+                    
+                    for lote in lotes_disponibles:
+                        if cantidad_restante <= 0:
+                            break
+                        
+                        # Determinar cuánto tomar de este lote
+                        cantidad_a_tomar = min(cantidad_restante, lote.cantidad_disponible)
+                        
+                        # Crear movimiento de producto con lote
+                        stock_nuevo = stock_anterior - cantidad_a_tomar
+                        
+                        # El precio_venta ya incluye IVA (19%) + Ganancia (6%)
+                        # Necesitamos calcular solo el IVA sobre el costo
+                        costo_unitario = float(lote.costo_unitario) if lote.costo_unitario else 0
+                        precio_venta_unitario = float(producto.precio_venta) if producto.precio_venta else 0
+                        
+                        # IVA = costo × 0.19
+                        iva_por_unidad = costo_unitario * 0.19
+                        iva_total = iva_por_unidad * cantidad_a_tomar
+                        
+                        # Total con IVA = precio_venta × cantidad
+                        total_con_iva = precio_venta_unitario * cantidad_a_tomar
+                        
+                        MovimientoProducto.objects.create(
+                            producto=producto,
+                            tipo_movimiento='EN_PREPARACION_SALIDA',
+                            cantidad=cantidad_a_tomar,
+                            precio_unitario=int(precio_venta_unitario),
+                            costo_unitario=int(costo_unitario),
+                            stock_anterior=stock_anterior,
+                            stock_nuevo=stock_nuevo,
+                            id_pedido=pedido,
+                            lote=lote.codigo_lote,
+                            fecha_vencimiento=lote.fecha_vencimiento,
+                            lote_origen=lote,
+                            total_con_iva=int(total_con_iva),
+                            iva=int(iva_total),
+                            descripcion=f'Pedido #{pedido.idPedido} - Preparación (apartado) - Lote {lote.codigo_lote}'
+                        )
+                        
+                        # Actualizar lote
+                        lote.cantidad_disponible -= cantidad_a_tomar
+                        lote.save()
+                        
+                        # Actualizar stock del producto
+                        stock_anterior = stock_nuevo
+                        cantidad_restante -= cantidad_a_tomar
+                        
+                        print(f"   Movimiento 'Preparación' creado para producto {producto.idProducto} - Lote {lote.codigo_lote} - Cantidad: {cantidad_a_tomar}")
+                    
+                    # Actualizar stock final del producto
+                    producto.stock = stock_anterior
+                    producto.save()
+                    print(f"   Stock actualizado correctamente con lotes: {producto.stock}")
+                else:
+                    # Si no hay lotes, crear movimiento sin lote (fallback)
+                    print(f"   ADVERTENCIA: No hay lotes para {producto.nombreProducto}, creando movimiento sin lote")
+                    stock_anterior = producto.stock
+                    stock_nuevo = stock_anterior - cantidad_int
+                    
+                    # El precio_venta ya incluye IVA (19%) + Ganancia (6%)
+                    # Necesitamos calcular solo el IVA sobre el costo
+                    costo_unitario = float(producto.precio) if producto.precio else 0
+                    precio_venta_unitario = float(producto.precio_venta) if producto.precio_venta else 0
+                    
+                    # IVA = costo × 0.19
+                    iva_por_unidad = costo_unitario * 0.19
+                    iva_total = iva_por_unidad * cantidad_int
+                    
+                    # Total con IVA = precio_venta × cantidad
+                    total_con_iva = precio_venta_unitario * cantidad_int
+                    
                     MovimientoProducto.objects.create(
                         producto=producto,
-                        tipo_movimiento='SALIDA_VENTA',
-                        precio_unitario=producto.precio_venta,
-                        cantidad=cantidad,
-                        stock_anterior=producto.stock + cantidad,
-                        stock_nuevo=producto.stock,
-                        id_pedido=nuevo_pedido,
-                        descripcion=f'Venta en pedido #{nuevo_pedido.idPedido}'
+                        tipo_movimiento='EN_PREPARACION_SALIDA',
+                        cantidad=cantidad_int,
+                        precio_unitario=int(precio_venta_unitario),
+                        costo_unitario=int(costo_unitario),
+                        stock_anterior=stock_anterior,
+                        stock_nuevo=stock_nuevo,
+                        id_pedido=pedido,
+                        total_con_iva=int(total_con_iva),
+                        iva=int(iva_total),
+                        descripcion=f'Pedido #{pedido.idPedido} - Preparación (apartado) - Sin lote'
                     )
+                    
+                    producto.stock = stock_nuevo
                     producto.save()
+                    print(f"   Stock actualizado sin lote: {producto.stock}")
 
-        # 5. NO guardar sesión automáticamente - solo si ya tiene usuario_id
-        # Si el usuario ya estaba logueado, mantener su sesión
-        # Si no estaba logueado, NO crear sesión automática
+        print("11. Transacción completada exitosamente")
         
-        print(f"DEBUG - Pedido creado sin iniciar sesión automática")
+        # Enviar factura al cliente inmediatamente (sin esperar repartidor)
+        print("12. Enviando factura al cliente...")
+        from core.Gestion_admin.services_repartidores import enviar_factura_cliente
         
-        # 6. Limpiar el carrito y redirigir a confirmación
+        if enviar_factura_cliente(pedido):
+            print("    Factura enviada exitosamente")
+            pedido.facturas_enviadas += 1
+            pedido.save()
+        else:
+            print("    Error al enviar factura (pero el pedido se creó correctamente)")
+        
+        # Limpiar carrito
         request.session['carrito'] = {}
+        print("13. Carrito limpiado")
         
-        # Guardar el ID del pedido temporalmente para mostrar la confirmación
-        request.session['ultimo_pedido_id'] = nuevo_pedido.idPedido
-        
-        return redirect('pedido_confirmado', idPedido=nuevo_pedido.idPedido)
+        # Guardar el ID del pedido en la sesión para permitir verlo sin login
+        request.session['ultimo_pedido_id'] = pedido.idPedido
+        print(f"14. ID de pedido guardado en sesión: {pedido.idPedido}")
 
-    except Exception as e:
-        print(f"ERROR - Excepción capturada: {type(e).__name__}: {str(e)}")
-        import traceback
-        traceback.print_exc()
+        print(f"15. Redirigiendo a pedido_confirmado con ID: {pedido.idPedido}")
+        print("="*50)
+        print("FIN DE SIMULAR_PAGO - ÉXITO")
+        print("="*50 + "\n")
+        
+        messages.success(request, f"¡Pedido #{pedido.idPedido} creado exitosamente! Se ha enviado la factura a tu correo.")
+        return redirect('pedido_confirmado', idPedido=pedido.idPedido)
+
+    except Producto.DoesNotExist as e:
+        print("="*50)
+        print("ERROR: Producto no encontrado")
+        print(f"Detalle: {str(e)}")
+        print("="*50 + "\n")
+        messages.error(request, "Uno o más productos en tu carrito ya no están disponibles.")
         return redirect('ver_carrito')
+    except Exception as e:
+        import traceback
+        print("="*50)
+        print("ERROR CRÍTICO EN SIMULAR_PAGO")
+        print(f"Tipo de error: {type(e).__name__}")
+        print(f"Mensaje: {str(e)}")
+        print("\nTraceback completo:")
+        print(traceback.format_exc())
+        print("="*50 + "\n")
+        messages.error(request, f"Error al procesar el pago: {str(e)}")
+        return redirect('checkout')
 
 # ✅ Finaliza la compra sin simulación (opcional)
 def finalizar_compra(request):
@@ -726,9 +858,9 @@ def login_view(request):
             request.session['usuario_nombre'] = usuario['nombre']
             request.session['usuario_rol'] = usuario['rol']
 
-            if usuario['rol'] == 1:
+            if usuario['rol'] == "Administrador":
                 return redirect('dashboard_admin')
-            elif usuario['rol'] == 2:
+            elif usuario['rol'] == "Cliente":
                 return redirect('tienda')
         else:
             print("Autenticación fallida")  # Si no pasa la verificación
@@ -876,10 +1008,14 @@ def autenticar_usuario(email, password):
         usuario = cursor.fetchone()
 
     if usuario and check_password(password, usuario[1]):
+        # Obtener el nombre del rol
+        rol_id = usuario[3]
+        rol_nombre = "Administrador" if rol_id == 1 else "Cliente"
+        
         return {
             'id': usuario[0],
             'nombre': usuario[2],
-            'rol': usuario[3]
+            'rol': rol_nombre
         }
     return None
 
@@ -957,7 +1093,7 @@ def crear_usuario_desde_cliente(request):
             # Loguear automáticamente al usuario
             request.session['usuario_id'] = nuevo_usuario.idUsuario
             request.session['usuario_nombre'] = nuevo_usuario.nombre
-            request.session['usuario_rol'] = 2
+            request.session['usuario_rol'] = "Cliente"
             
             # Limpiar el cliente_id de invitado
             if 'cliente_id' in request.session:
@@ -1436,9 +1572,11 @@ def calificar_entrega(request, idPedido):
         # Actualizar estado del pedido a Entregado y Completado
         pedido.estado_pedido = 'Completado'
         pedido.estado = 'Entregado'
+        # Marcar como pago completo cuando el cliente confirma la recepción
+        pedido.estado_pago = 'Pago Completo'
         pedido.save()
         
-        messages.success(request, f"¡Gracias por tu calificacion! El pedido #{pedido.idPedido} ha sido entregado y finalizado exitosamente.")
+        messages.success(request, f"¡Gracias por tu calificación! El pedido #{pedido.idPedido} ha sido entregado y marcado como pago completo.")
         return redirect('perfil')
     
     return render(request, 'calificar_entrega.html', {'pedido': pedido})
@@ -1454,3 +1592,28 @@ def politica_privacidad(request):
     Vista para mostrar la política de privacidad
     """
     return render(request, 'politica_privacidad.html')
+
+
+def mis_pedidos(request):
+    """
+    Vista para que el cliente vea todos sus pedidos
+    """
+    usuario_id = request.session.get('usuario_id')
+    cliente_id = request.session.get('cliente_id')
+    
+    if usuario_id:
+        usuario = get_object_or_404(Usuario, idUsuario=usuario_id)
+        cliente = usuario.idCliente
+    elif cliente_id:
+        cliente = get_object_or_404(Cliente, idCliente=cliente_id)
+    else:
+        messages.error(request, "Debes iniciar sesión para ver tus pedidos.")
+        return redirect('login')
+    
+    # Obtener todos los pedidos del cliente ordenados por fecha descendente
+    pedidos = Pedido.objects.filter(idCliente=cliente).order_by('-fechaCreacion')
+    
+    return render(request, 'mis_pedidos.html', {
+        'pedidos': pedidos,
+        'cliente': cliente
+    })
