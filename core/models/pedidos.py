@@ -59,7 +59,7 @@ class Pedido(models.Model):
 
 
 class DetallePedido(models.Model):
-    idDetalle = models.AutoField(primary_key=True, db_column='iddetalle')
+    id = models.AutoField(primary_key=True, db_column='id')
     idPedido = models.ForeignKey(
         Pedido,
         on_delete=models.CASCADE,
