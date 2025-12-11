@@ -24,8 +24,9 @@ from datetime import timedelta, date
 # ✅ Función auxiliar: filtra productos que no están vencidos
 def filtrar_productos_no_vencidos(productos_queryset):
     """
-    Filtra productos que tienen lotes disponibles no vencidos.
-    Si un producto no tiene lotes, se muestra si tiene stock > 0.
+    Filtra productos que tienen stock disponible.
+    - Si tiene lotes: muestra si hay lotes no vencidos con cantidad_disponible > 0
+    - Si NO tiene lotes: muestra si stock > 0 (productos sin sistema de lotes)
     """
     from core.models.lotes import LoteProducto
     from django.db.models import Q, Sum
@@ -56,14 +57,11 @@ def filtrar_productos_no_vencidos(productos_queryset):
                     producto.stock_real = stock_valido
                     productos_validos.append(producto)
         else:
-            # Si no tiene lotes, mostrar si tiene stock > 0 (productos sin sistema de lotes)
-            # Usar stock en lugar de cantidadDisponible
+            # Si NO tiene lotes, mostrar si tiene stock > 0
+            # Estos son productos sin sistema de lotes (stock simple)
             if producto.stock > 0:
-                # Usar cantidadDisponible si es positivo, sino usar stock
-                if producto.cantidadDisponible > 0:
-                    producto.stock_real = producto.cantidadDisponible
-                else:
-                    producto.stock_real = producto.stock
+                # Usar el stock como stock_real
+                producto.stock_real = producto.stock
                 productos_validos.append(producto)
     
     return productos_validos
