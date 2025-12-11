@@ -3,6 +3,7 @@ import os
 import django
 from django.contrib.auth.hashers import make_password
 from django.utils import timezone
+from datetime import datetime
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'glamstore.settings')
 django.setup()
@@ -19,7 +20,7 @@ USUARIOS = [
         'nombre': 'Glamstore Admin',
         'telefono': '3000000000',
         'direccion': 'Calle Glam 123',
-        'fechaCreacion': '2025-11-11 05:42:06'
+        'fechaCreacion': datetime(2025, 11, 11, 5, 42, 6)
     },
     {
         'idUsuario': 21,
@@ -29,7 +30,7 @@ USUARIOS = [
         'nombre': 'Lauren Samanta Ortiz',
         'telefono': None,
         'direccion': None,
-        'fechaCreacion': '2025-11-24 13:40:20'
+        'fechaCreacion': datetime(2025, 11, 24, 13, 40, 20)
     },
 ]
 

@@ -183,6 +183,8 @@ for cliente_data in CLIENTES:
 
 # 3. Restaurar usuarios
 print("\n3. Restaurando usuarios...")
+from datetime import datetime
+
 USUARIOS = [
     {
         'idUsuario': 10,
@@ -192,7 +194,7 @@ USUARIOS = [
         'nombre': 'Glamstore Admin',
         'telefono': '3000000000',
         'direccion': 'Calle Glam 123',
-        'fechaCreacion': '2025-11-11 05:42:06'
+        'fechaCreacion': datetime(2025, 11, 11, 5, 42, 6)
     },
     {
         'idUsuario': 21,
@@ -202,7 +204,7 @@ USUARIOS = [
         'nombre': 'Lauren Samanta Ortiz',
         'telefono': None,
         'direccion': None,
-        'fechaCreacion': '2025-11-24 13:40:20'
+        'fechaCreacion': datetime(2025, 11, 24, 13, 40, 20)
     },
 ]
 
@@ -220,7 +222,9 @@ for user_data in USUARIOS:
         }
     )
     if created:
-        print(f"  ✓ {usuario.nombre}")
+        print(f"  ✓ {usuario.nombre} (Rol: {usuario.id_rol})")
+    else:
+        print(f"  ✓ {usuario.nombre} ya existe (Rol: {usuario.id_rol})")
 
 # 4. Restaurar categorías
 print("\n4. Restaurando categorías...")
