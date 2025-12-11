@@ -269,8 +269,9 @@ def dashboard_admin_view(request):
     from django.db.models import Avg
     
     # Obtener calificaciones recientes (últimas 10)
+    # TODO: repartidor removido temporalmente por problemas con el nombre de columna en PostgreSQL
     calificaciones_recientes = ConfirmacionEntrega.objects.select_related(
-        'pedido', 'pedido__idCliente', 'repartidor'
+        'pedido', 'pedido__idCliente'
     ).order_by('-fecha_confirmacion')[:10]
     
     # Repartidor estrella del mes (mejor promedio de calificación este mes)
