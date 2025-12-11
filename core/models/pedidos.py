@@ -18,20 +18,20 @@ class Pedido(models.Model):
     ]
     
     idPedido = models.AutoField(primary_key=True)
-    fechaCreacion = models.DateTimeField(db_column='fechaCreacion', null=True, blank=True)
+    fechaCreacion = models.DateTimeField(db_column='fechacreacion', null=True, blank=True)
     estado = models.CharField(max_length=20, default='Pedido Recibido')  # Mantener para compatibilidad
     estado_pago = models.CharField(max_length=20, choices=ESTADO_PAGO_CHOICES, default='Pago Completo')
     estado_pedido = models.CharField(max_length=20, choices=ESTADO_PEDIDO_CHOICES, default='Pedido Recibido')
     total = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
-    idCliente = models.ForeignKey('core.Cliente', on_delete=models.CASCADE, db_column='idCliente', null=True, blank=True)
+    idCliente = models.ForeignKey('core.Cliente', on_delete=models.CASCADE, db_column='idcliente', null=True, blank=True)
     idRepartidor = models.ForeignKey(
         'core.Repartidor',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        db_column='idRepartidor'
+        db_column='idrepartidor'
     )
-    fecha_vencimiento = models.DateField(null=True, blank=True, db_column='fechaVencimiento')
+    fecha_vencimiento = models.DateField(null=True, blank=True, db_column='fechavencimiento')
     facturas_enviadas = models.PositiveIntegerField(default=0, db_column='facturasEnviadas')
     
     # Método para obtener el estado de pago (compatibilidad)
@@ -63,14 +63,14 @@ class DetallePedido(models.Model):
     idPedido = models.ForeignKey(
         Pedido,
         on_delete=models.CASCADE,
-        db_column='idPedido',
+        db_column='idpedido',
         null=True,
         blank=True
     )
     idProducto = models.ForeignKey(
         'Producto',
         on_delete=models.CASCADE,
-        db_column='idProducto',
+        db_column='idproducto',
         null=True,
         blank=True
     )
@@ -97,14 +97,14 @@ class PedidoProducto(models.Model):
     idPedido = models.ForeignKey(
         Pedido,
         on_delete=models.CASCADE,
-        db_column='idPedido',
+        db_column='idpedido',
         null=True,
         blank=True
     )
     idProducto = models.ForeignKey(
         'Producto',
         on_delete=models.CASCADE,
-        db_column='idProducto',
+        db_column='idproducto',
         null=True,
         blank=True
     )

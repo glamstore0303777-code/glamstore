@@ -20,7 +20,7 @@ class MovimientoProducto(models.Model):
     costo_unitario = models.DecimalField(max_digits=10, decimal_places=2, default=0, help_text="Costo por unidad para movimientos de entrada.")
     stock_anterior = models.IntegerField()
     stock_nuevo = models.IntegerField()
-    id_pedido = models.ForeignKey(Pedido, on_delete=models.SET_NULL, null=True, blank=True, db_column='idPedido')
+    id_pedido = models.ForeignKey(Pedido, on_delete=models.SET_NULL, null=True, blank=True, db_column='idpedido')
     descripcion = models.CharField(max_length=255, blank=True, null=True)
     
     # Campos adicionales para reabastecimiento

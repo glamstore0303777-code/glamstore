@@ -22,7 +22,7 @@ class Subcategoria(models.Model):
     categoria = models.ForeignKey(
         Categoria,
         on_delete=models.CASCADE,
-        db_column='idCategoria'
+        db_column='idcategoria'
     )
 
     class Meta:

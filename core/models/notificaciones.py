@@ -6,7 +6,7 @@ class NotificacionProblema(models.Model):
     idPedido = models.ForeignKey(
         'core.Pedido',
         on_delete=models.CASCADE,
-        db_column='idPedido'
+        db_column='idpedido'
     )
     motivo = models.TextField()
     foto = models.ImageField(upload_to='problemas_entrega/', null=True, blank=True)

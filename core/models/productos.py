@@ -2,32 +2,32 @@ from django.db import models
 
 
 class Producto(models.Model):
-    idProducto = models.BigAutoField(primary_key=True)
-    nombreProducto = models.CharField(max_length=50)
-    precio = models.DecimalField(max_digits=10, decimal_places=2)
-    stock = models.IntegerField(default=0)
-    descripcion = models.TextField(blank=True, null=True)
-    lote = models.CharField(max_length=100, blank=True, null=True, help_text="Código del lote actual")
-    cantidadDisponible = models.IntegerField(default=0, db_column='cantidadDisponible')
-    fechaIngreso = models.DateTimeField(blank=True, null=True, db_column='fechaIngreso')
-    fechaVencimiento = models.DateField(blank=True, null=True, db_column='fechaVencimiento')
+    idProducto = models.BigAutoField(primary_key=True, db_column='idproducto')
+    nombreProducto = models.CharField(max_length=50, db_column='nombreproducto')
+    precio = models.DecimalField(max_digits=10, decimal_places=2, db_column='precio')
+    stock = models.IntegerField(default=0, db_column='stock')
+    descripcion = models.TextField(blank=True, null=True, db_column='descripcion')
+    lote = models.CharField(max_length=100, blank=True, null=True, help_text="Código del lote actual", db_column='lote')
+    cantidadDisponible = models.IntegerField(default=0, db_column='cantidaddisponible')
+    fechaIngreso = models.DateTimeField(blank=True, null=True, db_column='fechaingreso')
+    fechaVencimiento = models.DateField(blank=True, null=True, db_column='fechavencimiento')
 
     idCategoria = models.ForeignKey(
         'Categoria',
         on_delete=models.SET_NULL,
         null=True,
-        db_column='idCategoria'
+        db_column='idcategoria'
     )
 
     idSubcategoria = models.ForeignKey(
         'Subcategoria',
         on_delete=models.SET_NULL,
         null=True,
-        db_column='idSubcategoria'
+        db_column='idsubcategoria'
     )
 
-    imagen = models.ImageField(upload_to='productos/', blank=True, null=True)
-    precio_venta = models.DecimalField(max_digits=10, decimal_places=2, default=0, help_text="Precio de venta calculado automáticamente")
+    imagen = models.ImageField(upload_to='productos/', blank=True, null=True, db_column='imagen')
+    precio_venta = models.DecimalField(max_digits=10, decimal_places=2, default=0, help_text="Precio de venta calculado automáticamente", db_column='precio_venta')
 
     class Meta:
         db_table = 'productos'

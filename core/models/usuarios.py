@@ -12,7 +12,7 @@ class Usuario(models.Model):
     direccion = models.CharField(max_length=50, null=True)
     reset_token = models.CharField(max_length=255, null=True)
     reset_token_expires = models.DateTimeField(null=True)
-    ultimoAcceso = models.DateTimeField(null=True, blank=True, db_column='ultimoAcceso')
+    ultimoAcceso = models.DateTimeField(null=True, blank=True, db_column='ultimoacceso')
 
     class Meta:
         db_table = 'usuarios'
