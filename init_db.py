@@ -14,6 +14,7 @@ DROP TABLE IF EXISTS lotes_producto CASCADE;
 DROP TABLE IF EXISTS detallepedido CASCADE;
 DROP TABLE IF EXISTS pedidos CASCADE;
 DROP TABLE IF EXISTS usuarios CASCADE;
+DROP TABLE IF EXISTS configuracion_global CASCADE;
 DROP TABLE IF EXISTS clientes CASCADE;
 DROP TABLE IF EXISTS productos CASCADE;
 DROP TABLE IF EXISTS subcategorias CASCADE;
@@ -39,6 +40,12 @@ CREATE TABLE usuarios (
     reset_token VARCHAR(255),
     reset_token_expires TIMESTAMP,
     ultimoAcceso TIMESTAMP
+);
+
+CREATE TABLE configuracion_global (
+    id BIGSERIAL PRIMARY KEY,
+    margen_ganancia DECIMAL(5, 2) DEFAULT 10.00,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE subcategorias (
@@ -127,6 +134,7 @@ DROP TABLE IF EXISTS lotes_producto;
 DROP TABLE IF EXISTS detallepedido;
 DROP TABLE IF EXISTS pedidos;
 DROP TABLE IF EXISTS usuarios;
+DROP TABLE IF EXISTS configuracion_global;
 DROP TABLE IF EXISTS clientes;
 DROP TABLE IF EXISTS productos;
 DROP TABLE IF EXISTS subcategorias;
@@ -152,6 +160,12 @@ CREATE TABLE usuarios (
     reset_token VARCHAR(255),
     reset_token_expires TIMESTAMP,
     ultimoAcceso TIMESTAMP
+);
+
+CREATE TABLE configuracion_global (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    margen_ganancia DECIMAL(5, 2) DEFAULT 10.00,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE subcategorias (

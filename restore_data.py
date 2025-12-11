@@ -13,6 +13,11 @@ USUARIOS = [
     (21, 'admin123@glamstore.com', 'pbkdf2_sha256$600000$H6vyXqLqUoINBizXnvyy0c$a0I72ZuNVaMkLAqYPysxkr+IVE7kercJAzzECxFChYs=', 1, None, '2025-11-24 13:40:20', 'Lauren Samanta Ortiz', None, None, None, None, '2025-12-10 19:17:58'),
 ]
 
+# Datos de configuración global
+CONFIGURACION = [
+    (1, 10.00, '2025-12-11 06:00:00'),
+]
+
 # Datos reales de categorias (del backup mas reciente)
 CATEGORIAS = [
     (1, 'Rostro', 'Base, correctores, polvos compactos, rubores e iluminadores', 'categorias/rostro.avif'),
@@ -99,6 +104,19 @@ try:
                 cursor.execute(
                     'INSERT OR IGNORE INTO usuarios (idUsuario, email, password, id_rol, idCliente, fechaCreacion, nombre, telefono, direccion, reset_token, reset_token_expires, ultimoAcceso) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                     user
+                )
+        
+        # Insertar configuración global
+        for config in CONFIGURACION:
+            if is_postgres:
+                cursor.execute(
+                    'INSERT INTO configuracion_global (id, margen_ganancia, fecha_actualizacion) VALUES (%s, %s, %s) ON CONFLICT DO NOTHING',
+                    config
+                )
+            else:
+                cursor.execute(
+                    'INSERT OR IGNORE INTO configuracion_global (id, margen_ganancia, fecha_actualizacion) VALUES (?, ?, ?)',
+                    config
                 )
         
         # Insertar categorias
