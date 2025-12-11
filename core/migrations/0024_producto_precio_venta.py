@@ -1,6 +1,6 @@
 # Generated migration to add precio_venta column
 
-from django.db import migrations, models
+from django.db import migrations
 
 
 class Migration(migrations.Migration):
@@ -10,9 +10,4 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='producto',
-            name='precio_venta',
-            field=models.DecimalField(decimal_places=2, default=0, help_text='Precio de venta calculado automáticamente', max_digits=10),
-        ),
     ]

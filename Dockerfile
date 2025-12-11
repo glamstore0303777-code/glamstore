@@ -1,4 +1,4 @@
-FROM python:3.11
+FROM python:3.13
 
 WORKDIR /app
 
@@ -8,6 +8,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-RUN python manage.py collectstatic --noinput
+RUN python manage.py migrate && python manage.py collectstatic --noinput
 
 CMD ["gunicorn", "glamstore.wsgi:application", "--bind", "0.0.0.0:8000"]
