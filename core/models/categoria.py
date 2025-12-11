@@ -2,10 +2,10 @@ from django.db import models
 
 
 class Categoria(models.Model):
-    idCategoria = models.AutoField(primary_key=True)
-    nombreCategoria = models.CharField(max_length=20)
-    descripcion = models.TextField(null=True)
-    imagen = models.ImageField(upload_to='categorias/', null=True, blank=True)
+    idCategoria = models.AutoField(primary_key=True, db_column='idcategoria')
+    nombreCategoria = models.CharField(max_length=20, db_column='nombrecategoria')
+    descripcion = models.TextField(null=True, db_column='descripcion')
+    imagen = models.ImageField(upload_to='categorias/', null=True, blank=True, db_column='imagen')
 
     class Meta:
         db_table = 'categorias'
@@ -17,8 +17,8 @@ class Categoria(models.Model):
 
 
 class Subcategoria(models.Model):
-    idSubcategoria = models.AutoField(primary_key=True)
-    nombreSubcategoria = models.CharField(max_length=50)
+    idSubcategoria = models.AutoField(primary_key=True, db_column='idsubcategoria')
+    nombreSubcategoria = models.CharField(max_length=50, db_column='nombresubcategoria')
     categoria = models.ForeignKey(
         Categoria,
         on_delete=models.CASCADE,
