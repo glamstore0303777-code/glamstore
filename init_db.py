@@ -3,6 +3,7 @@ import os
 import django
 from django.conf import settings
 from django.db import connection
+from decimal import Decimal
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'glamstore.settings')
 django.setup()
@@ -435,6 +436,34 @@ for prod_data in PRODUCTOS:
     except (Categoria.DoesNotExist, Subcategoria.DoesNotExist) as e:
         print(f"  ✗ Error al crear producto {prod_data['idProducto']}: {e}")
 
+# Restaurar clientes
+print("\nRestaurando clientes...")
+from core.models.clientes import Cliente
+
+CLIENTES = [
+    {'idCliente': 13, 'nombre': 'William Fontecha', 'email': 'william.fontecha@email.com', 'cedula': '1234567890', 'telefono': '3001234567', 'direccion': 'Calle 1 #123'},
+    {'idCliente': 15, 'nombre': 'Lalaa Ortega', 'email': 'lalaa.ortega@email.com', 'cedula': '1234567891', 'telefono': '3001234568', 'direccion': 'Calle 2 #456'},
+    {'idCliente': 17, 'nombre': 'Laura Torres', 'email': 'laura.torres@email.com', 'cedula': '1234567892', 'telefono': '3001234569', 'direccion': 'Calle 3 #789'},
+    {'idCliente': 18, 'nombre': 'Laura Tibaque', 'email': 'laura.tibaque@email.com', 'cedula': '1234567893', 'telefono': '3001234570', 'direccion': 'Calle 4 #101'},
+    {'idCliente': 20, 'nombre': 'Lauren Ortiz', 'email': 'lauren.ortiz@email.com', 'cedula': '1234567894', 'telefono': '3001234571', 'direccion': 'Calle 5 #202'},
+]
+
+for cliente_data in CLIENTES:
+    cliente, created = Cliente.objects.get_or_create(
+        idCliente=cliente_data['idCliente'],
+        defaults={
+            'nombre': cliente_data['nombre'],
+            'email': cliente_data['email'],
+            'cedula': cliente_data['cedula'],
+            'telefono': cliente_data['telefono'],
+            'direccion': cliente_data['direccion'],
+        }
+    )
+    if created:
+        print(f"  ✓ Cliente: {cliente.nombre}")
+    else:
+        print(f"  ✓ Cliente ya existe: {cliente.nombre}")
+
 # Restaurar pedidos y detalles de pedidos
 print("\nRestaurando pedidos y detalles...")
 from core.models.pedidos import Pedido, DetallePedido
@@ -481,5 +510,35 @@ for pedido_data in PEDIDOS:
             print(f"  ✓ Pedido #{pedido.idPedido} - Cliente: {cliente.nombre}")
     except Cliente.DoesNotExist:
         print(f"  ✗ Cliente {pedido_data['idCliente']} no encontrado para pedido {pedido_data['idPedido']}")
+
+# Restaurar detalles de pedidos
+print("\nRestaurando detalles de pedidos...")
+
+# Obtener el producto "Rubor Rosado Glow" para usar en los detalles
+try:
+    producto_rubor = Producto.objects.get(idProducto=7700000000001)
+    
+    # Crear un detalle de pedido para cada pedido
+    for pedido_data in PEDIDOS:
+        try:
+            pedido = Pedido.objects.get(idPedido=pedido_data['idPedido'])
+            
+            # Crear detalle: 1 unidad del producto a precio 37050 (34000 * 1.09 con margen)
+            detalle, created = DetallePedido.objects.get_or_create(
+                idPedido=pedido,
+                idProducto=producto_rubor,
+                defaults={
+                    'cantidad': 1,
+                    'precio_unitario': Decimal('37050.00'),
+                    'subtotal': Decimal('37050.00'),
+                    'margen_ganancia': Decimal('10.00'),
+                }
+            )
+            if created:
+                print(f"  ✓ Detalle para Pedido #{pedido.idPedido}")
+        except Pedido.DoesNotExist:
+            pass
+except Producto.DoesNotExist:
+    print("  ✗ Producto 'Rubor Rosado Glow' no encontrado")
 
 print("\n✓ Inicialización completada exitosamente")
