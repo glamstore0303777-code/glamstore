@@ -87,9 +87,9 @@ class Migration(migrations.Migration):
                 estado_pago VARCHAR(50) DEFAULT 'Pendiente',
                 total DECIMAL(10, 2) DEFAULT 0,
                 idcliente BIGINT NOT NULL REFERENCES clientes(idcliente) ON DELETE CASCADE,
-                fechavencimiento DATE,
+                fecha_vencimiento DATE,
                 idrepartidor INTEGER REFERENCES repartidores(idrepartidor) ON DELETE SET NULL,
-                facturasEnviadas INTEGER DEFAULT 0
+                facturas_enviadas INTEGER DEFAULT 0
             );
             """,
             reverse_sql="DROP TABLE IF EXISTS pedidos CASCADE;",
