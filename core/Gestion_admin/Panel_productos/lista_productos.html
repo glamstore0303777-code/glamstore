@@ -559,7 +559,11 @@
       <div class="product-card">
         <div class="product-image">
           {% if producto.imagen %}
-            <img src="{{ producto.imagen.url }}" alt="{{ producto.nombreProducto }}">
+            {% if producto.imagen.url %}
+              <img src="{{ producto.imagen.url }}" alt="{{ producto.nombreProducto }}">
+            {% else %}
+              <img src="/media/{{ producto.imagen }}" alt="{{ producto.nombreProducto }}">
+            {% endif %}
           {% else %}
             <div class="no-image">Sin Imagen</div>
           {% endif %}

@@ -399,7 +399,11 @@
           <td class="col-producto">{{ item.producto.nombreProducto }}</td>
           <td class="col-ref">{{ item.producto.referencia }}</td>
           <td class="col-img">
-            <img src="{{ item.producto.imagen.url }}" alt="{{ item.producto.nombreProducto }}" class="img-carrito">
+            {% if item.producto.imagen.url %}
+              <img src="{{ item.producto.imagen.url }}" alt="{{ item.producto.nombreProducto }}" class="img-carrito">
+            {% else %}
+              <img src="/media/{{ item.producto.imagen }}" alt="{{ item.producto.nombreProducto }}" class="img-carrito">
+            {% endif %}
           </td>
           <td class="col-envio">a calcular</td>
           <td class="col-precio"><span class="precio-formato">{{ item.producto.precio_venta|floatformat:0 }}</span></td>

@@ -1331,7 +1331,11 @@
             {% for producto in productos_mas_vendidos %}
               <div class="product-item">
                 {% if producto.imagen %}
-                  <img src="{{ producto.imagen.url }}" alt="{{ producto.nombreProducto }}" class="product-image">
+                  {% if producto.imagen.url %}
+                    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombreProducto }}" class="product-image">
+                  {% else %}
+                    <img src="/media/{{ producto.imagen }}" alt="{{ producto.nombreProducto }}" class="product-image">
+                  {% endif %}
                 {% else %}
                   <div class="product-image" style="background: #f8bbd0; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
                     {{ producto.nombreProducto|first }}

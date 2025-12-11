@@ -484,7 +484,11 @@
         <a href="{% url 'productos_categoria' categoria.idCategoria %}" class="card-categoria">
           <div class="card-imagen-wrapper">
             {% if categoria.imagen %}
-            <img src="{{ categoria.imagen.url }}" alt="Imagen de {{ categoria.nombreCategoria }}">
+              {% if categoria.imagen.url %}
+                <img src="{{ categoria.imagen.url }}" alt="Imagen de {{ categoria.nombreCategoria }}">
+              {% else %}
+                <img src="/media/{{ categoria.imagen }}" alt="Imagen de {{ categoria.nombreCategoria }}">
+              {% endif %}
             {% else %}
             <div class="sin-imagen">✨</div>
             {% endif %}
@@ -506,7 +510,11 @@
       <a href="{% url 'productos_categoria' producto.idCategoria_id %}" class="product-card">
         <div class="product-image">
           {% if producto.imagen %}
-          <img src="{{ producto.imagen.url }}" alt="{{ producto.nombreProducto }}">
+            {% if producto.imagen.url %}
+              <img src="{{ producto.imagen.url }}" alt="{{ producto.nombreProducto }}">
+            {% else %}
+              <img src="/media/{{ producto.imagen }}" alt="{{ producto.nombreProducto }}">
+            {% endif %}
           {% endif %}
         </div>
         <div class="product-info">

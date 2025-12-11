@@ -723,7 +723,11 @@
               </td>
               <td>
                 {% if detalle.idProducto.imagen %}
-                  <img src="{{ detalle.idProducto.imagen.url }}" alt="{{ detalle.idProducto.nombreProducto }}" class="product-image">
+                  {% if detalle.idProducto.imagen.url %}
+                    <img src="{{ detalle.idProducto.imagen.url }}" alt="{{ detalle.idProducto.nombreProducto }}" class="product-image">
+                  {% else %}
+                    <img src="/media/{{ detalle.idProducto.imagen }}" alt="{{ detalle.idProducto.nombreProducto }}" class="product-image">
+                  {% endif %}
                 {% else %}
                   <div class="product-image" style="background: #f8bbd0; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
                     {{ detalle.idProducto.nombreProducto|first }}
