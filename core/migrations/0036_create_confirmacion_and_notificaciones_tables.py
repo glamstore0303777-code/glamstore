@@ -1,4 +1,4 @@
-# Generated migration to create confirmaciones_entrega and notificaciones tables
+# Generated migration to create all base tables
 
 from django.db import migrations
 
@@ -12,44 +12,86 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RunSQL(
             sql="""
-            CREATE TABLE IF NOT EXISTS confirmaciones_entrega (
-                idconfirmacion SERIAL PRIMARY KEY,
-                pedido_id BIGINT NOT NULL UNIQUE REFERENCES pedidos(idpedido) ON DELETE CASCADE,
-                repartidor_id INTEGER REFERENCES repartidores(idrepartidor) ON DELETE SET NULL,
-                foto_entrega VARCHAR(100),
-                calificacion INTEGER DEFAULT 5,
-                comentario TEXT,
-                fecha_confirmacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            CREATE TABLE IF NOT EXISTS repartidores (
+                idrepartidor SERIAL PRIMARY KEY,
+                nombre VARCHAR(100) NOT NULL,
+                telefono VARCHAR(20),
+                email VARCHAR(100),
+                estado VARCHAR(50) DEFAULT 'Activo'
             );
             """,
-            reverse_sql="DROP TABLE IF EXISTS confirmaciones_entrega CASCADE;",
+            reverse_sql="DROP TABLE IF EXISTS repartidores CASCADE;",
         ),
         migrations.RunSQL(
             sql="""
-            CREATE TABLE IF NOT EXISTS notificaciones_problema (
-                idnotificacion SERIAL PRIMARY KEY,
-                idpedido BIGINT NOT NULL REFERENCES pedidos(idpedido) ON DELETE CASCADE,
-                motivo TEXT NOT NULL,
-                foto VARCHAR(100),
-                fechareporte TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                leida BOOLEAN DEFAULT FALSE,
-                respuesta_admin TEXT,
-                fecha_respuesta TIMESTAMP
+            CREATE TABLE IF NOT EXISTS clientes (
+                idcliente BIGSERIAL PRIMARY KEY,
+                nombre VARCHAR(100) NOT NULL,
+                email VARCHAR(100) UNIQUE NOT NULL,
+                cedula VARCHAR(20),
+                telefono VARCHAR(20),
+                direccion TEXT
             );
             """,
-            reverse_sql="DROP TABLE IF EXISTS notificaciones_problema CASCADE;",
+            reverse_sql="DROP TABLE IF EXISTS clientes CASCADE;",
         ),
         migrations.RunSQL(
             sql="""
-            CREATE TABLE IF NOT EXISTS notificaciones_reporte (
-                idnotificacion SERIAL PRIMARY KEY,
-                titulo VARCHAR(255) NOT NULL,
-                contenido_html TEXT NOT NULL,
-                tipo VARCHAR(50) DEFAULT 'DASHBOARD',
+            CREATE TABLE IF NOT EXISTS categorias (
+                idcategoria SERIAL PRIMARY KEY,
+                nombrecategoria VARCHAR(20) NOT NULL,
+                descripcion TEXT,
+                imagen VARCHAR(100)
+            );
+            """,
+            reverse_sql="DROP TABLE IF EXISTS categorias CASCADE;",
+        ),
+        migrations.RunSQL(
+            sql="""
+            CREATE TABLE IF NOT EXISTS subcategorias (
+                idsubcategoria SERIAL PRIMARY KEY,
+                nombresubcategoria VARCHAR(50) NOT NULL,
+                descripcion TEXT,
+                idcategoria INTEGER REFERENCES categorias(idcategoria) ON DELETE CASCADE
+            );
+            """,
+            reverse_sql="DROP TABLE IF EXISTS subcategorias CASCADE;",
+        ),
+        migrations.RunSQL(
+            sql="""
+            CREATE TABLE IF NOT EXISTS productos (
+                idproducto BIGSERIAL PRIMARY KEY,
+                nombreproducto VARCHAR(50) NOT NULL,
+                precio DECIMAL(10, 2) NOT NULL,
+                stock INTEGER DEFAULT 0,
+                descripcion TEXT,
+                lote VARCHAR(100),
+                cantidaddisponible INTEGER DEFAULT 0,
+                fechaingreso TIMESTAMP,
+                fechavencimiento DATE,
+                idcategoria INTEGER REFERENCES categorias(idcategoria) ON DELETE SET NULL,
+                idsubcategoria INTEGER REFERENCES subcategorias(idsubcategoria) ON DELETE SET NULL,
+                imagen VARCHAR(100),
+                precio_venta DECIMAL(10, 2) DEFAULT 0
+            );
+            """,
+            reverse_sql="DROP TABLE IF EXISTS productos CASCADE;",
+        ),
+        migrations.RunSQL(
+            sql="""
+            CREATE TABLE IF NOT EXISTS pedidos (
+                idpedido BIGSERIAL PRIMARY KEY,
                 fechacreacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                leida BOOLEAN DEFAULT FALSE
+                estado VARCHAR(50) DEFAULT 'En Preparacion',
+                estado_pedido VARCHAR(50) DEFAULT 'En Preparacion',
+                estado_pago VARCHAR(50) DEFAULT 'Pendiente',
+                total DECIMAL(10, 2) DEFAULT 0,
+                idcliente BIGINT NOT NULL REFERENCES clientes(idcliente) ON DELETE CASCADE,
+                fechavencimiento DATE,
+                idrepartidor INTEGER REFERENCES repartidores(idrepartidor) ON DELETE SET NULL,
+                facturasEnviadas INTEGER DEFAULT 0
             );
             """,
-            reverse_sql="DROP TABLE IF EXISTS notificaciones_reporte CASCADE;",
+            reverse_sql="DROP TABLE IF EXISTS pedidos CASCADE;",
         ),
     ]
