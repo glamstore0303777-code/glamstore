@@ -435,4 +435,51 @@ for prod_data in PRODUCTOS:
     except (Categoria.DoesNotExist, Subcategoria.DoesNotExist) as e:
         print(f"  ✗ Error al crear producto {prod_data['idProducto']}: {e}")
 
+# Restaurar pedidos y detalles de pedidos
+print("\nRestaurando pedidos y detalles...")
+from core.models.pedidos import Pedido, DetallePedido
+from datetime import datetime, timedelta
+
+PEDIDOS = [
+    {'idPedido': 20, 'idCliente': 13, 'total': 44100.00, 'estado_pedido': 'En Preparación', 'estado_pago': 'Pago Completo', 'fechaCreacion': datetime(2025, 11, 20, 13, 14, 0)},
+    {'idPedido': 21, 'idCliente': 13, 'total': 44100.00, 'estado_pedido': 'En Preparación', 'estado_pago': 'Pago Completo', 'fechaCreacion': datetime(2025, 11, 20, 13, 27, 44)},
+    {'idPedido': 22, 'idCliente': 13, 'total': 44100.00, 'estado_pedido': 'En Preparación', 'estado_pago': 'Pago Completo', 'fechaCreacion': datetime(2025, 11, 20, 13, 30, 46)},
+    {'idPedido': 23, 'idCliente': 13, 'total': 44100.00, 'estado_pedido': 'En Preparación', 'estado_pago': 'Pago Completo', 'fechaCreacion': datetime(2025, 11, 20, 15, 26, 57)},
+    {'idPedido': 24, 'idCliente': 13, 'total': 44100.00, 'estado_pedido': 'En Preparación', 'estado_pago': 'Pago Completo', 'fechaCreacion': datetime(2025, 11, 20, 15, 28, 42)},
+    {'idPedido': 25, 'idCliente': 13, 'total': 44100.00, 'estado_pedido': 'En Preparación', 'estado_pago': 'Pago Completo', 'fechaCreacion': datetime(2025, 11, 20, 15, 53, 40)},
+    {'idPedido': 26, 'idCliente': 13, 'total': 44100.00, 'estado_pedido': 'En Preparación', 'estado_pago': 'Pago Completo', 'fechaCreacion': datetime(2025, 11, 20, 16, 13, 31)},
+    {'idPedido': 27, 'idCliente': 13, 'total': 44100.00, 'estado_pedido': 'En Preparación', 'estado_pago': 'Pago Completo', 'fechaCreacion': datetime(2025, 11, 20, 18, 59, 45)},
+    {'idPedido': 28, 'idCliente': 13, 'total': 44100.00, 'estado_pedido': 'En Preparación', 'estado_pago': 'Pago Completo', 'fechaCreacion': datetime(2025, 11, 20, 19, 3, 10)},
+    {'idPedido': 33, 'idCliente': 15, 'total': 44100.00, 'estado_pedido': 'En Preparación', 'estado_pago': 'Pago Completo', 'fechaCreacion': datetime(2025, 11, 20, 19, 54, 0)},
+    {'idPedido': 34, 'idCliente': 15, 'total': 44100.00, 'estado_pedido': 'En Preparación', 'estado_pago': 'Pago Completo', 'fechaCreacion': datetime(2025, 11, 20, 20, 5, 9)},
+    {'idPedido': 35, 'idCliente': 15, 'total': 44100.00, 'estado_pedido': 'En Preparación', 'estado_pago': 'Pago Completo', 'fechaCreacion': datetime(2025, 11, 20, 20, 12, 6)},
+    {'idPedido': 36, 'idCliente': 15, 'total': 44100.00, 'estado_pedido': 'En Preparación', 'estado_pago': 'Pago Completo', 'fechaCreacion': datetime(2025, 11, 20, 20, 20, 36)},
+    {'idPedido': 37, 'idCliente': 17, 'total': 44100.00, 'estado_pedido': 'En Preparación', 'estado_pago': 'Pago Completo', 'fechaCreacion': datetime(2025, 11, 21, 0, 32, 13)},
+    {'idPedido': 38, 'idCliente': 17, 'total': 44100.00, 'estado_pedido': 'En Preparación', 'estado_pago': 'Pago Completo', 'fechaCreacion': datetime(2025, 11, 21, 1, 6, 53)},
+    {'idPedido': 39, 'idCliente': 18, 'total': 44100.00, 'estado_pedido': 'En Preparación', 'estado_pago': 'Pago Completo', 'fechaCreacion': datetime(2025, 11, 21, 1, 8, 27)},
+    {'idPedido': 40, 'idCliente': 18, 'total': 44100.00, 'estado_pedido': 'En Preparación', 'estado_pago': 'Pago Completo', 'fechaCreacion': datetime(2025, 11, 21, 1, 13, 13)},
+    {'idPedido': 43, 'idCliente': 20, 'total': 44100.00, 'estado_pedido': 'En Preparación', 'estado_pago': 'Pago Completo', 'fechaCreacion': datetime(2025, 11, 21, 0, 53, 43)},
+    {'idPedido': 44, 'idCliente': 20, 'total': 44100.00, 'estado_pedido': 'En Preparación', 'estado_pago': 'Pago Completo', 'fechaCreacion': datetime(2025, 11, 21, 0, 58, 29)},
+    {'idPedido': 45, 'idCliente': 20, 'total': 44100.00, 'estado_pedido': 'En Preparación', 'estado_pago': 'Pago Completo', 'fechaCreacion': datetime(2025, 11, 21, 1, 12, 30)},
+]
+
+for pedido_data in PEDIDOS:
+    try:
+        cliente = Cliente.objects.get(idCliente=pedido_data['idCliente'])
+        pedido, created = Pedido.objects.get_or_create(
+            idPedido=pedido_data['idPedido'],
+            defaults={
+                'idCliente': cliente,
+                'total': pedido_data['total'],
+                'estado_pedido': pedido_data['estado_pedido'],
+                'estado_pago': pedido_data['estado_pago'],
+                'estado': pedido_data['estado_pedido'],
+                'fechaCreacion': pedido_data['fechaCreacion'],
+            }
+        )
+        if created:
+            print(f"  ✓ Pedido #{pedido.idPedido} - Cliente: {cliente.nombre}")
+    except Cliente.DoesNotExist:
+        print(f"  ✗ Cliente {pedido_data['idCliente']} no encontrado para pedido {pedido_data['idPedido']}")
+
 print("\n✓ Inicialización completada exitosamente")
