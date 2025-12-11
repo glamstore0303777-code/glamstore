@@ -59,7 +59,7 @@ class Pedido(models.Model):
 
 
 class DetallePedido(models.Model):
-    id = models.AutoField(primary_key=True, db_column='id')
+    idDetallePedido = models.AutoField(primary_key=True, db_column='iddetallepedido')
     idPedido = models.ForeignKey(
         Pedido,
         on_delete=models.CASCADE,
@@ -91,7 +91,7 @@ class DetallePedido(models.Model):
         app_label = 'core'
 
     def __str__(self):
-        return f"Detalle #{self.idDetalle} - Producto {self.idProducto_id}"
+        return f"Detalle #{self.idDetallePedido} - Producto {self.idProducto_id}"
 
 
 class PedidoProducto(models.Model):
