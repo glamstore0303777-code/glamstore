@@ -649,25 +649,26 @@ def simular_pago(request):
         print("11. Transacción completada exitosamente")
         
         # Enviar factura al cliente inmediatamente (sin esperar repartidor)
-        print("12. Enviando factura al cliente...")
-        from core.Gestion_admin.services_repartidores import enviar_factura_cliente
-        
-        if enviar_factura_cliente(pedido):
-            print("    Factura enviada exitosamente")
-            pedido.facturas_enviadas += 1
-            pedido.save()
-        else:
-            print("    Error al enviar factura (pero el pedido se creó correctamente)")
+        # NOTA: Comentado temporalmente para evitar timeout en Render
+        # print("12. Enviando factura al cliente...")
+        # from core.Gestion_admin.services_repartidores import enviar_factura_cliente
+        # 
+        # if enviar_factura_cliente(pedido):
+        #     print("    Factura enviada exitosamente")
+        #     pedido.facturas_enviadas += 1
+        #     pedido.save()
+        # else:
+        #     print("    Error al enviar factura (pero el pedido se creó correctamente)")
         
         # Limpiar carrito
         request.session['carrito'] = {}
-        print("13. Carrito limpiado")
+        print("12. Carrito limpiado")
         
         # Guardar el ID del pedido en la sesión para permitir verlo sin login
         request.session['ultimo_pedido_id'] = pedido.idPedido
-        print(f"14. ID de pedido guardado en sesión: {pedido.idPedido}")
+        print(f"13. ID de pedido guardado en sesión: {pedido.idPedido}")
 
-        print(f"15. Redirigiendo a pedido_confirmado con ID: {pedido.idPedido}")
+        print(f"14. Redirigiendo a pedido_confirmado con ID: {pedido.idPedido}")
         print("="*50)
         print("FIN DE SIMULAR_PAGO - ÉXITO")
         print("="*50 + "\n")
