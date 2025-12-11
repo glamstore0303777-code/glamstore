@@ -7,6 +7,12 @@ from django.db import connection
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'glamstore.settings')
 django.setup()
 
+# Datos reales de usuarios (del backup mas reciente)
+USUARIOS = [
+    (10, 'glamstore0303777@gmail.com', 'pbkdf2_sha256$600000$PpT7bTOmCUOctDntYMUC5K$iLQW1DP7WSCXJQpyNInqAt56x5nvhbHoZD8fGC2kSv8=', 1, None, '2025-11-11 05:42:06', 'Glamstore Admin', '3000000000', 'Calle Glam 123', 'eINBqu8nBwCywbMgLbygwTZxGkmq81a3', '2025-12-10 21:06:41', '2025-12-10 20:35:51'),
+    (21, 'admin123@glamstore.com', 'pbkdf2_sha256$600000$H6vyXqLqUoINBizXnvyy0c$a0I72ZuNVaMkLAqYPysxkr+IVE7kercJAzzECxFChYs=', 1, None, '2025-11-24 13:40:20', 'Lauren Samanta Ortiz', None, None, None, None, '2025-12-10 19:17:58'),
+]
+
 # Datos reales de categorias (del backup mas reciente)
 CATEGORIAS = [
     (1, 'Rostro', 'Base, correctores, polvos compactos, rubores e iluminadores', 'categorias/rostro.avif'),
@@ -82,6 +88,19 @@ try:
     is_postgres = 'postgresql' in db_engine
     
     with connection.cursor() as cursor:
+        # Insertar usuarios
+        for user in USUARIOS:
+            if is_postgres:
+                cursor.execute(
+                    'INSERT INTO usuarios (idUsuario, email, password, id_rol, idCliente, fechaCreacion, nombre, telefono, direccion, reset_token, reset_token_expires, ultimoAcceso) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING',
+                    user
+                )
+            else:
+                cursor.execute(
+                    'INSERT OR IGNORE INTO usuarios (idUsuario, email, password, id_rol, idCliente, fechaCreacion, nombre, telefono, direccion, reset_token, reset_token_expires, ultimoAcceso) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    user
+                )
+        
         # Insertar categorias
         for cat in CATEGORIAS:
             if is_postgres:

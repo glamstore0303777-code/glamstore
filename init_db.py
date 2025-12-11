@@ -13,6 +13,7 @@ DROP TABLE IF EXISTS movimientos_lote CASCADE;
 DROP TABLE IF EXISTS lotes_producto CASCADE;
 DROP TABLE IF EXISTS detallepedido CASCADE;
 DROP TABLE IF EXISTS pedidos CASCADE;
+DROP TABLE IF EXISTS usuarios CASCADE;
 DROP TABLE IF EXISTS clientes CASCADE;
 DROP TABLE IF EXISTS productos CASCADE;
 DROP TABLE IF EXISTS subcategorias CASCADE;
@@ -23,6 +24,21 @@ CREATE TABLE categorias (
     nombreCategoria VARCHAR(20) NOT NULL,
     descripcion TEXT,
     imagen VARCHAR(100)
+);
+
+CREATE TABLE usuarios (
+    idUsuario INTEGER PRIMARY KEY,
+    email VARCHAR(30) NOT NULL UNIQUE,
+    password VARCHAR(255),
+    id_rol INTEGER NOT NULL,
+    idCliente INTEGER,
+    fechaCreacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    nombre VARCHAR(50),
+    telefono VARCHAR(20),
+    direccion VARCHAR(50),
+    reset_token VARCHAR(255),
+    reset_token_expires TIMESTAMP,
+    ultimoAcceso TIMESTAMP
 );
 
 CREATE TABLE subcategorias (
@@ -110,6 +126,7 @@ DROP TABLE IF EXISTS movimientos_lote;
 DROP TABLE IF EXISTS lotes_producto;
 DROP TABLE IF EXISTS detallepedido;
 DROP TABLE IF EXISTS pedidos;
+DROP TABLE IF EXISTS usuarios;
 DROP TABLE IF EXISTS clientes;
 DROP TABLE IF EXISTS productos;
 DROP TABLE IF EXISTS subcategorias;
@@ -120,6 +137,21 @@ CREATE TABLE categorias (
     nombreCategoria VARCHAR(20) NOT NULL,
     descripcion TEXT,
     imagen VARCHAR(100)
+);
+
+CREATE TABLE usuarios (
+    idUsuario INTEGER PRIMARY KEY,
+    email VARCHAR(30) NOT NULL UNIQUE,
+    password VARCHAR(255),
+    id_rol INTEGER NOT NULL,
+    idCliente INTEGER,
+    fechaCreacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    nombre VARCHAR(50),
+    telefono VARCHAR(20),
+    direccion VARCHAR(50),
+    reset_token VARCHAR(255),
+    reset_token_expires TIMESTAMP,
+    ultimoAcceso TIMESTAMP
 );
 
 CREATE TABLE subcategorias (
