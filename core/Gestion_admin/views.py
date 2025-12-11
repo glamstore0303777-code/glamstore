@@ -280,15 +280,22 @@ def dashboard_admin_view(request):
         fecha_confirmacion__gte=inicio_mes,
         repartidor__isnull=False
     ).values(
-        'repartidor__idRepartidor',
-        'repartidor__nombreRepartidor',
-        'repartidor__telefono'
+        'repartidor_id'
     ).annotate(
         promedio_calificacion=Avg('calificacion'),
         total_entregas=Count('idConfirmacion')
     ).order_by('-promedio_calificacion', '-total_entregas')
     
-    repartidor_estrella = repartidores_calificados.first() if repartidores_calificados.exists() else None
+    repartidor_estrella = None
+    if repartidores_calificados.exists():
+        top_repartidor_data = repartidores_calificados.first()
+        repartidor_obj = Repartidor.objects.get(idRepartidor=top_repartidor_data['repartidor_id'])
+        repartidor_estrella = {
+            'repartidor__nombreRepartidor': repartidor_obj.nombreRepartidor,
+            'repartidor__telefono': repartidor_obj.telefono,
+            'promedio_calificacion': top_repartidor_data['promedio_calificacion'],
+            'total_entregas': top_repartidor_data['total_entregas']
+        }
 
     # === NOTIFICACIONES NO LEÍDAS ===
     from core.models import NotificacionProblema
