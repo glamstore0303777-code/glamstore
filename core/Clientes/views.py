@@ -873,7 +873,7 @@ def login_view(request):
             request.session['usuario_rol'] = usuario['rol']
 
             if usuario['rol'] == "Administrador":
-                return redirect('dashboard_admin')
+                return redirect('/gestion/dashboard/admin/')
             elif usuario['rol'] == "Cliente":
                 return redirect('tienda')
         else:
