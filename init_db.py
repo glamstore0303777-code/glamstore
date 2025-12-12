@@ -35,6 +35,16 @@ USUARIOS = [
         'direccion': None,
         'fechaCreacion': datetime(2025, 11, 24, 13, 40, 20)
     },
+    {
+        'idUsuario': 100,
+        'email': 'cliente@glamstore.com',
+        'password': 'pbkdf2_sha256$600000$PpT7bTOmCUOctDntYMUC5K$iLQW1DP7WSCXJQpyNInqAt56x5nvhbHoZD8fGC2kSv8=',
+        'id_rol': 2,
+        'nombre': 'Cliente Prueba',
+        'telefono': '3001234567',
+        'direccion': 'Calle Principal 123, Bogota',
+        'fechaCreacion': datetime(2025, 12, 11, 0, 0, 0)
+    },
 ]
 
 for user_data in USUARIOS:
