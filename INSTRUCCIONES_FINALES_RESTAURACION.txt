@@ -1,0 +1,86 @@
+================================================================================
+RESTAURACIÓN FINAL DE LA BASE DE DATOS EN RENDER
+================================================================================
+
+PROBLEMA RESUELTO:
+- El archivo glamstoredb.sql estaba en formato MySQL
+- Render usa PostgreSQL, que no es compatible
+- Se necesitaba convertir el SQL a formato PostgreSQL
+
+SOLUCIÓN IMPLEMENTADA:
+1. ✓ Convertido glamstoredb.sql → glamstoredb_postgres.sql
+2. ✓ Creado script mejorado: restore_database_final.py
+3. ✓ Subido todo a GitHub
+
+ARCHIVOS CREADOS/MODIFICADOS:
+- glamstoredb_postgres.sql (342 KB) - SQL convertido a PostgreSQL
+- restore_database_final.py - Script de restauración mejorado
+- RESTAURAR_BD_RENDER_FINAL.md - Instrucciones detalladas
+
+CONTENIDO DEL SQL CONVERTIDO:
+✓ Repartidores (tabla: repartidores)
+✓ Notificaciones (tabla: notificaciones_problema)
+✓ Pedidos (tabla: pedidos)
+✓ Clientes (tabla: clientes)
+✓ Productos (tabla: productos)
+✓ Roles y permisos (tablas: auth_group, auth_permission)
+✓ Todas las demás tablas necesarias
+
+PASOS PARA EJECUTAR EN RENDER:
+================================================================================
+
+1. Conectarse a Render:
+   ssh render@srv-xxxxx
+   cd ~/project/src
+
+2. Ejecutar la restauración:
+   python restore_database_final.py glamstoredb_postgres.sql
+
+3. El script hará:
+   - Leer el archivo SQL
+   - Parsear todos los statements
+   - Ejecutarlos uno por uno
+   - Mostrar progreso
+   - Verificar que los datos se restauraron
+
+4. Verificar los datos:
+   python manage.py shell
+   
+   Luego:
+   >>> from core.models import Repartidor, NotificacionProblema
+   >>> print(f"Repartidores: {Repartidor.objects.count()}")
+   >>> print(f"Notificaciones: {NotificacionProblema.objects.count()}")
+
+CONVERSIONES REALIZADAS EN EL SQL:
+================================================================================
+✓ Removidos comentarios MySQL especiales (/*!40101 ... */)
+✓ Removidos SET statements de MySQL
+✓ Reemplazado ENGINE=InnoDB por nada
+✓ Removido DEFAULT CHARSET
+✓ Removido COLLATE
+✓ Reemplazado AUTO_INCREMENT por SERIAL
+✓ Reemplazados backticks (`) por comillas dobles (")
+✓ Convertidos tipos de datos:
+  - int(11) → integer
+  - bigint(20) → bigint
+  - varchar(X) → character varying(X)
+  - tinyint → smallint
+✓ Removido UNSIGNED
+✓ Limpiadas líneas vacías múltiples
+
+NOTAS IMPORTANTES:
+================================================================================
+- El archivo glamstoredb.sql original NO se debe usar en Render
+- Siempre usar glamstoredb_postgres.sql
+- Si hay errores, el script los mostrará pero continuará
+- Los errores comunes (DROP TABLE IF NOT EXISTS) se ignoran automáticamente
+- Si falla, intenta ejecutar el script nuevamente
+
+PRÓXIMOS PASOS:
+================================================================================
+1. Esperar a que se ejecute el script en Render
+2. Verificar que los datos se restauraron correctamente
+3. Probar la aplicación en Render
+4. Si todo funciona, la BD estará lista con todos los repartidores y notificaciones
+
+================================================================================
