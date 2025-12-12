@@ -252,9 +252,6 @@
                       {% else %}
                         <span style="color: #f44336; font-weight: bold;">No registrado</span>
                       {% endif %} |
-                      <span class="badge {% if repartidor.estado_turno == 'Disponible' %}badge-success{% elif repartidor.estado_turno == 'En Ruta' %}badge-warning{% else %}badge-danger{% endif %}">
-                        {{ repartidor.estado_turno }}
-                      </span>
                       | Pedidos: <span style="color: #999;">-</span>
                     </div>
                   </div>
