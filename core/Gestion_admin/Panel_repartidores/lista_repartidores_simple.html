@@ -1,0 +1,29 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel de Repartidores | Glam Store</title>
+  <link rel="icon" href="{% static 'img/logoglam.png' %}">
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .repartidor { padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
+    .repartidor h3 { margin: 0; }
+  </style>
+</head>
+<body>
+  <h1>Repartidores</h1>
+  
+  {% if repartidores %}
+    {% for repartidor in repartidores %}
+      <div class="repartidor">
+        <h3>{{ repartidor.nombreRepartidor }}</h3>
+        <p>Teléfono: {{ repartidor.telefono }}</p>
+        <p>Email: {{ repartidor.email|default:"No registrado" }}</p>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p>No hay repartidores registrados</p>
+  {% endif %}
+</body>
+</html>

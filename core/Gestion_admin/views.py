@@ -1554,10 +1554,8 @@ def lista_repartidores_view(request):
     # Obtener repartidores
     repartidores = Repartidor.objects.all().order_by('nombreRepartidor')
     
-    return render(request, 'lista_repartidores.html', {
+    return render(request, 'lista_repartidores_simple.html', {
         'repartidores': repartidores,
-        'pedidos_pendientes': [],
-        'pedidos_asignados': [],
     })
 
 def repartidor_agregar_view(request):
