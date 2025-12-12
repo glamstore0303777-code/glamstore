@@ -39,6 +39,13 @@ def convert_mysql_to_postgres(sql_content):
     # Remover COLLATE
     sql_content = re.sub(r'\s+COLLATE=[^\s;]*', '', sql_content, flags=re.IGNORECASE)
     
+    # Convertir tipos de datos MySQL a PostgreSQL
+    sql_content = re.sub(r'\bint\s*\(\d+\)', 'integer', sql_content, flags=re.IGNORECASE)
+    sql_content = re.sub(r'\bbigint\s*\(\d+\)', 'bigint', sql_content, flags=re.IGNORECASE)
+    sql_content = re.sub(r'\bvarchar\s*\(', 'character varying(', sql_content, flags=re.IGNORECASE)
+    sql_content = re.sub(r'\btinyint\s*\(\d+\)', 'smallint', sql_content, flags=re.IGNORECASE)
+    sql_content = re.sub(r'\bUNSIGNED\b', '', sql_content, flags=re.IGNORECASE)
+    
     return sql_content
 
 
