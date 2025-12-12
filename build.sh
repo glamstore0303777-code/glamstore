@@ -19,4 +19,8 @@ python init_db.py
 echo "4. Collecting static files..."
 python manage.py collectstatic --noinput
 
+# Send pending emails
+echo "5. Sending pending emails..."
+python manage.py enviar_correos_pendientes || echo "Warning: Email sending failed, continuing..."
+
 echo "=== Build process completed successfully ==="

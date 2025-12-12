@@ -661,19 +661,27 @@ def simular_pago(request):
 
         print("11. Transacción completada exitosamente")
         
-        # Enviar factura al cliente inmediatamente (sin esperar repartidor)
-        print("12. Enviando factura al cliente...")
-        # NOTA: El envío de correos está comentado porque causa problemas de memoria en Render
-        # TODO: Implementar envío asincrónico con Celery o similar
-        # from core.Gestion_admin.services_repartidores import enviar_factura_cliente
-        # 
-        # if enviar_factura_cliente(pedido):
-        #     print("    Factura enviada exitosamente")
-        #     pedido.facturas_enviadas += 1
-        #     pedido.save()
-        # else:
-        #     print("    Error al enviar factura (pero el pedido se creó correctamente)")
-        print("    Envío de factura deshabilitado temporalmente (implementar asincrónico)")
+        # Encolar factura para envío asincrónico
+        print("12. Encolando factura para envío...")
+        try:
+            from core.Gestion_admin.services_repartidores import generar_html_factura
+            from core.services.correos_service import encolar_correo
+            
+            # Generar HTML de la factura
+            html_factura = generar_html_factura(pedido)
+            
+            # Encolar el correo
+            if encolar_correo(
+                id_pedido=pedido.idPedido,
+                destinatario=cliente.email,
+                asunto=f"Factura de tu Pedido #{pedido.idPedido} - Glam Store",
+                contenido_html=html_factura
+            ):
+                print("    Factura encolada para envío")
+            else:
+                print("    Error al encolar factura (pero el pedido se creó correctamente)")
+        except Exception as e:
+            print(f"    Error al encolar factura: {e}")
         
         # Limpiar carrito
         request.session['carrito'] = {}
