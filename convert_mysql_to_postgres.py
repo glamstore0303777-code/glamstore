@@ -10,37 +10,49 @@ import re
 def convert_mysql_to_postgres(sql_content):
     """Convertir SQL de MySQL a PostgreSQL"""
     
-    # 1. Reemplazar ENGINE=InnoDB por nada (PostgreSQL no lo necesita)
+    # 0. Remover comentarios MySQL especiales (/*!40101 ... */)
+    sql_content = re.sub(r'/\*!\d+[^*]*\*/', '', sql_content, flags=re.IGNORECASE)
+    
+    # 1. Remover SET statements de MySQL que no funcionan en PostgreSQL
+    sql_content = re.sub(r'SET\s+SQL_MODE\s*=\s*[^;]*;', '', sql_content, flags=re.IGNORECASE)
+    sql_content = re.sub(r'SET\s+time_zone\s*=\s*[^;]*;', '', sql_content, flags=re.IGNORECASE)
+    sql_content = re.sub(r'SET\s+@OLD_[^;]*;', '', sql_content, flags=re.IGNORECASE)
+    sql_content = re.sub(r'SET\s+NAMES\s+[^;]*;', '', sql_content, flags=re.IGNORECASE)
+    
+    # 2. Remover START TRANSACTION (PostgreSQL usa BEGIN)
+    sql_content = re.sub(r'START\s+TRANSACTION;', 'BEGIN;', sql_content, flags=re.IGNORECASE)
+    
+    # 3. Reemplazar ENGINE=InnoDB por nada (PostgreSQL no lo necesita)
     sql_content = re.sub(r'\s+ENGINE=InnoDB[^;]*', '', sql_content, flags=re.IGNORECASE)
     
-    # 2. Reemplazar DEFAULT CHARSET por nada
+    # 4. Reemplazar DEFAULT CHARSET por nada
     sql_content = re.sub(r'\s+DEFAULT CHARSET=[^\s;]*', '', sql_content, flags=re.IGNORECASE)
     
-    # 3. Reemplazar COLLATE por nada
+    # 5. Reemplazar COLLATE por nada
     sql_content = re.sub(r'\s+COLLATE=[^\s;]*', '', sql_content, flags=re.IGNORECASE)
     
-    # 4. Reemplazar AUTO_INCREMENT por SERIAL
+    # 6. Reemplazar AUTO_INCREMENT por SERIAL
     sql_content = re.sub(r'\bAUTO_INCREMENT\b', 'SERIAL', sql_content, flags=re.IGNORECASE)
     
-    # 5. Reemplazar backticks por comillas dobles
+    # 7. Reemplazar backticks por comillas dobles
     sql_content = sql_content.replace('`', '"')
     
-    # 6. Reemplazar int(11) por integer
+    # 8. Reemplazar int(11) por integer
     sql_content = re.sub(r'\bint\s*\(\d+\)', 'integer', sql_content, flags=re.IGNORECASE)
     
-    # 7. Reemplazar bigint(20) por bigint
+    # 9. Reemplazar bigint(20) por bigint
     sql_content = re.sub(r'\bbigint\s*\(\d+\)', 'bigint', sql_content, flags=re.IGNORECASE)
     
-    # 8. Reemplazar varchar(X) por character varying(X)
+    # 10. Reemplazar varchar(X) por character varying(X)
     sql_content = re.sub(r'\bvarchar\s*\(', 'character varying(', sql_content, flags=re.IGNORECASE)
     
-    # 9. Reemplazar tinyint por smallint
+    # 11. Reemplazar tinyint por smallint
     sql_content = re.sub(r'\btinyint\s*\(\d+\)', 'smallint', sql_content, flags=re.IGNORECASE)
     
-    # 10. Reemplazar UNSIGNED por nada (PostgreSQL maneja esto diferente)
+    # 12. Reemplazar UNSIGNED por nada (PostgreSQL maneja esto diferente)
     sql_content = re.sub(r'\bUNSIGNED\b', '', sql_content, flags=re.IGNORECASE)
     
-    # 11. Reemplazar PRIMARY KEY AUTO_INCREMENT por PRIMARY KEY SERIAL
+    # 13. Reemplazar PRIMARY KEY AUTO_INCREMENT por PRIMARY KEY SERIAL
     sql_content = re.sub(
         r'(\w+)\s+integer\s+NOT NULL\s+AUTO_INCREMENT',
         r'\1 SERIAL',
@@ -48,11 +60,8 @@ def convert_mysql_to_postgres(sql_content):
         flags=re.IGNORECASE
     )
     
-    # 12. Reemplazar CONSTRAINT ... FOREIGN KEY por ALTER TABLE
-    # Esto es más complejo, lo dejamos para después
-    
-    # 13. NO limpiar espacios múltiples (mantener formato)
-    # sql_content = re.sub(r'\s+', ' ', sql_content)
+    # 14. Remover líneas vacías múltiples
+    sql_content = re.sub(r'\n\s*\n+', '\n', sql_content)
     
     return sql_content
 

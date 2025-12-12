@@ -6,61 +6,44 @@
 -- Tiempo de generación: 11-12-2025 a las 05:51:16
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.0.30
-
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-START TRANSACTION;
-SET time_zone = "+00:00";
-
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
-
+BEGIN;
+;
+;
+;
+;
 --
 -- Base de datos: "glamstoredb"
 --
-
 -- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla "auth_group"
 --
-
 CREATE TABLE "auth_group" (
   "id" integer NOT NULL,
   "name" character varying(150) NOT NULL
 );
-
 -- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla "auth_group_permissions"
 --
-
 CREATE TABLE "auth_group_permissions" (
   "id" bigint NOT NULL,
   "group_id" integer NOT NULL,
   "permission_id" integer NOT NULL
 );
-
 -- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla "auth_permission"
 --
-
 CREATE TABLE "auth_permission" (
   "id" integer NOT NULL,
   "name" character varying(255) NOT NULL,
   "content_type_id" integer NOT NULL,
   "codename" character varying(100) NOT NULL
 );
-
 --
 -- Volcado de datos para la tabla "auth_permission"
 --
-
 INSERT INTO "auth_permission" ("id", "name", "content_type_id", "codename") VALUES
 (1, 'Can add log entry', 1, 'add_logentry'),
 (2, 'Can change log entry', 1, 'change_logentry'),
@@ -174,13 +157,10 @@ INSERT INTO "auth_permission" ("id", "name", "content_type_id", "codename") VALU
 (110, 'Can change Configuración Global', 28, 'change_configuracionglobal'),
 (111, 'Can delete Configuración Global', 28, 'delete_configuracionglobal'),
 (112, 'Can view Configuración Global', 28, 'view_configuracionglobal');
-
 -- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla "auth_user"
 --
-
 CREATE TABLE "auth_user" (
   "id" integer NOT NULL,
   "password" character varying(128) NOT NULL,
@@ -194,11 +174,9 @@ CREATE TABLE "auth_user" (
   "is_active" smallint NOT NULL,
   "date_joined" datetime(6) NOT NULL
 );
-
 --
 -- Volcado de datos para la tabla "auth_user"
 --
-
 INSERT INTO "auth_user" ("id", "password", "last_login", "is_superuser", "username", "first_name", "last_name", "email", "is_staff", "is_active", "date_joined") VALUES
 (1, 'pbkdf2_sha256$600000$fuC3u5YxeZidYXW7wwnSGP$Lh3N7ccFjYGXMD5lGEk8lxrNDuRwHtc154YBiL8DEpA=', NULL, 1, 'lauren samanta', '', '', 'laurensamanta0.r@gmail.com', 1, 1, '2025-11-05 18:55:12.012073'),
 (2, 'pbkdf2_sha256$600000$ouGFhpOpJpoenXf23VgHHF$6dtSgXYWfcDhK1gicdsYrzd9uMo/ueUE/OYjjQLpzWE=', NULL, 1, 'lauren o', '', '', 'laurensamanta0.r@gmail.com', 1, 1, '2025-11-05 18:56:53.161260'),
@@ -212,48 +190,37 @@ INSERT INTO "auth_user" ("id", "password", "last_login", "is_superuser", "userna
 (10, 'pbkdf2_sha256$600000$hQnXxaaYLbTIKTpPigfoJy$N85A3gM0JKZdeHdQbkat7YkbmYyZcWtfgKaAw0BQYUY=', NULL, 1, 'lau', '', '', 'lausamanta2024@gmail.com', 1, 1, '2025-11-05 19:34:55.465552'),
 (11, 'pbkdf2_sha256$600000$9l5EUMdf7qOhelMDP9FloC$sCDpSFg4vzfC8emCWoE++alAUTH6xK55ReqOf9JsE3E=', NULL, 1, 'bobo', '', '', 'bob.glam@glamstore.com', 1, 1, '2025-11-05 21:33:48.277178'),
 (12, 'pbkdf2_sha256$600000$RmyZRxoNvcQI7O2Vuaer74$W//91Xi+D1eo12O7SL4c4rSuQN6Bq3H7roUXP3Cj6Vk=', NULL, 1, 'bob', '', '', 'bob.glam@glamstore.com', 1, 1, '2025-11-05 21:38:39.869552');
-
 -- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla "auth_user_groups"
 --
-
 CREATE TABLE "auth_user_groups" (
   "id" bigint NOT NULL,
   "user_id" integer NOT NULL,
   "group_id" integer NOT NULL
 );
-
 -- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla "auth_user_user_permissions"
 --
-
 CREATE TABLE "auth_user_user_permissions" (
   "id" bigint NOT NULL,
   "user_id" integer NOT NULL,
   "permission_id" integer NOT NULL
 );
-
 -- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla "categorias"
 --
-
 CREATE TABLE "categorias" (
   "idCategoria" integer NOT NULL,
   "nombreCategoria" character varying(20) NOT NULL,
   "descripcion" text DEFAULT NULL,
   "imagen" character varying(100) DEFAULT NULL
 );
-
 --
 -- Volcado de datos para la tabla "categorias"
 --
-
 INSERT INTO "categorias" ("idCategoria", "nombreCategoria", "descripcion", "imagen") VALUES
 (1, 'Rostro', 'Base, correctores, polvos compactos, rubores e iluminadores', 'categorias/rostro.avif'),
 (2, 'Ojos', 'Sombras, delineadores, pesta?inas y cejas', 'categorias/ojos.jpg'),
@@ -261,13 +228,10 @@ INSERT INTO "categorias" ("idCategoria", "nombreCategoria", "descripcion", "imag
 (4, 'Uñas', 'Esmaltes, tratamientos y accesorios para uñas', 'categorias/uñas.webp'),
 (5, 'Accesorios', 'Brochas, esponjas y herramientas de maquillaje', 'categorias/accessories_feb_main.jpg'),
 (9, 'Cuidado Facial', 'cremas,serums', 'categorias/cuidado_facial_T4konPk.jpg');
-
 -- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla "clientes"
 --
-
 CREATE TABLE "clientes" (
   "idCliente" integer NOT NULL,
   "cedula" character varying(20) NOT NULL,
@@ -276,11 +240,9 @@ CREATE TABLE "clientes" (
   "direccion" character varying(200) DEFAULT NULL,
   "telefono" character varying(20) DEFAULT NULL
 );
-
 --
 -- Volcado de datos para la tabla "clientes"
 --
-
 INSERT INTO "clientes" ("idCliente", "cedula", "nombre", "email", "direccion", "telefono") VALUES
 (2, '10002', 'Laura Gómez', 'laura.gomez@gmail.com', 'Carrera 45 #12-34 Montería', '2147483647'),
 (13, '7410852', 'william fontecha', 'carlos@gmail.com', '58bis, Rafael Uribe Uribe, Bogotá, Bogotá D.C. (9-49)', '3115176388'),
@@ -296,32 +258,24 @@ INSERT INTO "clientes" ("idCliente", "cedula", "nombre", "email", "direccion", "
 (28, '25431352', 'andrea   contreras ', 'andreacontrerlombana@gmail.com', 'carrera 19a 11a 67, Comuna 6 - San Humberto, Soacha, Cundinamarca (triunfo 4)', '3024892804'),
 (29, '656135156', 'mao b2b', 'infob2bingenieria@gmail.com', 'carrera 19a 11a 67', '32123165656'),
 (30, '13514564561', 'michael  ', 'michaeldaramirez117@gmail.com', 'carrera 19a 11a 67, Engativá, Engativá, Bogotá, Bogotá D.C. (engativa)', '32123165656');
-
 -- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla "configuracion_global"
 --
-
 CREATE TABLE "configuracion_global" (
   "id" bigint NOT NULL,
   "margen_ganancia" decimal(5,2) DEFAULT 10.00,
   "fecha_actualizacion" datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 );
-
 --
 -- Volcado de datos para la tabla "configuracion_global"
 --
-
 INSERT INTO "configuracion_global" ("id", "margen_ganancia", "fecha_actualizacion") VALUES
 (1, 9.00, '2025-12-10 20:25:01');
-
 -- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla "confirmaciones_entrega"
 --
-
 CREATE TABLE "confirmaciones_entrega" (
   "idConfirmacion" integer NOT NULL,
   "foto_entrega" character varying(100) DEFAULT NULL,
@@ -331,24 +285,19 @@ CREATE TABLE "confirmaciones_entrega" (
   "pedido_id" integer NOT NULL,
   "repartidor_id" integer DEFAULT NULL
 );
-
 --
 -- Volcado de datos para la tabla "confirmaciones_entrega"
 --
-
 INSERT INTO "confirmaciones_entrega" ("idConfirmacion", "foto_entrega", "calificacion", "comentario", "fecha_confirmacion", "pedido_id", "repartidor_id") VALUES
 (1, 'confirmaciones_entrega/ojos.jpg', 3, 'si lo recibi gracias', '2025-11-26 17:30:02.430998', 52, 16),
 (2, '', 5, 'exelente', '2025-11-26 17:39:58.936851', 48, 16),
 (3, '', 5, 'bien', '2025-12-10 16:22:20.815213', 43, 15),
 (4, '', 3, 'bien,amable', '2025-12-10 16:22:37.392926', 44, 15),
 (5, '', 5, 'excelente', '2025-12-10 20:11:57.780570', 87, 17);
-
 -- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla "core_notificacion"
 --
-
 CREATE TABLE "core_notificacion" (
   "id" bigint NOT NULL,
   "mensaje" longtext NOT NULL,
@@ -356,32 +305,25 @@ CREATE TABLE "core_notificacion" (
   "fecha" datetime(6) NOT NULL,
   "usuario_id" integer NOT NULL
 );
-
 --
 -- Volcado de datos para la tabla "core_notificacion"
 --
-
 INSERT INTO "core_notificacion" ("id", "mensaje", "leida", "fecha", "usuario_id") VALUES
 (1, 'Nuevo pedido desde soacha, Cundinamarca.', 0, '2025-11-07 07:54:00.290765', 1),
 (2, 'Nuevo pedido desde soacha, Cundinamarca.', 0, '2025-11-07 07:59:13.501034', 1),
 (3, 'Nuevo pedido #11 de Cliente1 desde Calle Principal #123.', 0, '2025-11-07 08:37:56.186601', 1);
-
 -- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla "core_profile"
 --
-
 CREATE TABLE "core_profile" (
   "id" bigint NOT NULL,
   "token_recuperacion" character varying(64) DEFAULT NULL,
   "user_id" integer NOT NULL
 );
-
 --
 -- Volcado de datos para la tabla "core_profile"
 --
-
 INSERT INTO "core_profile" ("id", "token_recuperacion", "user_id") VALUES
 (1, NULL, 1),
 (2, NULL, 2),
@@ -395,13 +337,10 @@ INSERT INTO "core_profile" ("id", "token_recuperacion", "user_id") VALUES
 (10, NULL, 10),
 (11, NULL, 11),
 (12, NULL, 12);
-
 -- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla "detallepedido"
 --
-
 CREATE TABLE "detallepedido" (
   "idDetalle" integer NOT NULL,
   "idPedido" integer NOT NULL,
@@ -411,11 +350,9 @@ CREATE TABLE "detallepedido" (
   "subtotal" decimal(12,2) NOT NULL,
   "margen_ganancia" decimal(5,2) NOT NULL
 );
-
 --
 -- Volcado de datos para la tabla "detallepedido"
 --
-
 INSERT INTO "detallepedido" ("idDetalle", "idPedido", "idProducto", "cantidad", "precio_unitario", "subtotal", "margen_ganancia") VALUES
 (32, 20, 7700000000012, 1, 18000.00, 18000.00, 10.00),
 (33, 21, 7700000000001, 1, 32000.00, 32000.00, 10.00),
@@ -549,52 +486,39 @@ INSERT INTO "detallepedido" ("idDetalle", "idPedido", "idProducto", "cantidad", 
 (182, 105, 7700000000031, 1, 15550.00, 15550.00, 9.00),
 (183, 106, 7700000000023, 2, 23350.00, 46700.00, 9.00),
 (184, 106, 7700000000035, 1, 6500.00, 6500.00, 9.00);
-
 -- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla "distribuidores"
 --
-
 CREATE TABLE "distribuidores" (
   "idDistribuidor" integer NOT NULL,
   "nombreDistribuidor" character varying(30) DEFAULT NULL,
   "contacto" character varying(20) DEFAULT NULL
 );
-
 --
 -- Volcado de datos para la tabla "distribuidores"
 --
-
 INSERT INTO "distribuidores" ("idDistribuidor", "nombreDistribuidor", "contacto") VALUES
 (1, 'Proveedor Central ', '214748364'),
 (7, 'Proveedor Central tt', '214748364755');
-
 -- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla "distribuidorproducto"
 --
-
 CREATE TABLE "distribuidorproducto" (
   "idDistribuidor" integer NOT NULL,
   "idProducto" integer NOT NULL
 );
-
 --
 -- Volcado de datos para la tabla "distribuidorproducto"
 --
-
 INSERT INTO "distribuidorproducto" ("idDistribuidor", "idProducto") VALUES
 (1, 1),
 (1, 2);
-
 -- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla "django_admin_log"
 --
-
 CREATE TABLE "django_admin_log" (
   "id" integer NOT NULL,
   "action_time" datetime(6) NOT NULL,
@@ -605,23 +529,18 @@ CREATE TABLE "django_admin_log" (
   "content_type_id" integer DEFAULT NULL,
   "user_id" integer NOT NULL
 );
-
 -- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla "django_content_type"
 --
-
 CREATE TABLE "django_content_type" (
   "id" integer NOT NULL,
   "app_label" character varying(100) NOT NULL,
   "model" character varying(100) NOT NULL
 );
-
 --
 -- Volcado de datos para la tabla "django_content_type"
 --
-
 INSERT INTO "django_content_type" ("id", "app_label", "model") VALUES
 (1, 'admin', 'logentry'),
 (3, 'auth', 'group'),
@@ -651,24 +570,19 @@ INSERT INTO "django_content_type" ("id", "app_label", "model") VALUES
 (21, 'core', 'subcategoria'),
 (10, 'core', 'usuario'),
 (6, 'sessions', 'session');
-
 -- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla "django_migrations"
 --
-
 CREATE TABLE "django_migrations" (
   "id" bigint NOT NULL,
   "app" character varying(255) NOT NULL,
   "name" character varying(255) NOT NULL,
   "applied" datetime(6) NOT NULL
 );
-
 --
 -- Volcado de datos para la tabla "django_migrations"
 --
-
 INSERT INTO "django_migrations" ("id", "app", "name", "applied") VALUES
 (1, 'contenttypes', '0001_initial', '2025-10-24 03:20:47.874567'),
 (2, 'auth', '0001_initial', '2025-10-24 03:20:48.743453'),
@@ -717,23 +631,18 @@ INSERT INTO "django_migrations" ("id", "app", "name", "applied") VALUES
 (77, 'core', '0027_configuracion_global', '2025-12-10 17:54:34.753445'),
 (78, 'core', '0028_remove_producto_margen_ganancia', '2025-12-10 17:56:08.985958'),
 (79, 'core', '0029_detallepedido_margen_ganancia', '2025-12-10 18:03:21.134440');
-
 -- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla "django_session"
 --
-
 CREATE TABLE "django_session" (
   "session_key" character varying(40) NOT NULL,
   "session_data" longtext NOT NULL,
   "expire_date" datetime(6) NOT NULL
 );
-
 --
 -- Volcado de datos para la tabla "django_session"
 --
-
 INSERT INTO "django_session" ("session_key", "session_data", "expire_date") VALUES
 ('1ofml2vngq04ufspkh6n7glaqcods9lc', 'e30:1vMcsc:40C7WG9FUlqYEsmirrNoX0z7ZD_ZoBYmUXs9W6aYP7M', '2025-12-06 01:57:38.565879'),
 ('9ldcrjet1dmnb530p42ldcj31zcb41rc', '.eJyrViotLk0sysyPz0xRsjLUgXPz8nOTilKVrJRyEkuLUvOUEDJF-TlAlbUAayMUyg:1vNh8C:eBbKVRmo2Nb8Wcd0qjWaQMOOVa8B_4EpfGXpFihlO58', '2025-12-09 00:42:08.666163'),
@@ -742,13 +651,10 @@ INSERT INTO "django_session" ("session_key", "session_data", "expire_date") VALU
 ('k5549xb69c0urw9cc19ek668uhh0z37y', '.eJyrViotLk0sysyPz0xRsjLUgXPz8nOTilKVrJRyEkuLUvOUEDJF-TlAlbUAayMUyg:1vPYvx:SOxFhCXoc1KI_MIVw1gpN1Ts4Z7wC4DUY1rEjLJUNvU', '2025-12-14 04:21:13.503847'),
 ('l5900uvny2bedhbazs6j6j4x1dan99zf', '.eJyrVkpOLCrKLMlXsqpWMjc3gAFDIyUrQx0UEWOgSG0tAER1C_A:1vLrXM:LxqIck_4vhkHBeBGiSXlT-_SFABF0LwAY-Tanau3tb0', '2025-12-03 23:24:32.718893'),
 ('tpaasu0iccukacp3q24jsj4gimlci6m5', '.eJyrViotLk0sysyPz0xRsjLUgXPz8nOTilKVrJRyEkuLUvOUEDJF-TlAlbUAayMUyg:1vJWWz:_eaifUz35kpwBBbdR2ByLo2ruRlLwPHY9wTo3GRj2vk', '2025-11-27 12:34:29.154577');
-
 -- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla "facturas"
 --
-
 CREATE TABLE "facturas" (
   "idFactura" integer NOT NULL,
   "idPedido" integer DEFAULT NULL,
@@ -757,13 +663,10 @@ CREATE TABLE "facturas" (
   "estado" character varying(20) DEFAULT 'Pendiente',
   "idMetodoPago" integer DEFAULT NULL
 );
-
 -- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla "lotes_producto"
 --
-
 CREATE TABLE "lotes_producto" (
   "idLote" integer NOT NULL,
   "codigo_lote" character varying(100) NOT NULL,
@@ -778,11 +681,9 @@ CREATE TABLE "lotes_producto" (
   "proveedor" character varying(200) DEFAULT NULL,
   "producto_id" bigint NOT NULL
 );
-
 --
 -- Volcado de datos para la tabla "lotes_producto"
 --
-
 INSERT INTO "lotes_producto" ("idLote", "codigo_lote", "fecha_entrada", "fecha_vencimiento", "cantidad_inicial", "cantidad_disponible", "costo_unitario", "precio_venta", "total_con_iva", "iva", "proveedor", "producto_id") VALUES
 (1, 'L2025-11', '2025-11-26 18:41:11.536084', '2027-11-01', 578, 464, 0.00, 0.00, NULL, NULL, NULL, 7700000000001),
 (16, 'L2025-11', '2025-11-26 18:41:11.753123', '2027-11-01', 398, 382, 0.00, 0.00, NULL, NULL, NULL, 7700000000002),
@@ -824,13 +725,10 @@ INSERT INTO "lotes_producto" ("idLote", "codigo_lote", "fecha_entrada", "fecha_v
 (118, 'L2025-10', '2025-11-30 01:10:29.760952', '2025-12-01', 10, 10, 15000.00, 18750.00, 178500.00, 28500.00, NULL, 7709876543210),
 (119, 'L2025-15', '2025-12-10 18:15:12.621581', '2026-06-25', 10, 10, 15000.00, 18750.00, 178500.00, 28500.00, 'Proveedor Central ', 7709876543220),
 (120, 'L2025-10', '2025-12-10 19:04:26.186382', '2026-09-25', 10, 8, 8500.00, 10625.00, 101150.00, 16150.00, 'Proveedor Central ', 7709876543221);
-
 -- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla "mensajecontacto"
 --
-
 CREATE TABLE "mensajecontacto" (
   "id" bigint NOT NULL,
   "nombre" character varying(100) NOT NULL,
@@ -839,13 +737,10 @@ CREATE TABLE "mensajecontacto" (
   "fecha" datetime(6) NOT NULL,
   "leido" smallint NOT NULL
 );
-
 -- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla "mensajes"
 --
-
 CREATE TABLE "mensajes" (
   "idMensaje" integer NOT NULL,
   "nombre" character varying(50) NOT NULL,
@@ -853,46 +748,36 @@ CREATE TABLE "mensajes" (
   "mensaje" longtext NOT NULL,
   "fecha" datetime(6) NOT NULL
 );
-
 --
 -- Volcado de datos para la tabla "mensajes"
 --
-
 INSERT INTO "mensajes" ("idMensaje", "nombre", "email", "mensaje", "fecha") VALUES
 (1, 'lauren', 'laurensamanta0.r@gmail.com', 'nose', '2025-11-29 22:14:32.990959'),
 (2, 'lauren', 'laurensamanta0.r@gmail.com', 'nose', '2025-11-29 22:14:35.303937'),
 (3, 'lauren', 'laurensamanta0.r@gmail.com', 'nose', '2025-11-29 22:24:18.893532'),
 (4, 'lauren', 'lausamanta2024@gmail.com', 'nn', '2025-11-29 22:31:31.386470'),
 (5, 'lauren', 'lausamanta2024@gmail.com', 'necesito informacion detallada de la tienda\r\n', '2025-11-30 00:27:08.661864');
-
 -- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla "metodospago"
 --
-
 CREATE TABLE "metodospago" (
   "idMetodoPago" integer NOT NULL,
   "tipo" character varying(50) DEFAULT NULL,
   "descripcion" text DEFAULT NULL
 );
-
 --
 -- Volcado de datos para la tabla "metodospago"
 --
-
 INSERT INTO "metodospago" ("idMetodoPago", "tipo", "descripcion") VALUES
 (1, 'Nequi', 'Pago desde la app Nequi con n?mero de celular asociado.'),
 (2, 'Daviplata', 'Pago directo por Daviplata.'),
 (3, 'Transferencia Bancaria', 'Transferencia desde cuentas bancarias a las apps indicadas.'),
 (4, 'Efectivo', 'Pago en efectivo al recibir el pedido.');
-
 -- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla "movimientos_lote"
 --
-
 CREATE TABLE "movimientos_lote" (
   "idMovimientoLote" integer NOT NULL,
   "cantidad" integer NOT NULL,
@@ -900,11 +785,9 @@ CREATE TABLE "movimientos_lote" (
   "lote_id" integer NOT NULL,
   "movimiento_producto_id" integer NOT NULL
 );
-
 --
 -- Volcado de datos para la tabla "movimientos_lote"
 --
-
 INSERT INTO "movimientos_lote" ("idMovimientoLote", "cantidad", "fecha", "lote_id", "movimiento_producto_id") VALUES
 (1, 2, '2025-11-29 22:51:18.083753', 80, 231),
 (2, 2, '2025-11-29 22:51:18.095479', 81, 232),
@@ -924,13 +807,10 @@ INSERT INTO "movimientos_lote" ("idMovimientoLote", "cantidad", "fecha", "lote_i
 (16, 1, '2025-11-30 00:44:22.651805', 99, 264),
 (17, 1, '2025-11-30 00:44:50.384024', 66, 266),
 (18, 1, '2025-11-30 00:44:50.384024', 68, 267);
-
 -- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla "movimientos_producto"
 --
-
 CREATE TABLE "movimientos_producto" (
   "idMovimiento" integer NOT NULL,
   "fecha" datetime(6) NOT NULL,
@@ -949,11 +829,9 @@ CREATE TABLE "movimientos_producto" (
   "iva" decimal(10,2) DEFAULT NULL,
   "lote_origen_id" integer DEFAULT NULL
 );
-
 --
 -- Volcado de datos para la tabla "movimientos_producto"
 --
-
 INSERT INTO "movimientos_producto" ("idMovimiento", "fecha", "tipo_movimiento", "cantidad", "stock_anterior", "stock_nuevo", "descripcion", "idPedido", "producto_id", "precio_unitario", "costo_unitario", "lote", "fecha_vencimiento", "total_con_iva", "iva", "lote_origen_id") VALUES
 (1, '2025-11-13 12:28:33.741663', 'AJUSTE_MANUAL_ENTRADA', 100, 0, 100, 'Ajuste manual desde el panel de edición', NULL, 7700000000002, 0.00, 0.00, 'L2025-11', '2027-11-01', NULL, NULL, NULL),
 (2, '2025-11-13 12:28:50.373593', 'AJUSTE_MANUAL_ENTRADA', 95, 5, 100, 'Ajuste manual desde el panel de edición', NULL, 7700000000023, 0.00, 0.00, 'L2025-11', '2027-11-01', NULL, NULL, NULL),
@@ -1279,13 +1157,10 @@ INSERT INTO "movimientos_producto" ("idMovimiento", "fecha", "tipo_movimiento", 
 (327, '2025-12-10 19:26:05.479639', 'SALIDA_VENTA', 1, 102, 101, 'Pedido #106 - Venta (apartado) - Lote L2025-15', 106, 7700000000035, 6500.00, 5000.00, 'L2025-15', '2026-01-16', 6500.00, 950.00, 103),
 (328, '2025-12-10 20:37:43.353657', 'AJUSTE_MANUAL_ENTRADA', 2, 334, 336, 'Reabastecimiento desde Excel - Rostro | Proveedor: Proveedor Central tt | Lote: L-BCG-01 | Vencimiento: 2027-12-01 00:00:00 | Total con IVA: $116,000 | IVA: $11,020', NULL, 7700000000005, 58000.00, 58000.00, 'L-BCG-01', '2027-12-01', 116000.19, 11020.00, NULL),
 (329, '2025-12-10 20:37:43.370178', 'AJUSTE_MANUAL_ENTRADA', 2, 196, 198, 'Reabastecimiento desde Excel - Rostro | Proveedor: Proveedor Central tt | Lote: L-BCG-02 | Vencimiento: 2027-12-02 00:00:00 | Total con IVA: $110,000 | IVA: $10,450', NULL, 7701234567890, 55000.00, 55000.00, 'L-BCG-02', '2027-12-02', 110000.19, 10450.00, NULL);
-
 -- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla "notificaciones_problema"
 --
-
 CREATE TABLE "notificaciones_problema" (
   "idNotificacion" integer NOT NULL,
   "motivo" longtext NOT NULL,
@@ -1296,11 +1171,9 @@ CREATE TABLE "notificaciones_problema" (
   "fecha_respuesta" datetime(6) DEFAULT NULL,
   "respuesta_admin" longtext DEFAULT NULL
 );
-
 --
 -- Volcado de datos para la tabla "notificaciones_problema"
 --
-
 INSERT INTO "notificaciones_problema" ("idNotificacion", "motivo", "foto", "fechaReporte", "leida", "idPedido", "fecha_respuesta", "respuesta_admin") VALUES
 (5, 'no recibi mi pedido', 'problemas_entrega/pinta_cejaz.avif', '2025-11-24 08:30:31.920104', 1, 36, '2025-11-24 08:54:53.131555', 'lo sentimis muvho'),
 (6, 'no recibi mi pedido', 'problemas_entrega/p.webp', '2025-11-24 13:03:29.320505', 1, 37, '2025-11-24 13:05:02.104185', 'lamentamos los inconvenientes nos contactaremos contigo por correo para hacer el reembolso de tu pedido'),
@@ -1314,13 +1187,10 @@ INSERT INTO "notificaciones_problema" ("idNotificacion", "motivo", "foto", "fech
 (14, 'nn', '', '2025-11-26 17:49:17.562019', 1, 47, '2025-12-10 19:24:51.009213', 'lo sentimos mucho nos comunicaremos con ut por correo'),
 (15, 'no', '', '2025-11-26 17:51:49.777328', 1, 47, '2025-12-10 19:24:13.260363', 'lo sentimos nos cumunicaremos contigo por correo'),
 (16, 'no recibi mi pedido', 'problemas_entrega/uñas.webp', '2025-11-30 00:24:35.943864', 1, 40, '2025-11-30 00:25:35.223652', 'lo sentimos mucho nos cominicaremos contigo despues');
-
 -- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla "notificaciones_reporte"
 --
-
 CREATE TABLE "notificaciones_reporte" (
   "idNotificacion" integer NOT NULL,
   "titulo" character varying(255) NOT NULL,
@@ -1329,11 +1199,9 @@ CREATE TABLE "notificaciones_reporte" (
   "fechaCreacion" datetime(6) NOT NULL,
   "leida" smallint NOT NULL
 );
-
 --
 -- Volcado de datos para la tabla "notificaciones_reporte"
 --
-
 INSERT INTO "notificaciones_reporte" ("idNotificacion", "titulo", "contenido_html", "tipo", "fechaCreacion", "leida") VALUES
 (1, 'Reporte Dashboard - 29/11/2025', '\n        <!DOCTYPE html>\n        <html>\n        <head>\n            <style>\n                body { font-family: Arial, sans-serif; background-color: #fffafc; padding: 20px; }\n                .container { max-width: 900px; margin: 0 auto; background: white; border-radius: 15px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }\n                h1 { color: #c2185b; border-bottom: 3px solid #f48fb1; padding-bottom: 10px; }\n                h2 { color: #ad1457; margin-top: 30px; margin-bottom: 15px; }\n                .stat-box { display: inline-block; background: #fce4ec; padding: 15px 25px; border-radius: 10px; margin: 8px; text-align: center; min-width: 120px; }\n                .stat-number { font-size: 1.8rem; font-weight: bold; color: #c2185b; }\n                .stat-label { color: #666; font-size: 0.85rem; }\n                table { width: 100%; border-collapse: collapse; margin: 15px 0; }\n                th, td { padding: 10px; text-align: left; border-bottom: 1px solid #fce4ec; }\n                th { background: #fce4ec; color: #c2185b; }\n                .highlight { background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%); padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #fbc02d; }\n                .footer { text-align: center; color: #999; margin-top: 30px; padding-top: 20px; border-top: 2px solid #fce4ec; }\n                .bar-container { margin: 8px 0; }\n                .bar-label { display: inline-block; width: 150px; font-size: 0.9rem; color: #333; }\n                .bar-wrapper { display: inline-block; width: calc(100% - 250px); background: #f5f5f5; border-radius: 5px; height: 25px; vertical-align: middle; }\n                .bar { height: 25px; border-radius: 5px; display: inline-block; }\n                .bar-value { display: inline-block; width: 80px; text-align: right; font-weight: bold; color: #c2185b; font-size: 0.9rem; }\n                .chart-vertical { display: flex; align-items: flex-end; justify-content: space-around; height: 200px; background: #fafafa; border-radius: 10px; padding: 20px 10px 10px 10px; margin: 15px 0; }\n                .chart-bar { display: flex; flex-direction: column; align-items: center; width: 12%; }\n                .chart-bar-fill { width: 100%; background: linear-gradient(180deg, #ec407a 0%, #f48fb1 100%); border-radius: 5px 5px 0 0; min-height: 5px; }\n                .chart-bar-label { font-size: 0.75rem; color: #666; margin-top: 8px; text-align: center; }\n                .chart-bar-value { font-size: 0.8rem; font-weight: bold; color: #c2185b; margin-bottom: 5px; }\n                .comparison-box { display: inline-block; background: white; padding: 15px 20px; border-radius: 10px; margin: 8px; border: 2px solid #f8bbd0; text-align: center; min-width: 180px; }\n                .comparison-title { font-size: 0.85rem; color: #666; margin-bottom: 5px; }\n                .comparison-value { font-size: 1.5rem; font-weight: bold; color: #c2185b; }\n                .comparison-change { font-size: 0.8rem; padding: 3px 8px; border-radius: 10px; margin-top: 5px; display: inline-block; }\n                .change-up { background: #e8f5e9; color: #2e7d32; }\n                .change-down { background: #ffebee; color: #c62828; }\n                .change-same { background: #f5f5f5; color: #666; }\n            </style>\n        </head>\n        <body>\n            <div class=\"container\">\n                <h1>Reporte Dashboard - Glam Store</h1>\n                <p style=\"color: #666;\">Generado el 29/11/2025 a las 22:24</p>\n                \n                <h2>Resumen General</h2>\n                <div style=\"text-align: center;\">\n                    <div class=\"stat-box\">\n                        <div class=\"stat-number\">28</div>\n                        <div class=\"stat-label\">Productos</div>\n                    </div>\n                    <div class=\"stat-box\">\n                        <div class=\"stat-number\">12</div>\n                        <div class=\"stat-label\">Clientes</div>\n                    </div>\n                    <div class=\"stat-box\">\n                        <div class=\"stat-number\">46</div>\n                        <div class=\"stat-label\">Pedidos Totales</div>\n                    </div>\n                    <div class=\"stat-box\">\n                        <div class=\"stat-number\">$3,433,027</div>\n                        <div class=\"stat-label\">Ventas Totales</div>\n                    </div>\n                </div>\n                \n                <h2>Comparativa Semanal</h2>\n                <div style=\"text-align: center;\">\n                    <div class=\"comparison-box\">\n                        <div class=\"comparison-title\">Clientes Nuevos Esta Semana</div>\n                        <div class=\"comparison-value\">6</div>\n                        <div class=\"comparison-change change-up\">\n                            vs 5 semana pasada\n                        </div>\n                    </div>\n                    <div class=\"comparison-box\">\n                        <div class=\"comparison-title\">Clientes Activos Esta Semana</div>\n                        <div class=\"comparison-value\">7</div>\n                        <div class=\"comparison-change change-up\">\n                            vs 5 semana pasada\n                        </div>\n                    </div>\n                    <div class=\"comparison-box\">\n                        <div class=\"comparison-title\">Pedidos Esta Semana</div>\n                        <div class=\"comparison-value\">22</div>\n                        <div class=\"comparison-change\">\n                            $2,300,377 en ventas\n                        </div>\n                    </div>\n                    <div class=\"comparison-box\">\n                        <div class=\"comparison-title\">Pedidos Este Mes</div>\n                        <div class=\"comparison-value\">46</div>\n                        <div class=\"comparison-change\">\n                            $3,433,027 en ventas\n                        </div>\n                    </div>\n                </div>\n                \n                <h2>Pedidos por Dia (Ultimos 7 dias)</h2>\n                <table>\n                    <tr>\n                        <th>Dia</th>\n                        <th>Pedidos</th>\n                        <th>Ventas</th>\n                        <th>Grafico</th>\n                    </tr>\n        \n                    <tr>\n                        <td style=\"font-weight: bold;\">Dom 23</td>\n                        <td style=\"text-align: center;\">0</td>\n                        <td style=\"text-align: right;\">$0</td>\n                        <td style=\"width: 40%;\">\n                            <div style=\"background: #f5f5f5; border-radius: 5px; height: 20px; width: 100%;\">\n                                <div style=\"background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%); height: 20px; width: 0%; border-radius: 5px;\"></div>\n                            </div>\n                        </td>\n                    </tr>\n            \n                    <tr>\n                        <td style=\"font-weight: bold;\">Lun 24</td>\n                        <td style=\"text-align: center;\">15</td>\n                        <td style=\"text-align: right;\">$1,686,262</td>\n                        <td style=\"width: 40%;\">\n                            <div style=\"background: #f5f5f5; border-radius: 5px; height: 20px; width: 100%;\">\n                                <div style=\"background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%); height: 20px; width: 100%; border-radius: 5px;\"></div>\n                            </div>\n                        </td>\n                    </tr>\n            \n                    <tr>\n                        <td style=\"font-weight: bold;\">Mar 25</td>\n                        <td style=\"text-align: center;\">0</td>\n                        <td style=\"text-align: right;\">$0</td>\n                        <td style=\"width: 40%;\">\n                            <div style=\"background: #f5f5f5; border-radius: 5px; height: 20px; width: 100%;\">\n                                <div style=\"background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%); height: 20px; width: 0%; border-radius: 5px;\"></div>\n                            </div>\n                        </td>\n                    </tr>\n            \n                    <tr>\n                        <td style=\"font-weight: bold;\">Mie 26</td>\n                        <td style=\"text-align: center;\">7</td>\n                        <td style=\"text-align: right;\">$614,115</td>\n                        <td style=\"width: 40%;\">\n                            <div style=\"background: #f5f5f5; border-radius: 5px; height: 20px; width: 100%;\">\n                                <div style=\"background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%); height: 20px; width: 46%; border-radius: 5px;\"></div>\n                            </div>\n                        </td>\n                    </tr>\n            \n                    <tr>\n                        <td style=\"font-weight: bold;\">Jue 27</td>\n                        <td style=\"text-align: center;\">0</td>\n                        <td style=\"text-align: right;\">$0</td>\n                        <td style=\"width: 40%;\">\n                            <div style=\"background: #f5f5f5; border-radius: 5px; height: 20px; width: 100%;\">\n                                <div style=\"background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%); height: 20px; width: 0%; border-radius: 5px;\"></div>\n                            </div>\n                        </td>\n                    </tr>\n            \n                    <tr>\n                        <td style=\"font-weight: bold;\">Vie 28</td>\n                        <td style=\"text-align: center;\">0</td>\n                        <td style=\"text-align: right;\">$0</td>\n                        <td style=\"width: 40%;\">\n                            <div style=\"background: #f5f5f5; border-radius: 5px; height: 20px; width: 100%;\">\n                                <div style=\"background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%); height: 20px; width: 0%; border-radius: 5px;\"></div>\n                            </div>\n                        </td>\n                    </tr>\n            \n                    <tr>\n                        <td style=\"font-weight: bold;\">Sab 29</td>\n                        <td style=\"text-align: center;\">0</td>\n                        <td style=\"text-align: right;\">$0</td>\n                        <td style=\"width: 40%;\">\n                            <div style=\"background: #f5f5f5; border-radius: 5px; height: 20px; width: 100%;\">\n                                <div style=\"background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%); height: 20px; width: 0%; border-radius: 5px;\"></div>\n                            </div>\n                        </td>\n                    </tr>\n            \n                </table>\n                \n                <h2>Ventas por Categoria</h2>\n        \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\">Rostro</span>\n                    <span class=\"bar-wrapper\">\n                        <span class=\"bar\" style=\"width: 100%; background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%);\"></span>\n                    </span>\n                    <span class=\"bar-value\">$1,446,600</span>\n                </div>\n                \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\">Ojos</span>\n                    <span class=\"bar-wrapper\">\n                        <span class=\"bar\" style=\"width: 36%; background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%);\"></span>\n                    </span>\n                    <span class=\"bar-value\">$522,800</span>\n                </div>\n                \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\">Accesorios</span>\n                    <span class=\"bar-wrapper\">\n                        <span class=\"bar\" style=\"width: 28%; background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%);\"></span>\n                    </span>\n                    <span class=\"bar-value\">$413,500</span>\n                </div>\n                \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\">Uñas</span>\n                    <span class=\"bar-wrapper\">\n                        <span class=\"bar\" style=\"width: 15%; background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%);\"></span>\n                    </span>\n                    <span class=\"bar-value\">$228,400</span>\n                </div>\n                \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\">Labios</span>\n                    <span class=\"bar-wrapper\">\n                        <span class=\"bar\" style=\"width: 10%; background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%);\"></span>\n                    </span>\n                    <span class=\"bar-value\">$155,950</span>\n                </div>\n                \n                \n                <h2>Top 10 Productos Mas Vendidos</h2>\n        \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">1. Delineador Liquido Precis</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 300px);\">\n                        <span class=\"bar\" style=\"width: 100%; background: #e91e63;\"></span>\n                    </span>\n                    <span class=\"bar-value\">13 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">2. Corrector Liquido Soft To</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 300px);\">\n                        <span class=\"bar\" style=\"width: 76%; background: #9c27b0;\"></span>\n                    </span>\n                    <span class=\"bar-value\">10 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">3. Iluminador Perla Glam</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 300px);\">\n                        <span class=\"bar\" style=\"width: 76%; background: #673ab7;\"></span>\n                    </span>\n                    <span class=\"bar-value\">10 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">4. Rubor Rosado Glow</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 300px);\">\n                        <span class=\"bar\" style=\"width: 76%; background: #3f51b5;\"></span>\n                    </span>\n                    <span class=\"bar-value\">10 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">5. Esponja Blender Lavanda</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 300px);\">\n                        <span class=\"bar\" style=\"width: 53%; background: #2196f3;\"></span>\n                    </span>\n                    <span class=\"bar-value\">7 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">6. Pestañina Curvas Glam</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 300px);\">\n                        <span class=\"bar\" style=\"width: 46%; background: #00bcd4;\"></span>\n                    </span>\n                    <span class=\"bar-value\">6 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">7. Top Coat Brillo Extremo</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 300px);\">\n                        <span class=\"bar\" style=\"width: 46%; background: #009688;\"></span>\n                    </span>\n                    <span class=\"bar-value\">6 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">8. Polvo Compacto Mate Glam</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 300px);\">\n                        <span class=\"bar\" style=\"width: 38%; background: #4caf50;\"></span>\n                    </span>\n                    <span class=\"bar-value\">5 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">9. Tratamiento Fortalecedor</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 300px);\">\n                        <span class=\"bar\" style=\"width: 38%; background: #8bc34a;\"></span>\n                    </span>\n                    <span class=\"bar-value\">5 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">10. Sombra Cuarteto Rosa</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 300px);\">\n                        <span class=\"bar\" style=\"width: 30%; background: #cddc39;\"></span>\n                    </span>\n                    <span class=\"bar-value\">4 uds</span>\n                </div>\n            \n                \n                <h2>Inventario Bajo (Stock menor a 10)</h2>\n                <div style=\"background: #ffebee; padding: 15px; border-radius: 10px; border-left: 4px solid #f44336;\">\n        \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">Kit Decoracion de Uñas</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 280px); background: #ffcdd2;\">\n                        <span class=\"bar\" style=\"width: 30%; background: #f57c00;\"></span>\n                    </span>\n                    <span class=\"bar-value\" style=\"color: #f57c00;\">3 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">Labial Cremoso Fucsia Pop</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 280px); background: #ffcdd2;\">\n                        <span class=\"bar\" style=\"width: 40%; background: #f57c00;\"></span>\n                    </span>\n                    <span class=\"bar-value\" style=\"color: #f57c00;\">4 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">Esmalte Rosa Pastel</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 280px); background: #ffcdd2;\">\n                        <span class=\"bar\" style=\"width: 40%; background: #f57c00;\"></span>\n                    </span>\n                    <span class=\"bar-value\" style=\"color: #f57c00;\">4 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">Organizador Acrilico Mini</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 280px); background: #ffcdd2;\">\n                        <span class=\"bar\" style=\"width: 40%; background: #f57c00;\"></span>\n                    </span>\n                    <span class=\"bar-value\" style=\"color: #f57c00;\">4 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">Sombra Liquida Glitter Po</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 280px); background: #ffcdd2;\">\n                        <span class=\"bar\" style=\"width: 50%; background: #f57c00;\"></span>\n                    </span>\n                    <span class=\"bar-value\" style=\"color: #f57c00;\">5 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">Esmalte Glitter Champagne</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 280px); background: #ffcdd2;\">\n                        <span class=\"bar\" style=\"width: 50%; background: #f57c00;\"></span>\n                    </span>\n                    <span class=\"bar-value\" style=\"color: #f57c00;\">5 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">Espejo LED Glam</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 280px); background: #ffcdd2;\">\n                        <span class=\"bar\" style=\"width: 50%; background: #f57c00;\"></span>\n                    </span>\n                    <span class=\"bar-value\" style=\"color: #f57c00;\">5 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">Pestañina Volumen Total G</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 280px); background: #ffcdd2;\">\n                        <span class=\"bar\" style=\"width: 50%; background: #f57c00;\"></span>\n                    </span>\n                    <span class=\"bar-value\" style=\"color: #f57c00;\">5 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">Labial Mate Velvet Glam</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 280px); background: #ffcdd2;\">\n                        <span class=\"bar\" style=\"width: 50%; background: #f57c00;\"></span>\n                    </span>\n                    <span class=\"bar-value\" style=\"color: #f57c00;\">5 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">Top Coat Brillo Extremo</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 280px); background: #ffcdd2;\">\n                        <span class=\"bar\" style=\"width: 90%; background: #fbc02d;\"></span>\n                    </span>\n                    <span class=\"bar-value\" style=\"color: #fbc02d;\">9 uds</span>\n                </div>\n            </div>\n                \n                <h2>Reabastecimientos Recientes (Ultima Semana)</h2>\n                <table>\n                    <tr><th>Fecha</th><th>Producto</th><th>Cantidad</th><th>Lote</th><th>Vencimiento</th></tr>\n        \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Tratamiento Fortalecedor</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+10</td>\n                    <td>L2025-12</td>\n                    <td>26/11/2025</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Tratamiento Fortalecedor</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+20</td>\n                    <td>L2025-11</td>\n                    <td>26/11/2025</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Delineador de Labios Coral Chic</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+10</td>\n                    <td>L2025-11</td>\n                    <td>26/11/2025</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Bronceador trendy</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+1</td>\n                    <td>L-PCMG-07</td>\n                    <td>07/12/2027</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Rubor Rosado Glow</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+1</td>\n                    <td>L-PCMG-06</td>\n                    <td>06/12/2027</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Polvo Compacto Mate Glam</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+1</td>\n                    <td>L-PCMG-05</td>\n                    <td>05/12/2027</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Iluminador Perla Glam</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+1</td>\n                    <td>L-IPG-04</td>\n                    <td>04/12/2027</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Corrector Liquido Soft Touch</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+1</td>\n                    <td>L-CLS-03</td>\n                    <td>03/12/2027</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Base Liquida HD Glam</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+1</td>\n                    <td>L-BLG-02</td>\n                    <td>02/12/2027</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Base Cushion Glow</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+1</td>\n                    <td>L-BCG-01</td>\n                    <td>01/12/2027</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Rubor Rosado Glow</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+1</td>\n                    <td>L-PCMG-06</td>\n                    <td>06/12/2027</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Polvo Compacto Mate Glam</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+1</td>\n                    <td>L-PCMG-05</td>\n                    <td>05/12/2027</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Iluminador Perla Glam</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+1</td>\n                    <td>L-IPG-04</td>\n                    <td>04/12/2027</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Corrector Liquido Soft Touch</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+1</td>\n                    <td>L-CLS-03</td>\n                    <td>03/12/2027</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Base Liquida HD Glam</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+1</td>\n                    <td>L-BLG-02</td>\n                    <td>02/12/2027</td>\n                </tr>\n            \n                </table>\n                \n                <h2>Ultimos 15 Pedidos</h2>\n                <table>\n                    <tr><th>#</th><th>Cliente</th><th>Total</th><th>Estado</th><th>Fecha</th></tr>\n        \n                <tr>\n                    <td>83</td>\n                    <td>andrea </td>\n                    <td style=\"font-weight: bold;\">$55,160</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>26/11/2025 13:37</td>\n                </tr>\n            \n                <tr>\n                    <td>82</td>\n                    <td>andrea </td>\n                    <td style=\"font-weight: bold;\">$68,425</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>26/11/2025 13:25</td>\n                </tr>\n            \n                <tr>\n                    <td>81</td>\n                    <td>andrea </td>\n                    <td style=\"font-weight: bold;\">$43,792</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>26/11/2025 13:20</td>\n                </tr>\n            \n                <tr>\n                    <td>80</td>\n                    <td>william fontecha</td>\n                    <td style=\"font-weight: bold;\">$51,055</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>26/11/2025 13:16</td>\n                </tr>\n            \n                <tr>\n                    <td>79</td>\n                    <td>lauren ortiz contrer  as</td>\n                    <td style=\"font-weight: bold;\">$43,792</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>26/11/2025 13:15</td>\n                </tr>\n            \n                <tr>\n                    <td>78</td>\n                    <td>lauren ortiz contrer  as</td>\n                    <td style=\"font-weight: bold;\">$157,798</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>26/11/2025 13:14</td>\n                </tr>\n            \n                <tr>\n                    <td>77</td>\n                    <td>maria magdalena  </td>\n                    <td style=\"font-weight: bold;\">$194,093</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>26/11/2025 08:57</td>\n                </tr>\n            \n                <tr>\n                    <td>76</td>\n                    <td>maria magdalena  </td>\n                    <td style=\"font-weight: bold;\">$232,050</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>24/11/2025 19:58</td>\n                </tr>\n            \n                <tr>\n                    <td>75</td>\n                    <td>maria magdalena  </td>\n                    <td style=\"font-weight: bold;\">$220,392</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>24/11/2025 19:51</td>\n                </tr>\n            \n                <tr>\n                    <td>74</td>\n                    <td>magda maria</td>\n                    <td style=\"font-weight: bold;\">$139,230</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>24/11/2025 19:38</td>\n                </tr>\n            \n                <tr>\n                    <td>65</td>\n                    <td>alejandro rodriguez </td>\n                    <td style=\"font-weight: bold;\">$77,350</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>24/11/2025 17:07</td>\n                </tr>\n            \n                <tr>\n                    <td>64</td>\n                    <td>alejandro rodriguez </td>\n                    <td style=\"font-weight: bold;\">$173,030</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>24/11/2025 16:42</td>\n                </tr>\n            \n                <tr>\n                    <td>62</td>\n                    <td>alejandro rodriguez </td>\n                    <td style=\"font-weight: bold;\">$40,940</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>24/11/2025 15:11</td>\n                </tr>\n            \n                <tr>\n                    <td>61</td>\n                    <td>alejandro rodriguez </td>\n                    <td style=\"font-weight: bold;\">$240,860</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>24/11/2025 15:07</td>\n                </tr>\n            \n                <tr>\n                    <td>60</td>\n                    <td>alejandro rodriguez </td>\n                    <td style=\"font-weight: bold;\">$61,880</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>24/11/2025 14:46</td>\n                </tr>\n            \n                </table>\n                \n                <h2>Repartidores y Entregas</h2>\n                <div class=\"highlight\" style=\"background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-left-color: #4caf50;\">\n                    <div style=\"display: flex; justify-content: space-around; flex-wrap: wrap; text-align: center;\">\n                        <div style=\"padding: 10px;\">\n                            <div style=\"font-size: 2rem; font-weight: bold; color: #2e7d32;\">2</div>\n                            <div style=\"color: #666;\">Entregas Confirmadas (Mes)</div>\n                        </div>\n                        <div style=\"padding: 10px;\">\n                            <div style=\"font-size: 2rem; font-weight: bold; color: #2e7d32;\">4.0/5</div>\n                            <div style=\"color: #666;\">Calificacion Promedio</div>\n                        </div>\n                    </div>\n        \n                    <div style=\"margin-top: 15px; padding: 15px; background: white; border-radius: 10px; text-align: center;\">\n                        <div style=\"font-size: 1.2rem; color: #fbc02d; margin-bottom: 5px;\">ESTRELLA DEL MES</div>\n                        <div style=\"font-size: 1.5rem; font-weight: bold; color: #2e7d32;\">michael </div>\n                        <div style=\"color: #666;\">Promedio: 4.0/5 | 2 entregas</div>\n                    </div>\n            \n                </div>\n                \n                <div class=\"footer\">\n                    <p style=\"font-size: 0.9rem;\">Este reporte fue generado automaticamente desde el Dashboard de Glam Store</p>\n                    <p style=\"font-size: 0.8rem; color: #bbb;\">29/11/2025 22:24:51</p>\n                </div>\n            </div>\n        </body>\n        </html>\n        ', 'DASHBOARD', '2025-11-29 22:24:51.921257', 0);
 INSERT INTO "notificaciones_reporte" ("idNotificacion", "titulo", "contenido_html", "tipo", "fechaCreacion", "leida") VALUES
@@ -1344,25 +1212,19 @@ INSERT INTO "notificaciones_reporte" ("idNotificacion", "titulo", "contenido_htm
 (4, 'Reporte Dashboard - 29/11/2025', '\n        <!DOCTYPE html>\n        <html>\n        <head>\n            <style>\n                body { font-family: Arial, sans-serif; background-color: #fffafc; padding: 20px; }\n                .container { max-width: 900px; margin: 0 auto; background: white; border-radius: 15px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }\n                h1 { color: #c2185b; border-bottom: 3px solid #f48fb1; padding-bottom: 10px; }\n                h2 { color: #ad1457; margin-top: 30px; margin-bottom: 15px; }\n                .stat-box { display: inline-block; background: #fce4ec; padding: 15px 25px; border-radius: 10px; margin: 8px; text-align: center; min-width: 120px; }\n                .stat-number { font-size: 1.8rem; font-weight: bold; color: #c2185b; }\n                .stat-label { color: #666; font-size: 0.85rem; }\n                table { width: 100%; border-collapse: collapse; margin: 15px 0; }\n                th, td { padding: 10px; text-align: left; border-bottom: 1px solid #fce4ec; }\n                th { background: #fce4ec; color: #c2185b; }\n                .highlight { background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%); padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #fbc02d; }\n                .footer { text-align: center; color: #999; margin-top: 30px; padding-top: 20px; border-top: 2px solid #fce4ec; }\n                .bar-container { margin: 8px 0; }\n                .bar-label { display: inline-block; width: 150px; font-size: 0.9rem; color: #333; }\n                .bar-wrapper { display: inline-block; width: calc(100% - 250px); background: #f5f5f5; border-radius: 5px; height: 25px; vertical-align: middle; }\n                .bar { height: 25px; border-radius: 5px; display: inline-block; }\n                .bar-value { display: inline-block; width: 80px; text-align: right; font-weight: bold; color: #c2185b; font-size: 0.9rem; }\n                .chart-vertical { display: flex; align-items: flex-end; justify-content: space-around; height: 200px; background: #fafafa; border-radius: 10px; padding: 20px 10px 10px 10px; margin: 15px 0; }\n                .chart-bar { display: flex; flex-direction: column; align-items: center; width: 12%; }\n                .chart-bar-fill { width: 100%; background: linear-gradient(180deg, #ec407a 0%, #f48fb1 100%); border-radius: 5px 5px 0 0; min-height: 5px; }\n                .chart-bar-label { font-size: 0.75rem; color: #666; margin-top: 8px; text-align: center; }\n                .chart-bar-value { font-size: 0.8rem; font-weight: bold; color: #c2185b; margin-bottom: 5px; }\n                .comparison-box { display: inline-block; background: white; padding: 15px 20px; border-radius: 10px; margin: 8px; border: 2px solid #f8bbd0; text-align: center; min-width: 180px; }\n                .comparison-title { font-size: 0.85rem; color: #666; margin-bottom: 5px; }\n                .comparison-value { font-size: 1.5rem; font-weight: bold; color: #c2185b; }\n                .comparison-change { font-size: 0.8rem; padding: 3px 8px; border-radius: 10px; margin-top: 5px; display: inline-block; }\n                .change-up { background: #e8f5e9; color: #2e7d32; }\n                .change-down { background: #ffebee; color: #c62828; }\n                .change-same { background: #f5f5f5; color: #666; }\n            </style>\n        </head>\n        <body>\n            <div class=\"container\">\n                <h1>Reporte Dashboard - Glam Store</h1>\n                <p style=\"color: #666;\">Generado el 29/11/2025 a las 22:32</p>\n                \n                <h2>Resumen General</h2>\n                <div style=\"text-align: center;\">\n                    <div class=\"stat-box\">\n                        <div class=\"stat-number\">28</div>\n                        <div class=\"stat-label\">Productos</div>\n                    </div>\n                    <div class=\"stat-box\">\n                        <div class=\"stat-number\">12</div>\n                        <div class=\"stat-label\">Clientes</div>\n                    </div>\n                    <div class=\"stat-box\">\n                        <div class=\"stat-number\">46</div>\n                        <div class=\"stat-label\">Pedidos Totales</div>\n                    </div>\n                    <div class=\"stat-box\">\n                        <div class=\"stat-number\">$3,433,027</div>\n                        <div class=\"stat-label\">Ventas Totales</div>\n                    </div>\n                </div>\n                \n                <h2>Comparativa Semanal</h2>\n                <div style=\"text-align: center;\">\n                    <div class=\"comparison-box\">\n                        <div class=\"comparison-title\">Clientes Nuevos Esta Semana</div>\n                        <div class=\"comparison-value\">6</div>\n                        <div class=\"comparison-change change-up\">\n                            vs 5 semana pasada\n                        </div>\n                    </div>\n                    <div class=\"comparison-box\">\n                        <div class=\"comparison-title\">Clientes Activos Esta Semana</div>\n                        <div class=\"comparison-value\">7</div>\n                        <div class=\"comparison-change change-up\">\n                            vs 5 semana pasada\n                        </div>\n                    </div>\n                    <div class=\"comparison-box\">\n                        <div class=\"comparison-title\">Pedidos Esta Semana</div>\n                        <div class=\"comparison-value\">22</div>\n                        <div class=\"comparison-change\">\n                            $2,300,377 en ventas\n                        </div>\n                    </div>\n                    <div class=\"comparison-box\">\n                        <div class=\"comparison-title\">Pedidos Este Mes</div>\n                        <div class=\"comparison-value\">46</div>\n                        <div class=\"comparison-change\">\n                            $3,433,027 en ventas\n                        </div>\n                    </div>\n                </div>\n                \n                <h2>Pedidos por Dia (Ultimos 7 dias)</h2>\n                <table>\n                    <tr>\n                        <th>Dia</th>\n                        <th>Pedidos</th>\n                        <th>Ventas</th>\n                        <th>Grafico</th>\n                    </tr>\n        \n                    <tr>\n                        <td style=\"font-weight: bold;\">Dom 23</td>\n                        <td style=\"text-align: center;\">0</td>\n                        <td style=\"text-align: right;\">$0</td>\n                        <td style=\"width: 40%;\">\n                            <div style=\"background: #f5f5f5; border-radius: 5px; height: 20px; width: 100%;\">\n                                <div style=\"background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%); height: 20px; width: 0%; border-radius: 5px;\"></div>\n                            </div>\n                        </td>\n                    </tr>\n            \n                    <tr>\n                        <td style=\"font-weight: bold;\">Lun 24</td>\n                        <td style=\"text-align: center;\">15</td>\n                        <td style=\"text-align: right;\">$1,686,262</td>\n                        <td style=\"width: 40%;\">\n                            <div style=\"background: #f5f5f5; border-radius: 5px; height: 20px; width: 100%;\">\n                                <div style=\"background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%); height: 20px; width: 100%; border-radius: 5px;\"></div>\n                            </div>\n                        </td>\n                    </tr>\n            \n                    <tr>\n                        <td style=\"font-weight: bold;\">Mar 25</td>\n                        <td style=\"text-align: center;\">0</td>\n                        <td style=\"text-align: right;\">$0</td>\n                        <td style=\"width: 40%;\">\n                            <div style=\"background: #f5f5f5; border-radius: 5px; height: 20px; width: 100%;\">\n                                <div style=\"background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%); height: 20px; width: 0%; border-radius: 5px;\"></div>\n                            </div>\n                        </td>\n                    </tr>\n            \n                    <tr>\n                        <td style=\"font-weight: bold;\">Mie 26</td>\n                        <td style=\"text-align: center;\">7</td>\n                        <td style=\"text-align: right;\">$614,115</td>\n                        <td style=\"width: 40%;\">\n                            <div style=\"background: #f5f5f5; border-radius: 5px; height: 20px; width: 100%;\">\n                                <div style=\"background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%); height: 20px; width: 46%; border-radius: 5px;\"></div>\n                            </div>\n                        </td>\n                    </tr>\n            \n                    <tr>\n                        <td style=\"font-weight: bold;\">Jue 27</td>\n                        <td style=\"text-align: center;\">0</td>\n                        <td style=\"text-align: right;\">$0</td>\n                        <td style=\"width: 40%;\">\n                            <div style=\"background: #f5f5f5; border-radius: 5px; height: 20px; width: 100%;\">\n                                <div style=\"background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%); height: 20px; width: 0%; border-radius: 5px;\"></div>\n                            </div>\n                        </td>\n                    </tr>\n            \n                    <tr>\n                        <td style=\"font-weight: bold;\">Vie 28</td>\n                        <td style=\"text-align: center;\">0</td>\n                        <td style=\"text-align: right;\">$0</td>\n                        <td style=\"width: 40%;\">\n                            <div style=\"background: #f5f5f5; border-radius: 5px; height: 20px; width: 100%;\">\n                                <div style=\"background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%); height: 20px; width: 0%; border-radius: 5px;\"></div>\n                            </div>\n                        </td>\n                    </tr>\n            \n                    <tr>\n                        <td style=\"font-weight: bold;\">Sab 29</td>\n                        <td style=\"text-align: center;\">0</td>\n                        <td style=\"text-align: right;\">$0</td>\n                        <td style=\"width: 40%;\">\n                            <div style=\"background: #f5f5f5; border-radius: 5px; height: 20px; width: 100%;\">\n                                <div style=\"background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%); height: 20px; width: 0%; border-radius: 5px;\"></div>\n                            </div>\n                        </td>\n                    </tr>\n            \n                </table>\n                \n                <h2>Ventas por Categoria</h2>\n        \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\">Rostro</span>\n                    <span class=\"bar-wrapper\">\n                        <span class=\"bar\" style=\"width: 100%; background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%);\"></span>\n                    </span>\n                    <span class=\"bar-value\">$1,446,600</span>\n                </div>\n                \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\">Ojos</span>\n                    <span class=\"bar-wrapper\">\n                        <span class=\"bar\" style=\"width: 36%; background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%);\"></span>\n                    </span>\n                    <span class=\"bar-value\">$522,800</span>\n                </div>\n                \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\">Accesorios</span>\n                    <span class=\"bar-wrapper\">\n                        <span class=\"bar\" style=\"width: 28%; background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%);\"></span>\n                    </span>\n                    <span class=\"bar-value\">$413,500</span>\n                </div>\n                \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\">Uñas</span>\n                    <span class=\"bar-wrapper\">\n                        <span class=\"bar\" style=\"width: 15%; background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%);\"></span>\n                    </span>\n                    <span class=\"bar-value\">$228,400</span>\n                </div>\n                \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\">Labios</span>\n                    <span class=\"bar-wrapper\">\n                        <span class=\"bar\" style=\"width: 10%; background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%);\"></span>\n                    </span>\n                    <span class=\"bar-value\">$155,950</span>\n                </div>\n                \n                \n                <h2>Top 10 Productos Mas Vendidos</h2>\n        \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">1. Delineador Liquido Precis</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 300px);\">\n                        <span class=\"bar\" style=\"width: 100%; background: #e91e63;\"></span>\n                    </span>\n                    <span class=\"bar-value\">13 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">2. Rubor Rosado Glow</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 300px);\">\n                        <span class=\"bar\" style=\"width: 76%; background: #9c27b0;\"></span>\n                    </span>\n                    <span class=\"bar-value\">10 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">3. Corrector Liquido Soft To</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 300px);\">\n                        <span class=\"bar\" style=\"width: 76%; background: #673ab7;\"></span>\n                    </span>\n                    <span class=\"bar-value\">10 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">4. Iluminador Perla Glam</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 300px);\">\n                        <span class=\"bar\" style=\"width: 76%; background: #3f51b5;\"></span>\n                    </span>\n                    <span class=\"bar-value\">10 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">5. Esponja Blender Lavanda</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 300px);\">\n                        <span class=\"bar\" style=\"width: 53%; background: #2196f3;\"></span>\n                    </span>\n                    <span class=\"bar-value\">7 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">6. Pestañina Curvas Glam</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 300px);\">\n                        <span class=\"bar\" style=\"width: 46%; background: #00bcd4;\"></span>\n                    </span>\n                    <span class=\"bar-value\">6 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">7. Top Coat Brillo Extremo</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 300px);\">\n                        <span class=\"bar\" style=\"width: 46%; background: #009688;\"></span>\n                    </span>\n                    <span class=\"bar-value\">6 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">8. Tratamiento Fortalecedor</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 300px);\">\n                        <span class=\"bar\" style=\"width: 38%; background: #4caf50;\"></span>\n                    </span>\n                    <span class=\"bar-value\">5 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">9. Polvo Compacto Mate Glam</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 300px);\">\n                        <span class=\"bar\" style=\"width: 38%; background: #8bc34a;\"></span>\n                    </span>\n                    <span class=\"bar-value\">5 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">10. Pinza de Cejas Glam</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 300px);\">\n                        <span class=\"bar\" style=\"width: 30%; background: #cddc39;\"></span>\n                    </span>\n                    <span class=\"bar-value\">4 uds</span>\n                </div>\n            \n                \n                <h2>Inventario Bajo (Stock menor a 10)</h2>\n                <div style=\"background: #ffebee; padding: 15px; border-radius: 10px; border-left: 4px solid #f44336;\">\n        \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">Kit Decoracion de Uñas</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 280px); background: #ffcdd2;\">\n                        <span class=\"bar\" style=\"width: 30%; background: #f57c00;\"></span>\n                    </span>\n                    <span class=\"bar-value\" style=\"color: #f57c00;\">3 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">Labial Cremoso Fucsia Pop</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 280px); background: #ffcdd2;\">\n                        <span class=\"bar\" style=\"width: 40%; background: #f57c00;\"></span>\n                    </span>\n                    <span class=\"bar-value\" style=\"color: #f57c00;\">4 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">Esmalte Rosa Pastel</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 280px); background: #ffcdd2;\">\n                        <span class=\"bar\" style=\"width: 40%; background: #f57c00;\"></span>\n                    </span>\n                    <span class=\"bar-value\" style=\"color: #f57c00;\">4 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">Organizador Acrilico Mini</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 280px); background: #ffcdd2;\">\n                        <span class=\"bar\" style=\"width: 40%; background: #f57c00;\"></span>\n                    </span>\n                    <span class=\"bar-value\" style=\"color: #f57c00;\">4 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">Sombra Liquida Glitter Po</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 280px); background: #ffcdd2;\">\n                        <span class=\"bar\" style=\"width: 50%; background: #f57c00;\"></span>\n                    </span>\n                    <span class=\"bar-value\" style=\"color: #f57c00;\">5 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">Esmalte Glitter Champagne</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 280px); background: #ffcdd2;\">\n                        <span class=\"bar\" style=\"width: 50%; background: #f57c00;\"></span>\n                    </span>\n                    <span class=\"bar-value\" style=\"color: #f57c00;\">5 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">Espejo LED Glam</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 280px); background: #ffcdd2;\">\n                        <span class=\"bar\" style=\"width: 50%; background: #f57c00;\"></span>\n                    </span>\n                    <span class=\"bar-value\" style=\"color: #f57c00;\">5 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">Pestañina Volumen Total G</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 280px); background: #ffcdd2;\">\n                        <span class=\"bar\" style=\"width: 50%; background: #f57c00;\"></span>\n                    </span>\n                    <span class=\"bar-value\" style=\"color: #f57c00;\">5 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">Labial Mate Velvet Glam</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 280px); background: #ffcdd2;\">\n                        <span class=\"bar\" style=\"width: 50%; background: #f57c00;\"></span>\n                    </span>\n                    <span class=\"bar-value\" style=\"color: #f57c00;\">5 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">Top Coat Brillo Extremo</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 280px); background: #ffcdd2;\">\n                        <span class=\"bar\" style=\"width: 90%; background: #fbc02d;\"></span>\n                    </span>\n                    <span class=\"bar-value\" style=\"color: #fbc02d;\">9 uds</span>\n                </div>\n            </div>\n                \n                <h2>Reabastecimientos Recientes (Ultima Semana)</h2>\n                <table>\n                    <tr><th>Fecha</th><th>Producto</th><th>Cantidad</th><th>Lote</th><th>Vencimiento</th></tr>\n        \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Tratamiento Fortalecedor</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+10</td>\n                    <td>L2025-12</td>\n                    <td>26/11/2025</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Tratamiento Fortalecedor</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+20</td>\n                    <td>L2025-11</td>\n                    <td>26/11/2025</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Delineador de Labios Coral Chic</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+10</td>\n                    <td>L2025-11</td>\n                    <td>26/11/2025</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Bronceador trendy</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+1</td>\n                    <td>L-PCMG-07</td>\n                    <td>07/12/2027</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Rubor Rosado Glow</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+1</td>\n                    <td>L-PCMG-06</td>\n                    <td>06/12/2027</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Polvo Compacto Mate Glam</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+1</td>\n                    <td>L-PCMG-05</td>\n                    <td>05/12/2027</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Iluminador Perla Glam</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+1</td>\n                    <td>L-IPG-04</td>\n                    <td>04/12/2027</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Corrector Liquido Soft Touch</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+1</td>\n                    <td>L-CLS-03</td>\n                    <td>03/12/2027</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Base Liquida HD Glam</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+1</td>\n                    <td>L-BLG-02</td>\n                    <td>02/12/2027</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Base Cushion Glow</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+1</td>\n                    <td>L-BCG-01</td>\n                    <td>01/12/2027</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Rubor Rosado Glow</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+1</td>\n                    <td>L-PCMG-06</td>\n                    <td>06/12/2027</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Polvo Compacto Mate Glam</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+1</td>\n                    <td>L-PCMG-05</td>\n                    <td>05/12/2027</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Iluminador Perla Glam</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+1</td>\n                    <td>L-IPG-04</td>\n                    <td>04/12/2027</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Corrector Liquido Soft Touch</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+1</td>\n                    <td>L-CLS-03</td>\n                    <td>03/12/2027</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Base Liquida HD Glam</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+1</td>\n                    <td>L-BLG-02</td>\n                    <td>02/12/2027</td>\n                </tr>\n            \n                </table>\n                \n                <h2>Ultimos 15 Pedidos</h2>\n                <table>\n                    <tr><th>#</th><th>Cliente</th><th>Total</th><th>Estado</th><th>Fecha</th></tr>\n        \n                <tr>\n                    <td>83</td>\n                    <td>andrea </td>\n                    <td style=\"font-weight: bold;\">$55,160</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>26/11/2025 13:37</td>\n                </tr>\n            \n                <tr>\n                    <td>82</td>\n                    <td>andrea </td>\n                    <td style=\"font-weight: bold;\">$68,425</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>26/11/2025 13:25</td>\n                </tr>\n            \n                <tr>\n                    <td>81</td>\n                    <td>andrea </td>\n                    <td style=\"font-weight: bold;\">$43,792</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>26/11/2025 13:20</td>\n                </tr>\n            \n                <tr>\n                    <td>80</td>\n                    <td>william fontecha</td>\n                    <td style=\"font-weight: bold;\">$51,055</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>26/11/2025 13:16</td>\n                </tr>\n            \n                <tr>\n                    <td>79</td>\n                    <td>lauren ortiz contrer  as</td>\n                    <td style=\"font-weight: bold;\">$43,792</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>26/11/2025 13:15</td>\n                </tr>\n            \n                <tr>\n                    <td>78</td>\n                    <td>lauren ortiz contrer  as</td>\n                    <td style=\"font-weight: bold;\">$157,798</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>26/11/2025 13:14</td>\n                </tr>\n            \n                <tr>\n                    <td>77</td>\n                    <td>maria magdalena  </td>\n                    <td style=\"font-weight: bold;\">$194,093</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>26/11/2025 08:57</td>\n                </tr>\n            \n                <tr>\n                    <td>76</td>\n                    <td>maria magdalena  </td>\n                    <td style=\"font-weight: bold;\">$232,050</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>24/11/2025 19:58</td>\n                </tr>\n            \n                <tr>\n                    <td>75</td>\n                    <td>maria magdalena  </td>\n                    <td style=\"font-weight: bold;\">$220,392</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>24/11/2025 19:51</td>\n                </tr>\n            \n                <tr>\n                    <td>74</td>\n                    <td>magda maria</td>\n                    <td style=\"font-weight: bold;\">$139,230</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>24/11/2025 19:38</td>\n                </tr>\n            \n                <tr>\n                    <td>65</td>\n                    <td>alejandro rodriguez </td>\n                    <td style=\"font-weight: bold;\">$77,350</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>24/11/2025 17:07</td>\n                </tr>\n            \n                <tr>\n                    <td>64</td>\n                    <td>alejandro rodriguez </td>\n                    <td style=\"font-weight: bold;\">$173,030</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>24/11/2025 16:42</td>\n                </tr>\n            \n                <tr>\n                    <td>62</td>\n                    <td>alejandro rodriguez </td>\n                    <td style=\"font-weight: bold;\">$40,940</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>24/11/2025 15:11</td>\n                </tr>\n            \n                <tr>\n                    <td>61</td>\n                    <td>alejandro rodriguez </td>\n                    <td style=\"font-weight: bold;\">$240,860</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>24/11/2025 15:07</td>\n                </tr>\n            \n                <tr>\n                    <td>60</td>\n                    <td>alejandro rodriguez </td>\n                    <td style=\"font-weight: bold;\">$61,880</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>24/11/2025 14:46</td>\n                </tr>\n            \n                </table>\n                \n                <h2>Repartidores y Entregas</h2>\n                <div class=\"highlight\" style=\"background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-left-color: #4caf50;\">\n                    <div style=\"display: flex; justify-content: space-around; flex-wrap: wrap; text-align: center;\">\n                        <div style=\"padding: 10px;\">\n                            <div style=\"font-size: 2rem; font-weight: bold; color: #2e7d32;\">2</div>\n                            <div style=\"color: #666;\">Entregas Confirmadas (Mes)</div>\n                        </div>\n                        <div style=\"padding: 10px;\">\n                            <div style=\"font-size: 2rem; font-weight: bold; color: #2e7d32;\">4.0/5</div>\n                            <div style=\"color: #666;\">Calificacion Promedio</div>\n                        </div>\n                    </div>\n        \n                    <div style=\"margin-top: 15px; padding: 15px; background: white; border-radius: 10px; text-align: center;\">\n                        <div style=\"font-size: 1.2rem; color: #fbc02d; margin-bottom: 5px;\">ESTRELLA DEL MES</div>\n                        <div style=\"font-size: 1.5rem; font-weight: bold; color: #2e7d32;\">michael </div>\n                        <div style=\"color: #666;\">Promedio: 4.0/5 | 2 entregas</div>\n                    </div>\n            \n                </div>\n                \n                <div class=\"footer\">\n                    <p style=\"font-size: 0.9rem;\">Este reporte fue generado automaticamente desde el Dashboard de Glam Store</p>\n                    <p style=\"font-size: 0.8rem; color: #bbb;\">29/11/2025 22:32:07</p>\n                </div>\n            </div>\n        </body>\n        </html>\n        ', 'DASHBOARD', '2025-11-29 22:32:07.411021', 0);
 INSERT INTO "notificaciones_reporte" ("idNotificacion", "titulo", "contenido_html", "tipo", "fechaCreacion", "leida") VALUES
 (5, 'Reporte Dashboard - 29/11/2025', '\n        <!DOCTYPE html>\n        <html>\n        <head>\n            <style>\n                body { font-family: Arial, sans-serif; background-color: #fffafc; padding: 20px; }\n                .container { max-width: 900px; margin: 0 auto; background: white; border-radius: 15px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }\n                h1 { color: #c2185b; border-bottom: 3px solid #f48fb1; padding-bottom: 10px; }\n                h2 { color: #ad1457; margin-top: 30px; margin-bottom: 15px; }\n                .stat-box { display: inline-block; background: #fce4ec; padding: 15px 25px; border-radius: 10px; margin: 8px; text-align: center; min-width: 120px; }\n                .stat-number { font-size: 1.8rem; font-weight: bold; color: #c2185b; }\n                .stat-label { color: #666; font-size: 0.85rem; }\n                table { width: 100%; border-collapse: collapse; margin: 15px 0; }\n                th, td { padding: 10px; text-align: left; border-bottom: 1px solid #fce4ec; }\n                th { background: #fce4ec; color: #c2185b; }\n                .highlight { background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%); padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #fbc02d; }\n                .footer { text-align: center; color: #999; margin-top: 30px; padding-top: 20px; border-top: 2px solid #fce4ec; }\n                .bar-container { margin: 8px 0; }\n                .bar-label { display: inline-block; width: 150px; font-size: 0.9rem; color: #333; }\n                .bar-wrapper { display: inline-block; width: calc(100% - 250px); background: #f5f5f5; border-radius: 5px; height: 25px; vertical-align: middle; }\n                .bar { height: 25px; border-radius: 5px; display: inline-block; }\n                .bar-value { display: inline-block; width: 80px; text-align: right; font-weight: bold; color: #c2185b; font-size: 0.9rem; }\n                .chart-vertical { display: flex; align-items: flex-end; justify-content: space-around; height: 200px; background: #fafafa; border-radius: 10px; padding: 20px 10px 10px 10px; margin: 15px 0; }\n                .chart-bar { display: flex; flex-direction: column; align-items: center; width: 12%; }\n                .chart-bar-fill { width: 100%; background: linear-gradient(180deg, #ec407a 0%, #f48fb1 100%); border-radius: 5px 5px 0 0; min-height: 5px; }\n                .chart-bar-label { font-size: 0.75rem; color: #666; margin-top: 8px; text-align: center; }\n                .chart-bar-value { font-size: 0.8rem; font-weight: bold; color: #c2185b; margin-bottom: 5px; }\n                .comparison-box { display: inline-block; background: white; padding: 15px 20px; border-radius: 10px; margin: 8px; border: 2px solid #f8bbd0; text-align: center; min-width: 180px; }\n                .comparison-title { font-size: 0.85rem; color: #666; margin-bottom: 5px; }\n                .comparison-value { font-size: 1.5rem; font-weight: bold; color: #c2185b; }\n                .comparison-change { font-size: 0.8rem; padding: 3px 8px; border-radius: 10px; margin-top: 5px; display: inline-block; }\n                .change-up { background: #e8f5e9; color: #2e7d32; }\n                .change-down { background: #ffebee; color: #c62828; }\n                .change-same { background: #f5f5f5; color: #666; }\n            </style>\n        </head>\n        <body>\n            <div class=\"container\">\n                <h1>Reporte Dashboard - Glam Store</h1>\n                <p style=\"color: #666;\">Generado el 29/11/2025 a las 22:32</p>\n                \n                <h2>Resumen General</h2>\n                <div style=\"text-align: center;\">\n                    <div class=\"stat-box\">\n                        <div class=\"stat-number\">28</div>\n                        <div class=\"stat-label\">Productos</div>\n                    </div>\n                    <div class=\"stat-box\">\n                        <div class=\"stat-number\">12</div>\n                        <div class=\"stat-label\">Clientes</div>\n                    </div>\n                    <div class=\"stat-box\">\n                        <div class=\"stat-number\">46</div>\n                        <div class=\"stat-label\">Pedidos Totales</div>\n                    </div>\n                    <div class=\"stat-box\">\n                        <div class=\"stat-number\">$3,433,027</div>\n                        <div class=\"stat-label\">Ventas Totales</div>\n                    </div>\n                </div>\n                \n                <h2>Comparativa Semanal</h2>\n                <div style=\"text-align: center;\">\n                    <div class=\"comparison-box\">\n                        <div class=\"comparison-title\">Clientes Nuevos Esta Semana</div>\n                        <div class=\"comparison-value\">6</div>\n                        <div class=\"comparison-change change-up\">\n                            vs 5 semana pasada\n                        </div>\n                    </div>\n                    <div class=\"comparison-box\">\n                        <div class=\"comparison-title\">Clientes Activos Esta Semana</div>\n                        <div class=\"comparison-value\">7</div>\n                        <div class=\"comparison-change change-up\">\n                            vs 5 semana pasada\n                        </div>\n                    </div>\n                    <div class=\"comparison-box\">\n                        <div class=\"comparison-title\">Pedidos Esta Semana</div>\n                        <div class=\"comparison-value\">22</div>\n                        <div class=\"comparison-change\">\n                            $2,300,377 en ventas\n                        </div>\n                    </div>\n                    <div class=\"comparison-box\">\n                        <div class=\"comparison-title\">Pedidos Este Mes</div>\n                        <div class=\"comparison-value\">46</div>\n                        <div class=\"comparison-change\">\n                            $3,433,027 en ventas\n                        </div>\n                    </div>\n                </div>\n                \n                <h2>Pedidos por Dia (Ultimos 7 dias)</h2>\n                <table>\n                    <tr>\n                        <th>Dia</th>\n                        <th>Pedidos</th>\n                        <th>Ventas</th>\n                        <th>Grafico</th>\n                    </tr>\n        \n                    <tr>\n                        <td style=\"font-weight: bold;\">Dom 23</td>\n                        <td style=\"text-align: center;\">0</td>\n                        <td style=\"text-align: right;\">$0</td>\n                        <td style=\"width: 40%;\">\n                            <div style=\"background: #f5f5f5; border-radius: 5px; height: 20px; width: 100%;\">\n                                <div style=\"background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%); height: 20px; width: 0%; border-radius: 5px;\"></div>\n                            </div>\n                        </td>\n                    </tr>\n            \n                    <tr>\n                        <td style=\"font-weight: bold;\">Lun 24</td>\n                        <td style=\"text-align: center;\">15</td>\n                        <td style=\"text-align: right;\">$1,686,262</td>\n                        <td style=\"width: 40%;\">\n                            <div style=\"background: #f5f5f5; border-radius: 5px; height: 20px; width: 100%;\">\n                                <div style=\"background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%); height: 20px; width: 100%; border-radius: 5px;\"></div>\n                            </div>\n                        </td>\n                    </tr>\n            \n                    <tr>\n                        <td style=\"font-weight: bold;\">Mar 25</td>\n                        <td style=\"text-align: center;\">0</td>\n                        <td style=\"text-align: right;\">$0</td>\n                        <td style=\"width: 40%;\">\n                            <div style=\"background: #f5f5f5; border-radius: 5px; height: 20px; width: 100%;\">\n                                <div style=\"background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%); height: 20px; width: 0%; border-radius: 5px;\"></div>\n                            </div>\n                        </td>\n                    </tr>\n            \n                    <tr>\n                        <td style=\"font-weight: bold;\">Mie 26</td>\n                        <td style=\"text-align: center;\">7</td>\n                        <td style=\"text-align: right;\">$614,115</td>\n                        <td style=\"width: 40%;\">\n                            <div style=\"background: #f5f5f5; border-radius: 5px; height: 20px; width: 100%;\">\n                                <div style=\"background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%); height: 20px; width: 46%; border-radius: 5px;\"></div>\n                            </div>\n                        </td>\n                    </tr>\n            \n                    <tr>\n                        <td style=\"font-weight: bold;\">Jue 27</td>\n                        <td style=\"text-align: center;\">0</td>\n                        <td style=\"text-align: right;\">$0</td>\n                        <td style=\"width: 40%;\">\n                            <div style=\"background: #f5f5f5; border-radius: 5px; height: 20px; width: 100%;\">\n                                <div style=\"background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%); height: 20px; width: 0%; border-radius: 5px;\"></div>\n                            </div>\n                        </td>\n                    </tr>\n            \n                    <tr>\n                        <td style=\"font-weight: bold;\">Vie 28</td>\n                        <td style=\"text-align: center;\">0</td>\n                        <td style=\"text-align: right;\">$0</td>\n                        <td style=\"width: 40%;\">\n                            <div style=\"background: #f5f5f5; border-radius: 5px; height: 20px; width: 100%;\">\n                                <div style=\"background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%); height: 20px; width: 0%; border-radius: 5px;\"></div>\n                            </div>\n                        </td>\n                    </tr>\n            \n                    <tr>\n                        <td style=\"font-weight: bold;\">Sab 29</td>\n                        <td style=\"text-align: center;\">0</td>\n                        <td style=\"text-align: right;\">$0</td>\n                        <td style=\"width: 40%;\">\n                            <div style=\"background: #f5f5f5; border-radius: 5px; height: 20px; width: 100%;\">\n                                <div style=\"background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%); height: 20px; width: 0%; border-radius: 5px;\"></div>\n                            </div>\n                        </td>\n                    </tr>\n            \n                </table>\n                \n                <h2>Ventas por Categoria</h2>\n        \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\">Rostro</span>\n                    <span class=\"bar-wrapper\">\n                        <span class=\"bar\" style=\"width: 100%; background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%);\"></span>\n                    </span>\n                    <span class=\"bar-value\">$1,446,600</span>\n                </div>\n                \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\">Ojos</span>\n                    <span class=\"bar-wrapper\">\n                        <span class=\"bar\" style=\"width: 36%; background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%);\"></span>\n                    </span>\n                    <span class=\"bar-value\">$522,800</span>\n                </div>\n                \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\">Accesorios</span>\n                    <span class=\"bar-wrapper\">\n                        <span class=\"bar\" style=\"width: 28%; background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%);\"></span>\n                    </span>\n                    <span class=\"bar-value\">$413,500</span>\n                </div>\n                \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\">Uñas</span>\n                    <span class=\"bar-wrapper\">\n                        <span class=\"bar\" style=\"width: 15%; background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%);\"></span>\n                    </span>\n                    <span class=\"bar-value\">$228,400</span>\n                </div>\n                \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\">Labios</span>\n                    <span class=\"bar-wrapper\">\n                        <span class=\"bar\" style=\"width: 10%; background: linear-gradient(90deg, #ec407a 0%, #f48fb1 100%);\"></span>\n                    </span>\n                    <span class=\"bar-value\">$155,950</span>\n                </div>\n                \n                \n                <h2>Top 10 Productos Mas Vendidos</h2>\n        \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">1. Delineador Liquido Precis</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 300px);\">\n                        <span class=\"bar\" style=\"width: 100%; background: #e91e63;\"></span>\n                    </span>\n                    <span class=\"bar-value\">13 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">2. Rubor Rosado Glow</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 300px);\">\n                        <span class=\"bar\" style=\"width: 76%; background: #9c27b0;\"></span>\n                    </span>\n                    <span class=\"bar-value\">10 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">3. Corrector Liquido Soft To</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 300px);\">\n                        <span class=\"bar\" style=\"width: 76%; background: #673ab7;\"></span>\n                    </span>\n                    <span class=\"bar-value\">10 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">4. Iluminador Perla Glam</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 300px);\">\n                        <span class=\"bar\" style=\"width: 76%; background: #3f51b5;\"></span>\n                    </span>\n                    <span class=\"bar-value\">10 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">5. Esponja Blender Lavanda</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 300px);\">\n                        <span class=\"bar\" style=\"width: 53%; background: #2196f3;\"></span>\n                    </span>\n                    <span class=\"bar-value\">7 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">6. Pestañina Curvas Glam</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 300px);\">\n                        <span class=\"bar\" style=\"width: 46%; background: #00bcd4;\"></span>\n                    </span>\n                    <span class=\"bar-value\">6 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">7. Top Coat Brillo Extremo</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 300px);\">\n                        <span class=\"bar\" style=\"width: 46%; background: #009688;\"></span>\n                    </span>\n                    <span class=\"bar-value\">6 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">8. Tratamiento Fortalecedor</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 300px);\">\n                        <span class=\"bar\" style=\"width: 38%; background: #4caf50;\"></span>\n                    </span>\n                    <span class=\"bar-value\">5 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">9. Polvo Compacto Mate Glam</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 300px);\">\n                        <span class=\"bar\" style=\"width: 38%; background: #8bc34a;\"></span>\n                    </span>\n                    <span class=\"bar-value\">5 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">10. Pinza de Cejas Glam</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 300px);\">\n                        <span class=\"bar\" style=\"width: 30%; background: #cddc39;\"></span>\n                    </span>\n                    <span class=\"bar-value\">4 uds</span>\n                </div>\n            \n                \n                <h2>Inventario Bajo (Stock menor a 10)</h2>\n                <div style=\"background: #ffebee; padding: 15px; border-radius: 10px; border-left: 4px solid #f44336;\">\n        \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">Kit Decoracion de Uñas</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 280px); background: #ffcdd2;\">\n                        <span class=\"bar\" style=\"width: 30%; background: #f57c00;\"></span>\n                    </span>\n                    <span class=\"bar-value\" style=\"color: #f57c00;\">3 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">Labial Cremoso Fucsia Pop</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 280px); background: #ffcdd2;\">\n                        <span class=\"bar\" style=\"width: 40%; background: #f57c00;\"></span>\n                    </span>\n                    <span class=\"bar-value\" style=\"color: #f57c00;\">4 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">Esmalte Rosa Pastel</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 280px); background: #ffcdd2;\">\n                        <span class=\"bar\" style=\"width: 40%; background: #f57c00;\"></span>\n                    </span>\n                    <span class=\"bar-value\" style=\"color: #f57c00;\">4 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">Organizador Acrilico Mini</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 280px); background: #ffcdd2;\">\n                        <span class=\"bar\" style=\"width: 40%; background: #f57c00;\"></span>\n                    </span>\n                    <span class=\"bar-value\" style=\"color: #f57c00;\">4 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">Sombra Liquida Glitter Po</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 280px); background: #ffcdd2;\">\n                        <span class=\"bar\" style=\"width: 50%; background: #f57c00;\"></span>\n                    </span>\n                    <span class=\"bar-value\" style=\"color: #f57c00;\">5 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">Esmalte Glitter Champagne</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 280px); background: #ffcdd2;\">\n                        <span class=\"bar\" style=\"width: 50%; background: #f57c00;\"></span>\n                    </span>\n                    <span class=\"bar-value\" style=\"color: #f57c00;\">5 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">Espejo LED Glam</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 280px); background: #ffcdd2;\">\n                        <span class=\"bar\" style=\"width: 50%; background: #f57c00;\"></span>\n                    </span>\n                    <span class=\"bar-value\" style=\"color: #f57c00;\">5 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">Pestañina Volumen Total G</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 280px); background: #ffcdd2;\">\n                        <span class=\"bar\" style=\"width: 50%; background: #f57c00;\"></span>\n                    </span>\n                    <span class=\"bar-value\" style=\"color: #f57c00;\">5 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">Labial Mate Velvet Glam</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 280px); background: #ffcdd2;\">\n                        <span class=\"bar\" style=\"width: 50%; background: #f57c00;\"></span>\n                    </span>\n                    <span class=\"bar-value\" style=\"color: #f57c00;\">5 uds</span>\n                </div>\n            \n                <div class=\"bar-container\">\n                    <span class=\"bar-label\" style=\"width: 200px;\">Top Coat Brillo Extremo</span>\n                    <span class=\"bar-wrapper\" style=\"width: calc(100% - 280px); background: #ffcdd2;\">\n                        <span class=\"bar\" style=\"width: 90%; background: #fbc02d;\"></span>\n                    </span>\n                    <span class=\"bar-value\" style=\"color: #fbc02d;\">9 uds</span>\n                </div>\n            </div>\n                \n                <h2>Reabastecimientos Recientes (Ultima Semana)</h2>\n                <table>\n                    <tr><th>Fecha</th><th>Producto</th><th>Cantidad</th><th>Lote</th><th>Vencimiento</th></tr>\n        \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Tratamiento Fortalecedor</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+10</td>\n                    <td>L2025-12</td>\n                    <td>26/11/2025</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Tratamiento Fortalecedor</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+20</td>\n                    <td>L2025-11</td>\n                    <td>26/11/2025</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Delineador de Labios Coral Chic</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+10</td>\n                    <td>L2025-11</td>\n                    <td>26/11/2025</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Bronceador trendy</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+1</td>\n                    <td>L-PCMG-07</td>\n                    <td>07/12/2027</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Rubor Rosado Glow</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+1</td>\n                    <td>L-PCMG-06</td>\n                    <td>06/12/2027</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Polvo Compacto Mate Glam</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+1</td>\n                    <td>L-PCMG-05</td>\n                    <td>05/12/2027</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Iluminador Perla Glam</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+1</td>\n                    <td>L-IPG-04</td>\n                    <td>04/12/2027</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Corrector Liquido Soft Touch</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+1</td>\n                    <td>L-CLS-03</td>\n                    <td>03/12/2027</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Base Liquida HD Glam</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+1</td>\n                    <td>L-BLG-02</td>\n                    <td>02/12/2027</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Base Cushion Glow</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+1</td>\n                    <td>L-BCG-01</td>\n                    <td>01/12/2027</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Rubor Rosado Glow</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+1</td>\n                    <td>L-PCMG-06</td>\n                    <td>06/12/2027</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Polvo Compacto Mate Glam</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+1</td>\n                    <td>L-PCMG-05</td>\n                    <td>05/12/2027</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Iluminador Perla Glam</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+1</td>\n                    <td>L-IPG-04</td>\n                    <td>04/12/2027</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Corrector Liquido Soft Touch</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+1</td>\n                    <td>L-CLS-03</td>\n                    <td>03/12/2027</td>\n                </tr>\n            \n                <tr>\n                    <td>26/11/2025</td>\n                    <td>Base Liquida HD Glam</td>\n                    <td style=\"color: #2e7d32; font-weight: bold;\">+1</td>\n                    <td>L-BLG-02</td>\n                    <td>02/12/2027</td>\n                </tr>\n            \n                </table>\n                \n                <h2>Ultimos 15 Pedidos</h2>\n                <table>\n                    <tr><th>#</th><th>Cliente</th><th>Total</th><th>Estado</th><th>Fecha</th></tr>\n        \n                <tr>\n                    <td>83</td>\n                    <td>andrea </td>\n                    <td style=\"font-weight: bold;\">$55,160</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>26/11/2025 13:37</td>\n                </tr>\n            \n                <tr>\n                    <td>82</td>\n                    <td>andrea </td>\n                    <td style=\"font-weight: bold;\">$68,425</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>26/11/2025 13:25</td>\n                </tr>\n            \n                <tr>\n                    <td>81</td>\n                    <td>andrea </td>\n                    <td style=\"font-weight: bold;\">$43,792</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>26/11/2025 13:20</td>\n                </tr>\n            \n                <tr>\n                    <td>80</td>\n                    <td>william fontecha</td>\n                    <td style=\"font-weight: bold;\">$51,055</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>26/11/2025 13:16</td>\n                </tr>\n            \n                <tr>\n                    <td>79</td>\n                    <td>lauren ortiz contrer  as</td>\n                    <td style=\"font-weight: bold;\">$43,792</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>26/11/2025 13:15</td>\n                </tr>\n            \n                <tr>\n                    <td>78</td>\n                    <td>lauren ortiz contrer  as</td>\n                    <td style=\"font-weight: bold;\">$157,798</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>26/11/2025 13:14</td>\n                </tr>\n            \n                <tr>\n                    <td>77</td>\n                    <td>maria magdalena  </td>\n                    <td style=\"font-weight: bold;\">$194,093</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>26/11/2025 08:57</td>\n                </tr>\n            \n                <tr>\n                    <td>76</td>\n                    <td>maria magdalena  </td>\n                    <td style=\"font-weight: bold;\">$232,050</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>24/11/2025 19:58</td>\n                </tr>\n            \n                <tr>\n                    <td>75</td>\n                    <td>maria magdalena  </td>\n                    <td style=\"font-weight: bold;\">$220,392</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>24/11/2025 19:51</td>\n                </tr>\n            \n                <tr>\n                    <td>74</td>\n                    <td>magda maria</td>\n                    <td style=\"font-weight: bold;\">$139,230</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>24/11/2025 19:38</td>\n                </tr>\n            \n                <tr>\n                    <td>65</td>\n                    <td>alejandro rodriguez </td>\n                    <td style=\"font-weight: bold;\">$77,350</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>24/11/2025 17:07</td>\n                </tr>\n            \n                <tr>\n                    <td>64</td>\n                    <td>alejandro rodriguez </td>\n                    <td style=\"font-weight: bold;\">$173,030</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>24/11/2025 16:42</td>\n                </tr>\n            \n                <tr>\n                    <td>62</td>\n                    <td>alejandro rodriguez </td>\n                    <td style=\"font-weight: bold;\">$40,940</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>24/11/2025 15:11</td>\n                </tr>\n            \n                <tr>\n                    <td>61</td>\n                    <td>alejandro rodriguez </td>\n                    <td style=\"font-weight: bold;\">$240,860</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>24/11/2025 15:07</td>\n                </tr>\n            \n                <tr>\n                    <td>60</td>\n                    <td>alejandro rodriguez </td>\n                    <td style=\"font-weight: bold;\">$61,880</td>\n                    <td style=\"color: #1976d2;\">Confirmado</td>\n                    <td>24/11/2025 14:46</td>\n                </tr>\n            \n                </table>\n                \n                <h2>Repartidores y Entregas</h2>\n                <div class=\"highlight\" style=\"background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-left-color: #4caf50;\">\n                    <div style=\"display: flex; justify-content: space-around; flex-wrap: wrap; text-align: center;\">\n                        <div style=\"padding: 10px;\">\n                            <div style=\"font-size: 2rem; font-weight: bold; color: #2e7d32;\">2</div>\n                            <div style=\"color: #666;\">Entregas Confirmadas (Mes)</div>\n                        </div>\n                        <div style=\"padding: 10px;\">\n                            <div style=\"font-size: 2rem; font-weight: bold; color: #2e7d32;\">4.0/5</div>\n                            <div style=\"color: #666;\">Calificacion Promedio</div>\n                        </div>\n                    </div>\n        \n                    <div style=\"margin-top: 15px; padding: 15px; background: white; border-radius: 10px; text-align: center;\">\n                        <div style=\"font-size: 1.2rem; color: #fbc02d; margin-bottom: 5px;\">ESTRELLA DEL MES</div>\n                        <div style=\"font-size: 1.5rem; font-weight: bold; color: #2e7d32;\">michael </div>\n                        <div style=\"color: #666;\">Promedio: 4.0/5 | 2 entregas</div>\n                    </div>\n            \n                </div>\n                \n                <div class=\"footer\">\n                    <p style=\"font-size: 0.9rem;\">Este reporte fue generado automaticamente desde el Dashboard de Glam Store</p>\n                    <p style=\"font-size: 0.8rem; color: #bbb;\">29/11/2025 22:32:18</p>\n                </div>\n            </div>\n        </body>\n        </html>\n        ', 'DASHBOARD', '2025-11-29 22:32:18.953755', 0);
-
 -- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla "pedidoproducto"
 --
-
 CREATE TABLE "pedidoproducto" (
   "idPedido" integer NOT NULL,
   "idProducto" bigint NOT NULL,
   "cantidad" integer DEFAULT NULL
 );
-
 -- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla "pedidos"
 --
-
 CREATE TABLE "pedidos" (
   "idPedido" integer NOT NULL,
   "idCliente" integer DEFAULT NULL,
@@ -1378,11 +1240,9 @@ CREATE TABLE "pedidos" (
   "fechaVencimiento" date DEFAULT NULL,
   "facturasEnviadas" integer NOT NULL DEFAULT 0
 );
-
 --
 -- Volcado de datos para la tabla "pedidos"
 --
-
 INSERT INTO "pedidos" ("idPedido", "idCliente", "fechaCreacion", "fechaEntrega", "estado", "total", "requiere_verificacion_pago", "idRepartidor", "direccionEntrega", "estado_pago", "estado_pedido", "fechaVencimiento", "facturasEnviadas") VALUES
 (20, 13, '2025-11-20 13:14:00', NULL, 'Pago Parcial', 21420.00, 0, 16, NULL, 'Pago Parcial', 'Entregado', '2025-11-25', 1),
 (21, 13, '2025-11-20 13:27:44', NULL, 'Pago Parcial', 38080.00, 0, 16, NULL, 'Pago Parcial', 'Entregado', '2025-11-25', 1),
@@ -1453,26 +1313,20 @@ INSERT INTO "pedidos" ("idPedido", "idCliente", "fechaCreacion", "fechaEntrega",
 (104, 20, '2025-12-10 23:32:29', NULL, 'En Preparación', 38900.00, 0, 15, NULL, 'Pago Parcial', 'En Camino', '2025-12-12', 1),
 (105, 20, '2025-12-11 00:05:36', NULL, 'En Preparación', 37650.00, 0, 18, NULL, 'Pago Parcial', 'En Camino', '2025-12-12', 1),
 (106, 20, '2025-12-11 00:26:05', NULL, 'En Preparación', 53200.00, 0, 18, NULL, 'Pago Parcial', 'En Camino', '2025-12-12', 1);
-
 -- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla "perfil"
 --
-
 CREATE TABLE "perfil" (
   "idProfile" integer NOT NULL,
   "usuario" integer NOT NULL,
   "imagen" character varying(255) DEFAULT NULL,
   "descripcion" longtext DEFAULT NULL
 );
-
 -- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla "productos"
 --
-
 CREATE TABLE "productos" (
   "idProducto" bigint NOT NULL,
   "nombreProducto" character varying(50) NOT NULL,
@@ -1489,11 +1343,9 @@ CREATE TABLE "productos" (
   "precio_venta" decimal(10,2) NOT NULL,
   "margen_ganancia" decimal(5,2) DEFAULT 10.00
 );
-
 --
 -- Volcado de datos para la tabla "productos"
 --
-
 INSERT INTO "productos" ("idProducto", "nombreProducto", "precio", "descripcion", "lote", "cantidadDisponible", "fechaIngreso", "fechaVencimiento", "idCategoria", "imagen", "idSubcategoria", "stock", "precio_venta", "margen_ganancia") VALUES
 (7700000000001, 'Rubor Rosado Glow', 34000.00, 'Rubor en polvo con acabado satinado y pigmento suave.', 'L2025-11', 50, '2025-11-07 07:01:07', '2027-11-01', 1, 'productos/rubor.jpg', 4, 469, 44100.00, 10.00),
 (7700000000002, 'Iluminador Perla Glam', 32000.00, 'Ilumina tus mejillas con un brillo nacarado y elegante.', 'L2025-11', 35, '2025-11-07 07:01:07', '2027-11-01', 1, 'productos/ilumi_p.webp', 5, 387, 41500.00, 10.00),
@@ -1524,13 +1376,10 @@ INSERT INTO "productos" ("idProducto", "nombreProducto", "precio", "descripcion"
 (7709876543210, 'Pestañina Volumen Total Gla', 15000.00, 'Volumen extremo, resistente al agua, f?rmula vegana', 'L2025-11', 30, '2025-11-05 15:45:00', '2026-11-05', 2, 'productos/p.webp', 8, 15, 19450.00, 10.00),
 (7709876543220, 'Bronceador trendy', 15000.00, 'Bronceador de trendy', NULL, -10, '2025-11-26 16:24:35', NULL, 1, 'productos/bronceador.jpg', 27, 16, 19450.00, 10.00),
 (7709876543221, 'Serum Centella Asiática', 8500.00, 'Serum Centella Asiática Antiedad Calmante Control Poros Tipo De Piel Todo Tipo', NULL, 0, '2025-12-10 19:03:58', NULL, 9, 'productos/Serum_Centella_Asiática_Antiedad_Calmante_Control_Poros_Tipo_De_Piel_Todo_Tipo_h3J3iRp.png', 28, 8, 11050.00, 10.00);
-
 -- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla "repartidores"
 --
-
 CREATE TABLE "repartidores" (
   "idRepartidor" integer NOT NULL,
   "nombreRepartidor" character varying(50) DEFAULT NULL,
@@ -1538,53 +1387,41 @@ CREATE TABLE "repartidores" (
   "estado_turno" character varying(20) DEFAULT 'Disponible',
   "email" character varying(100) DEFAULT NULL
 );
-
 --
 -- Volcado de datos para la tabla "repartidores"
 --
-
 INSERT INTO "repartidores" ("idRepartidor", "nombreRepartidor", "telefono", "estado_turno", "email") VALUES
 (15, 'lauren', '3024892804', 'En Ruta', 'laurensamanta0.r@gmail.com'),
 (16, 'michael ', '3024892804', 'Disponible', 'michaeldaramirez117@gmail.com'),
 (17, 'lauren oo', '+573024892804', 'En Ruta', 'lausamanta2024cha@gmail.com'),
 (18, 'lauren sam', '3024892804', 'En Ruta', 'lauren.20031028@gmail.com'),
 (19, 'william', '315156165984', 'Disponible', 'fontequin@gmail.com');
-
 -- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla "roles"
 --
-
 CREATE TABLE "roles" (
   "id_rol" integer NOT NULL,
   "nombre_rol" character varying(20) NOT NULL
 );
-
 --
 -- Volcado de datos para la tabla "roles"
 --
-
 INSERT INTO "roles" ("id_rol", "nombre_rol") VALUES
 (1, 'Administrador'),
 (2, 'Cliente');
-
 -- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla "subcategorias"
 --
-
 CREATE TABLE "subcategorias" (
   "idSubcategoria" integer NOT NULL,
   "nombreSubcategoria" character varying(50) NOT NULL,
   "idCategoria" integer NOT NULL
 );
-
 --
 -- Volcado de datos para la tabla "subcategorias"
 --
-
 INSERT INTO "subcategorias" ("idSubcategoria", "nombreSubcategoria", "idCategoria") VALUES
 (1, 'Base', 1),
 (2, 'Correctores', 1),
@@ -1608,13 +1445,10 @@ INSERT INTO "subcategorias" ("idSubcategoria", "nombreSubcategoria", "idCategori
 (25, 'espejo', 1),
 (27, 'Bronceadores', 1),
 (28, 'Serums', 9);
-
 -- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla "usuarios"
 --
-
 CREATE TABLE "usuarios" (
   "idUsuario" integer NOT NULL,
   "email" character varying(30) NOT NULL,
@@ -1629,11 +1463,9 @@ CREATE TABLE "usuarios" (
   "reset_token_expires" datetime DEFAULT NULL,
   "ultimoAcceso" datetime DEFAULT NULL
 );
-
 --
 -- Volcado de datos para la tabla "usuarios"
 --
-
 INSERT INTO "usuarios" ("idUsuario", "email", "password", "id_rol", "idCliente", "fechaCreacion", "nombre", "telefono", "direccion", "reset_token", "reset_token_expires", "ultimoAcceso") VALUES
 (10, 'glamstore0303777@gmail.com', 'pbkdf2_sha256$600000$PpT7bTOmCUOctDntYMUC5K$iLQW1DP7WSCXJQpyNInqAt56x5nvhbHoZD8fGC2kSv8=', 1, NULL, '2025-11-11 05:42:06', 'Glamstore Admin ', '3000000000', 'Calle Glam 123', 'eINBqu8nBwCywbMgLbygwTZxGkmq81a3', '2025-12-10 21:06:41', '2025-12-10 20:35:51'),
 (12, 'cliente3@gmail.com', 'pbkdf2_sha256$600000$8TudOY3FCiujKwuPYT4umM$NbSsig85Vt7P+5S15Y9nc/d926fI/jZA33WRDanzi3U=', 2, NULL, '2025-11-13 12:31:42', 'lauren', NULL, NULL, NULL, NULL, NULL),
@@ -1652,9 +1484,7 @@ INSERT INTO "usuarios" ("idUsuario", "email", "password", "id_rol", "idCliente",
 (27, 'infob2bingenieria@gmail.com', 'pbkdf2_sha256$600000$joFeUjGRIwb0ZA7B7tLFUu$G2Oc/3PIQ8OtvaQCTBy1jRRygjVaVLndeqFlyZBvlsE=', 2, 29, '2025-11-30 00:08:17', 'mao b2b', NULL, NULL, NULL, NULL, NULL),
 (29, 'haro79874476@gmail.com', 'pbkdf2_sha256$600000$TPZczkhUlC9xyyxiZ1nx69$aMgqbgUyL9pFjsOMRIry2gG21IU1tvSlWIZicWcSFFY=', 1, NULL, '2025-11-30 05:17:14', 'harol', NULL, NULL, NULL, NULL, '2025-12-10 19:18:39'),
 (30, 'michaeldaramirez117@gmail.com', 'pbkdf2_sha256$600000$W9cQskZJZLVF4XSyypFrFT$6GmRdyyuaGLuSx80o4PYH+v1SMRK89s114ipQUVKFPA=', 2, 30, '2025-11-30 00:18:08', 'michael', NULL, NULL, NULL, NULL, NULL);
-
 -- --------------------------------------------------------
-
 --
 -- Estructura Stand-in para la vista "vista_facturas_detalladas"
 -- (Véase abajo para la vista actual)
@@ -1670,9 +1500,7 @@ CREATE TABLE "vista_facturas_detalladas" (
 ,"metodo_pago" character varying(50)
 ,"descripcion" text
 );
-
 -- --------------------------------------------------------
-
 --
 -- Estructura Stand-in para la vista "vista_historial_cliente"
 -- (Véase abajo para la vista actual)
@@ -1687,9 +1515,7 @@ CREATE TABLE "vista_historial_cliente" (
 ,"estado" integer
 ,"total" integer
 );
-
 -- --------------------------------------------------------
-
 --
 -- Estructura Stand-in para la vista "vista_pedidos_distribuidores"
 -- (Véase abajo para la vista actual)
@@ -1710,9 +1536,7 @@ CREATE TABLE "vista_pedidos_distribuidores" (
 ,"precio" integer
 ,"subtotal" integer
 );
-
 -- --------------------------------------------------------
-
 --
 -- Estructura Stand-in para la vista "vista_pedidos_repartidor"
 -- (Véase abajo para la vista actual)
@@ -1729,9 +1553,7 @@ CREATE TABLE "vista_pedidos_repartidor" (
 ,"monto_total" integer
 ,"fechaEntrega" integer
 );
-
 -- --------------------------------------------------------
-
 --
 -- Estructura Stand-in para la vista "vista_productos_categoria"
 -- (Véase abajo para la vista actual)
@@ -1746,9 +1568,7 @@ CREATE TABLE "vista_productos_categoria" (
 ,"descripcionCategoria" integer
 ,"fechaIngreso" integer
 );
-
 -- --------------------------------------------------------
-
 --
 -- Estructura Stand-in para la vista "vista_productos_distribuidor"
 -- (Véase abajo para la vista actual)
@@ -1761,72 +1581,51 @@ CREATE TABLE "vista_productos_distribuidor" (
 ,"precio" integer
 ,"stock" integer
 );
-
 -- --------------------------------------------------------
-
 --
 -- Estructura para la vista "vista_facturas_detalladas"
 --
 DROP TABLE IF EXISTS "vista_facturas_detalladas";
-
 CREATE ALGORITHM=UNDEFINED DEFINER="root"@"localhost" SQL SECURITY DEFINER VIEW "vista_facturas_detalladas"  AS SELECT "f"."idFactura" AS "idFactura", "f"."fechaEmision" AS "fechaEmision", "f"."estado" AS "estado_factura", "f"."montoTotal" AS "montoTotal", "p"."idPedido" AS "idPedido", "c"."nombre" AS "cliente", "c"."email" AS "correo_cliente", "m"."tipo" AS "metodo_pago", "m"."descripcion" AS "descripcion" FROM ((("facturas" "f" join "pedidos" "p" on("f"."idPedido" = "p"."idPedido")) join "clientes" "c" on("p"."idCliente" = "c"."idCliente")) left join "metodospago" "m" on("f"."idMetodoPago" = "m"."idMetodoPago")) ;
-
 -- --------------------------------------------------------
-
 --
 -- Estructura para la vista "vista_historial_cliente"
 --
 DROP TABLE IF EXISTS "vista_historial_cliente";
-
 CREATE ALGORITHM=UNDEFINED DEFINER="root"@"localhost" SQL SECURITY DEFINER VIEW "vista_historial_cliente"  AS SELECT 1 AS "idCliente", 1 AS "cliente", 1 AS "email", 1 AS "idPedido", 1 AS "fechaCreacion", 1 AS "fechaEntrega", 1 AS "estado", 1 AS "total" ;
-
 -- --------------------------------------------------------
-
 --
 -- Estructura para la vista "vista_pedidos_distribuidores"
 --
 DROP TABLE IF EXISTS "vista_pedidos_distribuidores";
-
 CREATE ALGORITHM=UNDEFINED DEFINER="root"@"localhost" SQL SECURITY DEFINER VIEW "vista_pedidos_distribuidores"  AS SELECT 1 AS "idDistribuidor", 1 AS "distribuidor", 1 AS "idPedido", 1 AS "fechaCreacion", 1 AS "fechaEntrega", 1 AS "estado_pedido", 1 AS "idCliente", 1 AS "cliente", 1 AS "direccion_cliente", 1 AS "idProducto", 1 AS "producto", 1 AS "cantidad", 1 AS "precio", 1 AS "subtotal" ;
-
 -- --------------------------------------------------------
-
 --
 -- Estructura para la vista "vista_pedidos_repartidor"
 --
 DROP TABLE IF EXISTS "vista_pedidos_repartidor";
-
 CREATE ALGORITHM=UNDEFINED DEFINER="root"@"localhost" SQL SECURITY DEFINER VIEW "vista_pedidos_repartidor"  AS SELECT 1 AS "idRepartidor", 1 AS "repartidor", 1 AS "telefono_repartidor", 1 AS "idPedido", 1 AS "cliente", 1 AS "telefono_cliente", 1 AS "direccion_entrega", 1 AS "estado_pedido", 1 AS "monto_total", 1 AS "fechaEntrega" ;
-
 -- --------------------------------------------------------
-
 --
 -- Estructura para la vista "vista_productos_categoria"
 --
 DROP TABLE IF EXISTS "vista_productos_categoria";
-
 CREATE ALGORITHM=UNDEFINED DEFINER="root"@"localhost" SQL SECURITY DEFINER VIEW "vista_productos_categoria"  AS SELECT 1 AS "idProducto", 1 AS "nombreProducto", 1 AS "precio", 1 AS "descripcion", 1 AS "cantidadDisponible", 1 AS "categoria", 1 AS "descripcionCategoria", 1 AS "fechaIngreso" ;
-
 -- --------------------------------------------------------
-
 --
 -- Estructura para la vista "vista_productos_distribuidor"
 --
 DROP TABLE IF EXISTS "vista_productos_distribuidor";
-
 CREATE ALGORITHM=UNDEFINED DEFINER="root"@"localhost" SQL SECURITY DEFINER VIEW "vista_productos_distribuidor"  AS SELECT 1 AS "idDistribuidor", 1 AS "distribuidor", 1 AS "idProducto", 1 AS "producto", 1 AS "precio", 1 AS "stock" ;
-
 --
 -- Índices para tablas volcadas
 --
-
 --
 -- Indices de la tabla "auth_group"
 --
 ALTER TABLE "auth_group"
   ADD PRIMARY KEY ("id"),
   ADD UNIQUE KEY "name" ("name");
-
 --
 -- Indices de la tabla "auth_group_permissions"
 --
@@ -1834,21 +1633,18 @@ ALTER TABLE "auth_group_permissions"
   ADD PRIMARY KEY ("id"),
   ADD UNIQUE KEY "auth_group_permissions_group_id_permission_id_0cd325b0_uniq" ("group_id","permission_id"),
   ADD KEY "auth_group_permissio_permission_id_84c5c92e_fk_auth_perm" ("permission_id");
-
 --
 -- Indices de la tabla "auth_permission"
 --
 ALTER TABLE "auth_permission"
   ADD PRIMARY KEY ("id"),
   ADD UNIQUE KEY "auth_permission_content_type_id_codename_01ab375a_uniq" ("content_type_id","codename");
-
 --
 -- Indices de la tabla "auth_user"
 --
 ALTER TABLE "auth_user"
   ADD PRIMARY KEY ("id"),
   ADD UNIQUE KEY "username" ("username");
-
 --
 -- Indices de la tabla "auth_user_groups"
 --
@@ -1856,7 +1652,6 @@ ALTER TABLE "auth_user_groups"
   ADD PRIMARY KEY ("id"),
   ADD UNIQUE KEY "auth_user_groups_user_id_group_id_94350c0c_uniq" ("user_id","group_id"),
   ADD KEY "auth_user_groups_group_id_97559544_fk_auth_group_id" ("group_id");
-
 --
 -- Indices de la tabla "auth_user_user_permissions"
 --
@@ -1864,26 +1659,22 @@ ALTER TABLE "auth_user_user_permissions"
   ADD PRIMARY KEY ("id"),
   ADD UNIQUE KEY "auth_user_user_permissions_user_id_permission_id_14a6b632_uniq" ("user_id","permission_id"),
   ADD KEY "auth_user_user_permi_permission_id_1fbb5f2c_fk_auth_perm" ("permission_id");
-
 --
 -- Indices de la tabla "categorias"
 --
 ALTER TABLE "categorias"
   ADD PRIMARY KEY ("idCategoria");
-
 --
 -- Indices de la tabla "clientes"
 --
 ALTER TABLE "clientes"
   ADD PRIMARY KEY ("idCliente"),
   ADD UNIQUE KEY "email" ("email");
-
 --
 -- Indices de la tabla "configuracion_global"
 --
 ALTER TABLE "configuracion_global"
   ADD PRIMARY KEY ("id");
-
 --
 -- Indices de la tabla "confirmaciones_entrega"
 --
@@ -1891,21 +1682,18 @@ ALTER TABLE "confirmaciones_entrega"
   ADD PRIMARY KEY ("idConfirmacion"),
   ADD UNIQUE KEY "pedido_id" ("pedido_id"),
   ADD KEY "confirmaciones_entre_repartidor_id_b27e4e23_fk_repartido" ("repartidor_id");
-
 --
 -- Indices de la tabla "core_notificacion"
 --
 ALTER TABLE "core_notificacion"
   ADD PRIMARY KEY ("id"),
   ADD KEY "core_notificacion_usuario_id_f14c4107_fk_auth_user_id" ("usuario_id");
-
 --
 -- Indices de la tabla "core_profile"
 --
 ALTER TABLE "core_profile"
   ADD PRIMARY KEY ("id"),
   ADD UNIQUE KEY "user_id" ("user_id");
-
 --
 -- Indices de la tabla "detallepedido"
 --
@@ -1913,20 +1701,17 @@ ALTER TABLE "detallepedido"
   ADD PRIMARY KEY ("idDetalle"),
   ADD KEY "idPedido" ("idPedido"),
   ADD KEY "detallepedido_ibfk_2" ("idProducto");
-
 --
 -- Indices de la tabla "distribuidores"
 --
 ALTER TABLE "distribuidores"
   ADD PRIMARY KEY ("idDistribuidor");
-
 --
 -- Indices de la tabla "distribuidorproducto"
 --
 ALTER TABLE "distribuidorproducto"
   ADD PRIMARY KEY ("idDistribuidor","idProducto"),
   ADD KEY "idProducto" ("idProducto");
-
 --
 -- Indices de la tabla "django_admin_log"
 --
@@ -1934,27 +1719,23 @@ ALTER TABLE "django_admin_log"
   ADD PRIMARY KEY ("id"),
   ADD KEY "django_admin_log_content_type_id_c4bce8eb_fk_django_co" ("content_type_id"),
   ADD KEY "django_admin_log_user_id_c564eba6_fk_auth_user_id" ("user_id");
-
 --
 -- Indices de la tabla "django_content_type"
 --
 ALTER TABLE "django_content_type"
   ADD PRIMARY KEY ("id"),
   ADD UNIQUE KEY "django_content_type_app_label_model_76bd3d3b_uniq" ("app_label","model");
-
 --
 -- Indices de la tabla "django_migrations"
 --
 ALTER TABLE "django_migrations"
   ADD PRIMARY KEY ("id");
-
 --
 -- Indices de la tabla "django_session"
 --
 ALTER TABLE "django_session"
   ADD PRIMARY KEY ("session_key"),
   ADD KEY "django_session_expire_date_a5c62663" ("expire_date");
-
 --
 -- Indices de la tabla "facturas"
 --
@@ -1962,32 +1743,27 @@ ALTER TABLE "facturas"
   ADD PRIMARY KEY ("idFactura"),
   ADD KEY "idPedido" ("idPedido"),
   ADD KEY "idMetodoPago" ("idMetodoPago");
-
 --
 -- Indices de la tabla "lotes_producto"
 --
 ALTER TABLE "lotes_producto"
   ADD PRIMARY KEY ("idLote"),
   ADD UNIQUE KEY "lotes_producto_producto_id_codigo_lote_3a023c6e_uniq" ("producto_id","codigo_lote");
-
 --
 -- Indices de la tabla "mensajecontacto"
 --
 ALTER TABLE "mensajecontacto"
   ADD PRIMARY KEY ("id");
-
 --
 -- Indices de la tabla "mensajes"
 --
 ALTER TABLE "mensajes"
   ADD PRIMARY KEY ("idMensaje");
-
 --
 -- Indices de la tabla "metodospago"
 --
 ALTER TABLE "metodospago"
   ADD PRIMARY KEY ("idMetodoPago");
-
 --
 -- Indices de la tabla "movimientos_lote"
 --
@@ -1995,7 +1771,6 @@ ALTER TABLE "movimientos_lote"
   ADD PRIMARY KEY ("idMovimientoLote"),
   ADD KEY "movimientos_lote_lote_id_29458a65_fk_lotes_producto_idLote" ("lote_id"),
   ADD KEY "movimientos_lote_movimiento_producto__65a07369_fk_movimient" ("movimiento_producto_id");
-
 --
 -- Indices de la tabla "movimientos_producto"
 --
@@ -2004,27 +1779,23 @@ ALTER TABLE "movimientos_producto"
   ADD KEY "movimientos_producto_idPedido_f819b66b_fk_pedidos_idPedido" ("idPedido"),
   ADD KEY "movimientos_producto_producto_id_a133645f_fk_productos" ("producto_id"),
   ADD KEY "movimientos_producto_lote_origen_id_242d3d70_fk_lotes_pro" ("lote_origen_id");
-
 --
 -- Indices de la tabla "notificaciones_problema"
 --
 ALTER TABLE "notificaciones_problema"
   ADD PRIMARY KEY ("idNotificacion"),
   ADD KEY "notificaciones_problema_idPedido_2316d01a_fk_pedidos_idPedido" ("idPedido");
-
 --
 -- Indices de la tabla "notificaciones_reporte"
 --
 ALTER TABLE "notificaciones_reporte"
   ADD PRIMARY KEY ("idNotificacion");
-
 --
 -- Indices de la tabla "pedidoproducto"
 --
 ALTER TABLE "pedidoproducto"
   ADD PRIMARY KEY ("idPedido","idProducto"),
   ADD KEY "idProducto" ("idProducto");
-
 --
 -- Indices de la tabla "pedidos"
 --
@@ -2033,13 +1804,11 @@ ALTER TABLE "pedidos"
   ADD KEY "idCliente" ("idCliente"),
   ADD KEY "idRepartidor" ("idRepartidor"),
   ADD KEY "idx_fecha_vencimiento" ("fechaVencimiento");
-
 --
 -- Indices de la tabla "perfil"
 --
 ALTER TABLE "perfil"
   ADD PRIMARY KEY ("idProfile");
-
 --
 -- Indices de la tabla "productos"
 --
@@ -2047,26 +1816,22 @@ ALTER TABLE "productos"
   ADD PRIMARY KEY ("idProducto"),
   ADD KEY "fk_productos_categorias" ("idCategoria"),
   ADD KEY "fk_subcategoria_producto" ("idSubcategoria");
-
 --
 -- Indices de la tabla "repartidores"
 --
 ALTER TABLE "repartidores"
   ADD PRIMARY KEY ("idRepartidor");
-
 --
 -- Indices de la tabla "roles"
 --
 ALTER TABLE "roles"
   ADD PRIMARY KEY ("id_rol");
-
 --
 -- Indices de la tabla "subcategorias"
 --
 ALTER TABLE "subcategorias"
   ADD PRIMARY KEY ("idSubcategoria"),
   ADD KEY "idCategoria" ("idCategoria");
-
 --
 -- Indices de la tabla "usuarios"
 --
@@ -2075,293 +1840,245 @@ ALTER TABLE "usuarios"
   ADD UNIQUE KEY "email" ("email"),
   ADD KEY "id_rol" ("id_rol"),
   ADD KEY "idCliente" ("idCliente");
-
 --
 -- SERIAL de las tablas volcadas
 --
-
 --
 -- SERIAL de la tabla "auth_group"
 --
 ALTER TABLE "auth_group"
   MODIFY "id" integer NOT NULL SERIAL;
-
 --
 -- SERIAL de la tabla "auth_group_permissions"
 --
 ALTER TABLE "auth_group_permissions"
   MODIFY "id" bigint NOT NULL SERIAL;
-
 --
 -- SERIAL de la tabla "auth_permission"
 --
 ALTER TABLE "auth_permission"
   MODIFY "id" integer NOT NULL SERIAL, SERIAL=113;
-
 --
 -- SERIAL de la tabla "auth_user"
 --
 ALTER TABLE "auth_user"
   MODIFY "id" integer NOT NULL SERIAL, SERIAL=13;
-
 --
 -- SERIAL de la tabla "auth_user_groups"
 --
 ALTER TABLE "auth_user_groups"
   MODIFY "id" bigint NOT NULL SERIAL;
-
 --
 -- SERIAL de la tabla "auth_user_user_permissions"
 --
 ALTER TABLE "auth_user_user_permissions"
   MODIFY "id" bigint NOT NULL SERIAL;
-
 --
 -- SERIAL de la tabla "categorias"
 --
 ALTER TABLE "categorias"
   MODIFY "idCategoria" integer NOT NULL SERIAL, SERIAL=10;
-
 --
 -- SERIAL de la tabla "clientes"
 --
 ALTER TABLE "clientes"
   MODIFY "idCliente" integer NOT NULL SERIAL, SERIAL=31;
-
 --
 -- SERIAL de la tabla "configuracion_global"
 --
 ALTER TABLE "configuracion_global"
   MODIFY "id" bigint NOT NULL SERIAL, SERIAL=2;
-
 --
 -- SERIAL de la tabla "confirmaciones_entrega"
 --
 ALTER TABLE "confirmaciones_entrega"
   MODIFY "idConfirmacion" integer NOT NULL SERIAL, SERIAL=6;
-
 --
 -- SERIAL de la tabla "core_notificacion"
 --
 ALTER TABLE "core_notificacion"
   MODIFY "id" bigint NOT NULL SERIAL, SERIAL=4;
-
 --
 -- SERIAL de la tabla "core_profile"
 --
 ALTER TABLE "core_profile"
   MODIFY "id" bigint NOT NULL SERIAL, SERIAL=13;
-
 --
 -- SERIAL de la tabla "detallepedido"
 --
 ALTER TABLE "detallepedido"
   MODIFY "idDetalle" integer NOT NULL SERIAL, SERIAL=185;
-
 --
 -- SERIAL de la tabla "distribuidores"
 --
 ALTER TABLE "distribuidores"
   MODIFY "idDistribuidor" integer NOT NULL SERIAL, SERIAL=8;
-
 --
 -- SERIAL de la tabla "django_admin_log"
 --
 ALTER TABLE "django_admin_log"
   MODIFY "id" integer NOT NULL SERIAL;
-
 --
 -- SERIAL de la tabla "django_content_type"
 --
 ALTER TABLE "django_content_type"
   MODIFY "id" integer NOT NULL SERIAL, SERIAL=29;
-
 --
 -- SERIAL de la tabla "django_migrations"
 --
 ALTER TABLE "django_migrations"
   MODIFY "id" bigint NOT NULL SERIAL, SERIAL=80;
-
 --
 -- SERIAL de la tabla "facturas"
 --
 ALTER TABLE "facturas"
   MODIFY "idFactura" integer NOT NULL SERIAL, SERIAL=7;
-
 --
 -- SERIAL de la tabla "lotes_producto"
 --
 ALTER TABLE "lotes_producto"
   MODIFY "idLote" integer NOT NULL SERIAL, SERIAL=121;
-
 --
 -- SERIAL de la tabla "mensajecontacto"
 --
 ALTER TABLE "mensajecontacto"
   MODIFY "id" bigint NOT NULL SERIAL;
-
 --
 -- SERIAL de la tabla "mensajes"
 --
 ALTER TABLE "mensajes"
   MODIFY "idMensaje" integer NOT NULL SERIAL, SERIAL=6;
-
 --
 -- SERIAL de la tabla "metodospago"
 --
 ALTER TABLE "metodospago"
   MODIFY "idMetodoPago" integer NOT NULL SERIAL, SERIAL=5;
-
 --
 -- SERIAL de la tabla "movimientos_lote"
 --
 ALTER TABLE "movimientos_lote"
   MODIFY "idMovimientoLote" integer NOT NULL SERIAL, SERIAL=19;
-
 --
 -- SERIAL de la tabla "movimientos_producto"
 --
 ALTER TABLE "movimientos_producto"
   MODIFY "idMovimiento" integer NOT NULL SERIAL, SERIAL=330;
-
 --
 -- SERIAL de la tabla "notificaciones_problema"
 --
 ALTER TABLE "notificaciones_problema"
   MODIFY "idNotificacion" integer NOT NULL SERIAL, SERIAL=17;
-
 --
 -- SERIAL de la tabla "notificaciones_reporte"
 --
 ALTER TABLE "notificaciones_reporte"
   MODIFY "idNotificacion" integer NOT NULL SERIAL, SERIAL=6;
-
 --
 -- SERIAL de la tabla "pedidos"
 --
 ALTER TABLE "pedidos"
   MODIFY "idPedido" integer NOT NULL SERIAL, SERIAL=107;
-
 --
 -- SERIAL de la tabla "perfil"
 --
 ALTER TABLE "perfil"
   MODIFY "idProfile" integer NOT NULL SERIAL;
-
 --
 -- SERIAL de la tabla "productos"
 --
 ALTER TABLE "productos"
   MODIFY "idProducto" bigint NOT NULL SERIAL, SERIAL=7709876543222;
-
 --
 -- SERIAL de la tabla "repartidores"
 --
 ALTER TABLE "repartidores"
   MODIFY "idRepartidor" integer NOT NULL SERIAL, SERIAL=20;
-
 --
 -- SERIAL de la tabla "roles"
 --
 ALTER TABLE "roles"
   MODIFY "id_rol" integer NOT NULL SERIAL, SERIAL=3;
-
 --
 -- SERIAL de la tabla "subcategorias"
 --
 ALTER TABLE "subcategorias"
   MODIFY "idSubcategoria" integer NOT NULL SERIAL, SERIAL=29;
-
 --
 -- SERIAL de la tabla "usuarios"
 --
 ALTER TABLE "usuarios"
   MODIFY "idUsuario" integer NOT NULL SERIAL, SERIAL=31;
-
 --
 -- Restricciones para tablas volcadas
 --
-
 --
 -- Filtros para la tabla "auth_group_permissions"
 --
 ALTER TABLE "auth_group_permissions"
   ADD CONSTRAINT "auth_group_permissio_permission_id_84c5c92e_fk_auth_perm" FOREIGN KEY ("permission_id") REFERENCES "auth_permission" ("id"),
   ADD CONSTRAINT "auth_group_permissions_group_id_b120cbf9_fk_auth_group_id" FOREIGN KEY ("group_id") REFERENCES "auth_group" ("id");
-
 --
 -- Filtros para la tabla "auth_permission"
 --
 ALTER TABLE "auth_permission"
   ADD CONSTRAINT "auth_permission_content_type_id_2f476e4b_fk_django_co" FOREIGN KEY ("content_type_id") REFERENCES "django_content_type" ("id");
-
 --
 -- Filtros para la tabla "auth_user_groups"
 --
 ALTER TABLE "auth_user_groups"
   ADD CONSTRAINT "auth_user_groups_group_id_97559544_fk_auth_group_id" FOREIGN KEY ("group_id") REFERENCES "auth_group" ("id"),
   ADD CONSTRAINT "auth_user_groups_user_id_6a12ed8b_fk_auth_user_id" FOREIGN KEY ("user_id") REFERENCES "auth_user" ("id");
-
 --
 -- Filtros para la tabla "auth_user_user_permissions"
 --
 ALTER TABLE "auth_user_user_permissions"
   ADD CONSTRAINT "auth_user_user_permi_permission_id_1fbb5f2c_fk_auth_perm" FOREIGN KEY ("permission_id") REFERENCES "auth_permission" ("id"),
   ADD CONSTRAINT "auth_user_user_permissions_user_id_a95ead1b_fk_auth_user_id" FOREIGN KEY ("user_id") REFERENCES "auth_user" ("id");
-
 --
 -- Filtros para la tabla "confirmaciones_entrega"
 --
 ALTER TABLE "confirmaciones_entrega"
   ADD CONSTRAINT "confirmaciones_entre_repartidor_id_b27e4e23_fk_repartido" FOREIGN KEY ("repartidor_id") REFERENCES "repartidores" ("idRepartidor"),
   ADD CONSTRAINT "confirmaciones_entrega_pedido_id_cd3a377b_fk_pedidos_idPedido" FOREIGN KEY ("pedido_id") REFERENCES "pedidos" ("idPedido");
-
 --
 -- Filtros para la tabla "core_notificacion"
 --
 ALTER TABLE "core_notificacion"
   ADD CONSTRAINT "core_notificacion_usuario_id_f14c4107_fk_auth_user_id" FOREIGN KEY ("usuario_id") REFERENCES "auth_user" ("id");
-
 --
 -- Filtros para la tabla "detallepedido"
 --
 ALTER TABLE "detallepedido"
   ADD CONSTRAINT "detallepedido_ibfk_1" FOREIGN KEY ("idPedido") REFERENCES "pedidos" ("idPedido") ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT "detallepedido_ibfk_2" FOREIGN KEY ("idProducto") REFERENCES "productos" ("idProducto");
-
 --
 -- Filtros para la tabla "distribuidorproducto"
 --
 ALTER TABLE "distribuidorproducto"
   ADD CONSTRAINT "distribuidorproducto_ibfk_1" FOREIGN KEY ("idDistribuidor") REFERENCES "distribuidores" ("idDistribuidor");
-
 --
 -- Filtros para la tabla "django_admin_log"
 --
 ALTER TABLE "django_admin_log"
   ADD CONSTRAINT "django_admin_log_content_type_id_c4bce8eb_fk_django_co" FOREIGN KEY ("content_type_id") REFERENCES "django_content_type" ("id"),
   ADD CONSTRAINT "django_admin_log_user_id_c564eba6_fk_auth_user_id" FOREIGN KEY ("user_id") REFERENCES "auth_user" ("id");
-
 --
 -- Filtros para la tabla "facturas"
 --
 ALTER TABLE "facturas"
   ADD CONSTRAINT "facturas_ibfk_1" FOREIGN KEY ("idPedido") REFERENCES "pedidos" ("idPedido"),
   ADD CONSTRAINT "facturas_ibfk_2" FOREIGN KEY ("idMetodoPago") REFERENCES "metodospago" ("idMetodoPago");
-
 --
 -- Filtros para la tabla "lotes_producto"
 --
 ALTER TABLE "lotes_producto"
   ADD CONSTRAINT "lotes_producto_producto_id_c48f6919_fk_productos_idProducto" FOREIGN KEY ("producto_id") REFERENCES "productos" ("idProducto");
-
 --
 -- Filtros para la tabla "movimientos_lote"
 --
 ALTER TABLE "movimientos_lote"
   ADD CONSTRAINT "movimientos_lote_lote_id_29458a65_fk_lotes_producto_idLote" FOREIGN KEY ("lote_id") REFERENCES "lotes_producto" ("idLote"),
   ADD CONSTRAINT "movimientos_lote_movimiento_producto__65a07369_fk_movimient" FOREIGN KEY ("movimiento_producto_id") REFERENCES "movimientos_producto" ("idMovimiento");
-
 --
 -- Filtros para la tabla "movimientos_producto"
 --
@@ -2369,27 +2086,23 @@ ALTER TABLE "movimientos_producto"
   ADD CONSTRAINT "movimientos_producto_idPedido_f819b66b_fk_pedidos_idPedido" FOREIGN KEY ("idPedido") REFERENCES "pedidos" ("idPedido"),
   ADD CONSTRAINT "movimientos_producto_lote_origen_id_242d3d70_fk_lotes_pro" FOREIGN KEY ("lote_origen_id") REFERENCES "lotes_producto" ("idLote"),
   ADD CONSTRAINT "movimientos_producto_producto_id_a133645f_fk_productos" FOREIGN KEY ("producto_id") REFERENCES "productos" ("idProducto");
-
 --
 -- Filtros para la tabla "notificaciones_problema"
 --
 ALTER TABLE "notificaciones_problema"
   ADD CONSTRAINT "notificaciones_problema_idPedido_2316d01a_fk_pedidos_idPedido" FOREIGN KEY ("idPedido") REFERENCES "pedidos" ("idPedido");
-
 --
 -- Filtros para la tabla "pedidoproducto"
 --
 ALTER TABLE "pedidoproducto"
   ADD CONSTRAINT "pedidoproducto_ibfk_1" FOREIGN KEY ("idPedido") REFERENCES "pedidos" ("idPedido"),
   ADD CONSTRAINT "pedidoproducto_ibfk_2" FOREIGN KEY ("idProducto") REFERENCES "productos" ("idProducto");
-
 --
 -- Filtros para la tabla "pedidos"
 --
 ALTER TABLE "pedidos"
   ADD CONSTRAINT "pedidos_ibfk_1" FOREIGN KEY ("idCliente") REFERENCES "clientes" ("idCliente"),
   ADD CONSTRAINT "pedidos_ibfk_2" FOREIGN KEY ("idRepartidor") REFERENCES "repartidores" ("idRepartidor");
-
 --
 -- Filtros para la tabla "productos"
 --
@@ -2397,13 +2110,11 @@ ALTER TABLE "productos"
   ADD CONSTRAINT "fk_categoria_producto" FOREIGN KEY ("idCategoria") REFERENCES "categorias" ("idCategoria") ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT "fk_productos_categorias" FOREIGN KEY ("idCategoria") REFERENCES "categorias" ("idCategoria") ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT "fk_subcategoria_producto" FOREIGN KEY ("idSubcategoria") REFERENCES "subcategorias" ("idSubcategoria");
-
 --
 -- Filtros para la tabla "subcategorias"
 --
 ALTER TABLE "subcategorias"
   ADD CONSTRAINT "subcategorias_ibfk_1" FOREIGN KEY ("idCategoria") REFERENCES "categorias" ("idCategoria");
-
 --
 -- Filtros para la tabla "usuarios"
 --
@@ -2411,7 +2122,6 @@ ALTER TABLE "usuarios"
   ADD CONSTRAINT "usuarios_ibfk_1" FOREIGN KEY ("id_rol") REFERENCES "roles" ("id_rol"),
   ADD CONSTRAINT "usuarios_ibfk_2" FOREIGN KEY ("idCliente") REFERENCES "clientes" ("idCliente");
 COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+;
+;
+;
