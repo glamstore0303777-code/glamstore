@@ -385,7 +385,7 @@
                     <!-- Información del repartidor -->
                     <div style="margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #f2f2f2;">
                       <div style="font-size: 11px; color: #999; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;">Repartidor</div>
-                      <div style="font-size: 14px; color: #333; font-weight: 500; margin-top: 4px;">{{ pedido.idRepartidor.nombreRepartidor }}</div>
+                      <div style="font-size: 14px; color: #333; font-weight: 500; margin-top: 4px;">{% if pedido.idRepartidor %}{{ pedido.idRepartidor.nombreRepartidor }}{% else %}Sin asignar{% endif %}</div>
                     </div>
                     
                     <!-- Fecha y Total -->
