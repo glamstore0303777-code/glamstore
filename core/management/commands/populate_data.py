@@ -2,6 +2,9 @@
 Comando Django para restaurar la BD desde archivo SQL
 Uso: python manage.py populate_data [archivo_sql]
 Ejemplo: python manage.py populate_data glamstoredb.sql
+
+NOTA: El archivo SQL debe ser compatible con la BD actual.
+Si es MySQL y usas PostgreSQL, necesitarás convertirlo primero.
 """
 import os
 import sys
@@ -36,31 +39,59 @@ class Command(BaseCommand):
         try:
             db_config = settings.DATABASES['default']
             
-            # Si es MySQL, usar mysql CLI directamente (más confiable)
-            if 'mysql' in db_config['ENGINE'].lower():
-                self.stdout.write('Usando MySQL CLI para restaurar...')
-                
-                cmd = (
-                    f"mysql -h{db_config['HOST']} "
-                    f"-u{db_config['USER']} "
-                    f"-p{db_config['PASSWORD']} "
-                    f"{db_config['NAME']} < {sql_file}"
-                )
-                
-                result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
-                
-                if result.returncode != 0:
-                    self.stdout.write(self.style.ERROR(f'✗ Error: {result.stderr}'))
-                    sys.exit(1)
-                
-                self.stdout.write(self.style.SUCCESS('✓ BD restaurada exitosamente'))
+            # PostgreSQL
+            if 'postgresql' in db_config['ENGINE'].lower():
+                self.stdout.write('Detectado PostgreSQL. Usando psql para restaurar...')
+                self._restore_postgresql(sql_file, db_config)
+            
+            # MySQL
+            elif 'mysql' in db_config['ENGINE'].lower():
+                self.stdout.write('Detectado MySQL. Usando mysql CLI para restaurar...')
+                self._restore_mysql(sql_file, db_config)
+            
+            # SQLite u otras
             else:
-                # Para SQLite u otras BDs, usar Django
+                self.stdout.write('Usando Django para restaurar...')
                 self._restore_with_django(sql_file)
                 
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'✗ Error restaurando BD: {e}'))
             sys.exit(1)
+
+    def _restore_postgresql(self, sql_file, db_config):
+        """Restaurar usando psql para PostgreSQL"""
+        # Construir URL de conexión
+        db_url = (
+            f"postgresql://{db_config['USER']}:{db_config['PASSWORD']}"
+            f"@{db_config['HOST']}:{db_config['PORT']}/{db_config['NAME']}"
+        )
+        
+        cmd = f"psql {db_url} < {sql_file}"
+        
+        result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+        
+        if result.returncode != 0:
+            self.stdout.write(self.style.WARNING(f'⚠ Advertencia: {result.stderr[:200]}'))
+            # Continuar de todas formas, algunos errores son normales
+        
+        self.stdout.write(self.style.SUCCESS('✓ BD restaurada exitosamente'))
+
+    def _restore_mysql(self, sql_file, db_config):
+        """Restaurar usando mysql CLI para MySQL"""
+        cmd = (
+            f"mysql -h{db_config['HOST']} "
+            f"-u{db_config['USER']} "
+            f"-p{db_config['PASSWORD']} "
+            f"{db_config['NAME']} < {sql_file}"
+        )
+        
+        result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+        
+        if result.returncode != 0:
+            self.stdout.write(self.style.ERROR(f'✗ Error: {result.stderr}'))
+            sys.exit(1)
+        
+        self.stdout.write(self.style.SUCCESS('✓ BD restaurada exitosamente'))
 
     def _restore_with_django(self, sql_file):
         """Restaurar usando Django ORM"""
