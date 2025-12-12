@@ -844,12 +844,14 @@ def registro(request):
                     )
 
                 # 4. Crear el Usuario asociado con rol de Cliente (rol=2)
+                from django.utils import timezone
                 Usuario.objects.create(
                     nombre=nombre,
                     email=email,
                     password=make_password(password),
                     id_rol=2,  # Rol de Cliente
-                    idCliente=cliente.idCliente
+                    idCliente=cliente.idCliente,
+                    fechaCreacion=timezone.now()
                 )
 
             return redirect('login')
