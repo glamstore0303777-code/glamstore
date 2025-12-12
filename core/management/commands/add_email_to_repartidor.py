@@ -8,12 +8,22 @@ class Command(BaseCommand):
         try:
             with connection.cursor() as cursor:
                 # Verificar si la columna ya existe
-                cursor.execute("""
-                    SELECT COLUMN_NAME 
-                    FROM INFORMATION_SCHEMA.COLUMNS 
-                    WHERE TABLE_NAME = 'repartidores' 
-                    AND COLUMN_NAME = 'email'
-                """)
+                try:
+                    # Intentar con PostgreSQL primero
+                    cursor.execute("""
+                        SELECT column_name 
+                        FROM information_schema.columns 
+                        WHERE table_name = 'repartidores' 
+                        AND column_name = 'email'
+                    """)
+                except:
+                    # Si falla, intentar con MySQL
+                    cursor.execute("""
+                        SELECT COLUMN_NAME 
+                        FROM INFORMATION_SCHEMA.COLUMNS 
+                        WHERE TABLE_NAME = 'repartidores' 
+                        AND COLUMN_NAME = 'email'
+                    """)
                 
                 if cursor.fetchone():
                     self.stdout.write(self.style.SUCCESS("La columna 'email' ya existe en la tabla 'repartidores'"))
