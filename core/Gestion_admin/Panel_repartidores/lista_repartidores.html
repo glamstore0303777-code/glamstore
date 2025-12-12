@@ -194,7 +194,7 @@
             <option value="">Todos los repartidores</option>
             {% for repartidor in repartidores %}
               <option value="{{ repartidor.idRepartidor }}" {% if request.GET.repartidor == repartidor.idRepartidor|stringformat:"s" %}selected{% endif %}>
-                {{ repartidor.nombreRepartidor }} ({{ repartidor.pedidos_count }} pedidos)
+                {{ repartidor.nombreRepartidor }}
               </option>
             {% endfor %}
           </select>
@@ -255,11 +255,7 @@
                       <span class="badge {% if repartidor.estado_turno == 'Disponible' %}badge-success{% elif repartidor.estado_turno == 'En Ruta' %}badge-warning{% else %}badge-danger{% endif %}">
                         {{ repartidor.estado_turno }}
                       </span>
-                      | Pedidos: {% if repartidor.pedidos_count > 0 %}
-                        <span style="color: #4caf50; font-weight: bold;">{{ repartidor.pedidos_count }}</span>
-                      {% else %}
-                        <span style="color: #999;">{{ repartidor.pedidos_count }}</span>
-                      {% endif %}
+                      | Pedidos: <span style="color: #999;">-</span>
                     </div>
                   </div>
                   <div class="repartidor-actions">
