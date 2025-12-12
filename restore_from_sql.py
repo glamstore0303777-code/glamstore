@@ -14,6 +14,34 @@ from django.conf import settings
 import psycopg2
 
 
+def convert_mysql_to_postgres(sql_content):
+    """Convertir SQL de MySQL a PostgreSQL"""
+    import re
+    
+    # Reemplazar backticks por comillas dobles
+    sql_content = sql_content.replace('`', '"')
+    
+    # Remover comentarios MySQL especiales (/*!40101 ... */)
+    sql_content = re.sub(r'/\*!\d+[^*]*\*/', '', sql_content)
+    
+    # Remover SET statements de MySQL
+    sql_content = re.sub(r'SET\s+SQL_MODE\s*=\s*[^;]*;', '', sql_content, flags=re.IGNORECASE)
+    sql_content = re.sub(r'SET\s+time_zone\s*=\s*[^;]*;', '', sql_content, flags=re.IGNORECASE)
+    sql_content = re.sub(r'SET\s+@OLD_[^;]*;', '', sql_content, flags=re.IGNORECASE)
+    sql_content = re.sub(r'SET\s+NAMES\s+[^;]*;', '', sql_content, flags=re.IGNORECASE)
+    
+    # Remover ENGINE=InnoDB
+    sql_content = re.sub(r'\s+ENGINE=InnoDB[^;]*', '', sql_content, flags=re.IGNORECASE)
+    
+    # Remover DEFAULT CHARSET
+    sql_content = re.sub(r'\s+DEFAULT CHARSET=[^\s;]*', '', sql_content, flags=re.IGNORECASE)
+    
+    # Remover COLLATE
+    sql_content = re.sub(r'\s+COLLATE=[^\s;]*', '', sql_content, flags=re.IGNORECASE)
+    
+    return sql_content
+
+
 def restore_sql_file(sql_file):
     """Restaurar BD desde archivo SQL"""
     
@@ -25,6 +53,9 @@ def restore_sql_file(sql_file):
     
     with open(sql_file, 'r', encoding='utf-8') as f:
         sql_content = f.read()
+    
+    print("Convirtiendo SQL de MySQL a PostgreSQL...")
+    sql_content = convert_mysql_to_postgres(sql_content)
     
     db_config = settings.DATABASES['default']
     
