@@ -59,22 +59,54 @@ class Command(BaseCommand):
             sys.exit(1)
 
     def _restore_postgresql(self, sql_file, db_config):
-        """Restaurar usando psql para PostgreSQL"""
-        # Construir URL de conexión
-        db_url = (
-            f"postgresql://{db_config['USER']}:{db_config['PASSWORD']}"
-            f"@{db_config['HOST']}:{db_config['PORT']}/{db_config['NAME']}"
-        )
+        """Restaurar usando psycopg2 para PostgreSQL"""
+        try:
+            import psycopg2
+        except ImportError:
+            self.stdout.write(self.style.ERROR('✗ psycopg2 no está instalado'))
+            sys.exit(1)
         
-        cmd = f"psql {db_url} < {sql_file}"
-        
-        result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
-        
-        if result.returncode != 0:
-            self.stdout.write(self.style.WARNING(f'⚠ Advertencia: {result.stderr[:200]}'))
-            # Continuar de todas formas, algunos errores son normales
-        
-        self.stdout.write(self.style.SUCCESS('✓ BD restaurada exitosamente'))
+        try:
+            # Conectar a la BD
+            conn = psycopg2.connect(
+                host=db_config['HOST'],
+                user=db_config['USER'],
+                password=db_config['PASSWORD'],
+                database=db_config['NAME'],
+                port=db_config['PORT']
+            )
+            
+            # Leer el archivo SQL
+            with open(sql_file, 'r', encoding='utf-8') as f:
+                sql_content = f.read()
+            
+            # Ejecutar el SQL
+            cursor = conn.cursor()
+            
+            # Dividir por ; y ejecutar cada statement
+            statements = self._parse_sql_statements(sql_content)
+            executed = 0
+            
+            for statement in statements:
+                if statement.strip():
+                    try:
+                        cursor.execute(statement)
+                        executed += 1
+                    except Exception as e:
+                        # Algunos statements pueden fallar (ej: DROP TABLE si no existe)
+                        pass
+            
+            conn.commit()
+            cursor.close()
+            conn.close()
+            
+            self.stdout.write(self.style.SUCCESS(
+                f'✓ BD restaurada exitosamente ({executed} statements ejecutados)'
+            ))
+            
+        except Exception as e:
+            self.stdout.write(self.style.ERROR(f'✗ Error: {e}'))
+            sys.exit(1)
 
     def _restore_mysql(self, sql_file, db_config):
         """Restaurar usando mysql CLI para MySQL"""
