@@ -1,0 +1,49 @@
+INSTRUCCIONES PARA EJECUTAR EN RENDER
+=====================================
+
+1. Ve a https://dashboard.render.com
+2. Abre tu servicio de Render (glamstore)
+3. Haz clic en "Shell" en la parte superior derecha
+4. Copia y pega los siguientes comandos UNO POR UNO:
+
+COMANDO 1: Restaurar BD desde SQL
+----------------------------------
+cd ~/project/src && python manage.py populate_data glamstoredb.sql
+
+Deberías ver:
+✓ BD restaurada exitosamente (X statements ejecutados)
+
+
+COMANDO 2: Exportar datos a JSON
+---------------------------------
+python manage.py export_data
+
+Deberías ver:
+✓ Exportados X repartidores a repartidores_export.json
+✓ Exportadas Y notificaciones a notificaciones_export.json
+✓ Exportación completada
+
+Si ves números mayores a 0, ¡la restauración fue exitosa!
+
+
+COMANDO 3 (Opcional): Sincronizar con GitHub
+----------------------------------------------
+git add repartidores_export.json notificaciones_export.json
+git commit -m "Export data from restored database"
+git push origin main
+
+Esto guardará los datos exportados en GitHub.
+
+
+VERIFICACIÓN
+============
+
+Después de ejecutar los comandos, verifica que funciona:
+
+1. Ve a https://glamstore.onrender.com/gestion/repartidores/
+   Deberías ver la lista de repartidores (sin error 500)
+
+2. Ve a https://glamstore.onrender.com/gestion/notificaciones/
+   Deberías ver la lista de notificaciones (sin error 500)
+
+Si ves errores, revisa los logs en Render para más detalles.
