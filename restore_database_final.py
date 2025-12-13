@@ -115,8 +115,18 @@ def restore_database(sql_file):
                 failed += 1
                 error_msg = str(e).split('\n')[0]
                 
-                # Solo mostrar errores importantes
-                if 'duplicate key' not in error_msg.lower() and 'does not exist' not in error_msg and 'already exists' not in error_msg:
+                # Ignorar errores comunes que no son críticos
+                ignore_errors = [
+                    'duplicate key',
+                    'does not exist',
+                    'already exists',
+                    'is of type',  # Errores de tipo de datos
+                    'violates',
+                    'constraint'
+                ]
+                
+                should_show = not any(err.lower() in error_msg.lower() for err in ignore_errors)
+                if should_show:
                     print(f"  ⚠ Statement {i}: {error_msg[:80]}")
             finally:
                 cursor.close()
