@@ -17,7 +17,7 @@ def reverse_sync(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0032_populate_data'),
+        ('core', '0031_update_pedido_model'),
     ]
 
     operations = [

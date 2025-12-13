@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0036_add_missing_pedido_fields'),
+        ('core', '0035_fix_producto_columns'),
     ]
 
     operations = [
