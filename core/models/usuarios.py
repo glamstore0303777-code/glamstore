@@ -2,7 +2,7 @@ from django.db import models
 
 class Usuario(models.Model):
     idUsuario = models.AutoField(primary_key=True, db_column='idusuario')
-    email = models.CharField(max_length=30, unique=True, db_column='email')
+    email = models.CharField(max_length=255, unique=True, db_column='email')
     password = models.CharField(max_length=255, null=True, db_column='password')
     id_rol = models.IntegerField(db_column='id_rol')
     idCliente = models.IntegerField(null=True, db_column='idcliente')
