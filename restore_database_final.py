@@ -91,8 +91,6 @@ def restore_database(sql_file):
             port=db_config['PORT']
         )
         
-        cursor = conn.cursor()
-        
         print(f"\nEjecutando {len(statements)} statements...")
         executed = 0
         failed = 0
@@ -101,8 +99,11 @@ def restore_database(sql_file):
             if not statement.strip():
                 continue
             
+            cursor = conn.cursor()
+            
             try:
                 cursor.execute(statement)
+                conn.commit()
                 executed += 1
                 
                 # Mostrar progreso cada 10 statements
@@ -110,15 +111,16 @@ def restore_database(sql_file):
                     print(f"  {i}/{len(statements)} completados...")
                     
             except psycopg2.Error as e:
+                conn.rollback()
                 failed += 1
                 error_msg = str(e).split('\n')[0]
                 
-                # Solo mostrar errores importantes (no los de DROP TABLE IF NOT EXISTS)
-                if 'does not exist' not in error_msg and 'already exists' not in error_msg:
+                # Solo mostrar errores importantes
+                if 'duplicate key' not in error_msg.lower() and 'does not exist' not in error_msg and 'already exists' not in error_msg:
                     print(f"  ⚠ Statement {i}: {error_msg[:80]}")
+            finally:
+                cursor.close()
         
-        conn.commit()
-        cursor.close()
         conn.close()
         
         print(f"\n✓ Restauración completada")
