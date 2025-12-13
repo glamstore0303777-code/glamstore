@@ -857,14 +857,28 @@ def registro(request):
                 # 4. Crear el Usuario asociado con rol de Cliente (rol=2)
                 from django.utils import timezone
                 from django.db import connection
+                from django.conf import settings
                 
                 # Usar raw SQL porque managed=False no genera IDs automáticamente
-                # NO especificamos idusuario para que PostgreSQL use la secuencia
+                # NO especificamos idusuario para que PostgreSQL/SQLite use la secuencia
                 with connection.cursor() as cursor:
-                    cursor.execute("""
-                        INSERT INTO usuarios (email, password, id_rol, idcliente, fechacreacion, nombre, telefono, direccion)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-                    """, [
+                    # Detectar si es PostgreSQL o SQLite
+                    db_engine = settings.DATABASES['default']['ENGINE']
+                    
+                    if 'postgresql' in db_engine:
+                        # PostgreSQL usa %s
+                        sql = """
+                            INSERT INTO usuarios (email, password, id_rol, idcliente, fechacreacion, nombre, telefono, direccion)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                        """
+                    else:
+                        # SQLite usa ?
+                        sql = """
+                            INSERT INTO usuarios (email, password, id_rol, idcliente, fechacreacion, nombre, telefono, direccion)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                        """
+                    
+                    cursor.execute(sql, [
                         email,
                         make_password(password),
                         2,  # Rol de Cliente
@@ -1057,12 +1071,26 @@ def cambiar_password(request, token):
 def autenticar_usuario(email, password):
     from django.utils import timezone
     from core.models.usuarios import Usuario
+    from django.conf import settings
     
     with connection.cursor() as cursor:
-        cursor.execute("""
-            SELECT idUsuario, password, nombre, id_rol FROM usuarios
-            WHERE email = %s
-        """, [email])
+        # Detectar si es PostgreSQL o SQLite
+        db_engine = settings.DATABASES['default']['ENGINE']
+        
+        if 'postgresql' in db_engine:
+            # PostgreSQL usa %s
+            sql = """
+                SELECT idUsuario, password, nombre, id_rol FROM usuarios
+                WHERE email = %s
+            """
+        else:
+            # SQLite usa ?
+            sql = """
+                SELECT idUsuario, password, nombre, id_rol FROM usuarios
+                WHERE email = ?
+            """
+        
+        cursor.execute(sql, [email])
         usuario = cursor.fetchone()
 
     if usuario and check_password(password, usuario[1]):
