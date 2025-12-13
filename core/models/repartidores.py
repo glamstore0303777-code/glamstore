@@ -1,5 +1,5 @@
-from django.db import models
-from django.db import connection
+from django.db import models, connection
+from django.conf import settings
 
 class Repartidor(models.Model):
     idRepartidor = models.AutoField(primary_key=True, db_column='idrepartidor')
@@ -17,45 +17,52 @@ class Repartidor(models.Model):
     
     @classmethod
     def ensure_email_column_exists(cls):
-        """Asegura que la columna email existe en la tabla"""
+        """Asegura que la columna email existe en la tabla (compatible con PostgreSQL, MySQL, SQLite)"""
         try:
+            db_engine = settings.DATABASES['default']['ENGINE']
+            
             with connection.cursor() as cursor:
-                # Intentar con PostgreSQL primero
-                try:
+                column_exists = False
+                
+                if 'postgresql' in db_engine:
                     cursor.execute("""
                         SELECT column_name 
                         FROM information_schema.columns 
                         WHERE table_name = 'repartidores' 
                         AND column_name = 'email'
                     """)
-                    if not cursor.fetchone():
-                        cursor.execute("""
-                            ALTER TABLE repartidores 
-                            ADD COLUMN email VARCHAR(100) NULL DEFAULT NULL
-                        """)
-                except:
-                    # Si falla, intentar con MySQL
+                    column_exists = cursor.fetchone() is not None
+                    
+                elif 'mysql' in db_engine:
                     cursor.execute("""
                         SELECT COLUMN_NAME 
                         FROM INFORMATION_SCHEMA.COLUMNS 
                         WHERE TABLE_NAME = 'repartidores' 
                         AND COLUMN_NAME = 'email'
                     """)
-                    if not cursor.fetchone():
-                        cursor.execute("""
-                            ALTER TABLE repartidores 
-                            ADD COLUMN email VARCHAR(100) NULL DEFAULT NULL
-                        """)
+                    column_exists = cursor.fetchone() is not None
+                    
+                elif 'sqlite' in db_engine:
+                    cursor.execute("PRAGMA table_info(repartidores)")
+                    columns = [row[1] for row in cursor.fetchall()]
+                    column_exists = 'email' in columns
+                
+                if not column_exists:
+                    cursor.execute("""
+                        ALTER TABLE repartidores 
+                        ADD COLUMN email VARCHAR(100) NULL DEFAULT NULL
+                    """)
         except Exception:
             pass 
     
     @classmethod
     def ensure_telefono_column_size(cls):
-        """Asegura que la columna telefono tiene el tamaño correcto"""
+        """Asegura que la columna telefono tiene el tamaño correcto (compatible con PostgreSQL, MySQL, SQLite)"""
         try:
+            db_engine = settings.DATABASES['default']['ENGINE']
+            
             with connection.cursor() as cursor:
-                # Intentar con PostgreSQL primero
-                try:
+                if 'postgresql' in db_engine:
                     cursor.execute("""
                         SELECT data_type 
                         FROM information_schema.columns 
@@ -63,13 +70,13 @@ class Repartidor(models.Model):
                         AND column_name = 'telefono'
                     """)
                     result = cursor.fetchone()
-                    if result:
+                    if result and result[0] != 'character varying':
                         cursor.execute("""
                             ALTER TABLE repartidores 
                             ALTER COLUMN telefono TYPE VARCHAR(20)
                         """)
-                except:
-                    # Si falla, intentar con MySQL
+                        
+                elif 'mysql' in db_engine:
                     cursor.execute("""
                         SELECT COLUMN_TYPE 
                         FROM INFORMATION_SCHEMA.COLUMNS 

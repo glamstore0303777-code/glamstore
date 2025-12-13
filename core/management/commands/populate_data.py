@@ -59,21 +59,24 @@ class Command(BaseCommand):
             sys.exit(1)
 
     def _restore_postgresql(self, sql_file, db_config):
-        """Restaurar usando psycopg2 para PostgreSQL"""
+        """Restaurar usando psycopg para PostgreSQL"""
         try:
-            import psycopg2
+            import psycopg
         except ImportError:
-            self.stdout.write(self.style.ERROR('✗ psycopg2 no está instalado'))
-            sys.exit(1)
+            try:
+                import psycopg2 as psycopg
+            except ImportError:
+                self.stdout.write(self.style.ERROR('✗ psycopg o psycopg2 no está instalado'))
+                sys.exit(1)
         
         try:
             # Conectar a la BD
-            conn = psycopg2.connect(
+            conn = psycopg.connect(
                 host=db_config['HOST'],
                 user=db_config['USER'],
                 password=db_config['PASSWORD'],
-                database=db_config['NAME'],
-                port=db_config['PORT']
+                dbname=db_config['NAME'],
+                port=db_config.get('PORT', 5432)
             )
             
             # Leer el archivo SQL
