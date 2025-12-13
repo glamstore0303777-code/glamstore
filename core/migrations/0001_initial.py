@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
                 ('imagen', models.ImageField(blank=True, null=True, upload_to='categorias/')),
             ],
             options={
-                'db_table': 'categoria',
+                'db_table': 'categorias',
                 'managed': True,
             },
         ),
@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
                 ('idCategoria', models.ForeignKey(db_column='idCategoria', null=True, on_delete=django.db.models.deletion.SET_NULL, to='core.categoria')),
             ],
             options={
-                'db_table': 'subcategoria',
+                'db_table': 'subcategorias',
                 'managed': True,
             },
         ),

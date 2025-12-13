@@ -1,6 +1,6 @@
-# Generated migration to add margen_ganancia to detallepedido
+# Generated migration - add margen_ganancia field to DetallePedido
 
-from django.db import migrations
+from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
@@ -10,4 +10,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.AddField(
+            model_name='detallepedido',
+            name='margen_ganancia',
+            field=models.DecimalField(db_column='margen_ganancia', decimal_places=2, default=10, help_text='Margen de ganancia que se cobró en este pedido', max_digits=5),
+        ),
     ]

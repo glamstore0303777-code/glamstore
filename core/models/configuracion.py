@@ -14,7 +14,7 @@ class ConfiguracionGlobal(models.Model):
     
     class Meta:
         db_table = 'configuracion_global'
-        managed = False
+        managed = True
         app_label = 'core'
         verbose_name = 'Configuración Global'
         verbose_name_plural = 'Configuración Global'

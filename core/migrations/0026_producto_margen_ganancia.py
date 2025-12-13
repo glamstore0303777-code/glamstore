@@ -1,6 +1,6 @@
-# Generated migration to add margen_ganancia field
+# Generated migration - add margen_ganancia field to Producto (temporary)
 
-from django.db import migrations
+from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
@@ -10,4 +10,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        # This field will be removed in the next migration
+        # No operations needed - field will be managed by model
     ]

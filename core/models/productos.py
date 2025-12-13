@@ -31,7 +31,7 @@ class Producto(models.Model):
 
     class Meta:
         db_table = 'productos'
-        managed = False # Cambiado a False para coincidir con otros modelos
+        managed = True  # Django maneja la creación y actualización de esta tabla
         app_label = 'core'
 
     def __str__(self):

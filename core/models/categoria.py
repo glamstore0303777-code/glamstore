@@ -27,7 +27,7 @@ class Subcategoria(models.Model):
 
     class Meta:
         db_table = 'subcategorias'
-        managed = False
+        managed = True
         app_label = 'core'
 
     def __str__(self):

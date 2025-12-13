@@ -9,7 +9,7 @@ class Distribuidor(models.Model):
 
     class Meta:
         db_table = 'distribuidores'
-        managed = False
+        managed = True
         app_label = 'core'  
         
 class DistribuidorProducto(models.Model):
@@ -19,5 +19,5 @@ class DistribuidorProducto(models.Model):
 
     class Meta:
         db_table = 'distribuidor_producto'
-        managed = False
+        managed = True
         app_label = 'core'

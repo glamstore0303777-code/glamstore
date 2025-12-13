@@ -17,7 +17,7 @@ class CorreoPendiente(models.Model):
     
     class Meta:
         db_table = 'correos_pendientes'
-        managed = False
+        managed = True
         app_label = 'core'
     
     def __str__(self):

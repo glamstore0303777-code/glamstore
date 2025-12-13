@@ -10,5 +10,5 @@ class Cliente(models.Model):
 
     class Meta:
         db_table = 'clientes'
-        managed = False  # ← evita que Django intente crearla
-        app_label = 'core'    # ← asocia el modelo a tu app
+        managed = True  # Django maneja la creación y actualización de esta tabla
+        app_label = 'core'

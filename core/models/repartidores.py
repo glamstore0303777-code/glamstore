@@ -9,7 +9,7 @@ class Repartidor(models.Model):
 
     class Meta:
         db_table = 'repartidores'   
-        managed = False             
+        managed = True
         app_label = 'core'
     
     def __str__(self):

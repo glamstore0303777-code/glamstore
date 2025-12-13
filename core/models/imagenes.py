@@ -10,7 +10,7 @@ class ImagenProducto(models.Model):
     
     class Meta:
         db_table = 'imagenes_productos'
-        managed = False
+        managed = True
         app_label = 'core'
     
     def __str__(self):
@@ -27,7 +27,7 @@ class ImagenCategoria(models.Model):
     
     class Meta:
         db_table = 'imagenes_categorias'
-        managed = False
+        managed = True
         app_label = 'core'
     
     def __str__(self):
