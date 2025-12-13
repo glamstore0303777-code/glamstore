@@ -16,12 +16,11 @@ django.setup()
 
 
 def parse_sql_statements(sql_content):
-    """Parsear statements SQL de forma robusta"""
+    """Parsear solo INSERT statements del SQL"""
     statements = []
     current_statement = []
     in_string = False
     string_char = None
-    in_comment = False
     
     lines = sql_content.split('\n')
     
@@ -30,38 +29,28 @@ def parse_sql_statements(sql_content):
         if line.strip().startswith('--'):
             continue
         
-        # Procesar cada carácter
-        for i, char in enumerate(line):
-            # Detectar inicio/fin de strings
-            if char in ('"', "'") and (i == 0 or line[i-1] != '\\'):
-                if not in_string:
-                    in_string = True
-                    string_char = char
-                elif char == string_char:
-                    in_string = False
-                    string_char = None
+        # Solo procesar líneas que empiezan con INSERT
+        if line.strip().upper().startswith('INSERT'):
+            current_statement = [line]
             
-            # Si encontramos ; fuera de un string, es fin de statement
-            if char == ';' and not in_string:
-                current_statement.append(char)
+            # Si la línea termina con ;, es un statement completo
+            if line.strip().endswith(';'):
                 statement = ''.join(current_statement).strip()
-                
-                if statement and not statement.startswith('--'):
+                if statement:
                     statements.append(statement)
-                
                 current_statement = []
             else:
-                current_statement.append(char)
-        
-        # Agregar salto de línea
-        if not in_string:
-            current_statement.append('\n')
-    
-    # Agregar último statement si existe
-    if current_statement:
-        statement = ''.join(current_statement).strip()
-        if statement and not statement.startswith('--'):
-            statements.append(statement)
+                # Continuar leyendo hasta encontrar ;
+                continue
+        elif current_statement:
+            # Continuamos con el statement anterior
+            current_statement.append(line)
+            
+            if line.strip().endswith(';'):
+                statement = ''.join(current_statement).strip()
+                if statement:
+                    statements.append(statement)
+                current_statement = []
     
     return statements
 

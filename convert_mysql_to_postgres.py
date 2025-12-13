@@ -22,45 +22,49 @@ def convert_mysql_to_postgres(sql_content):
     # 2. Remover START TRANSACTION (PostgreSQL usa BEGIN)
     sql_content = re.sub(r'START\s+TRANSACTION;', 'BEGIN;', sql_content, flags=re.IGNORECASE)
     
-    # 3. Reemplazar ENGINE=InnoDB por nada (PostgreSQL no lo necesita)
+    # 3. Remover CREATE VIEW (muy complicadas de convertir)
+    sql_content = re.sub(r'CREATE\s+(?:OR\s+REPLACE\s+)?VIEW\s+[^;]*;', '', sql_content, flags=re.IGNORECASE)
+    
+    # 4. Remover ALTER TABLE ... MODIFY (sintaxis MySQL)
+    sql_content = re.sub(r'ALTER\s+TABLE\s+[^;]*MODIFY\s+[^;]*;', '', sql_content, flags=re.IGNORECASE)
+    
+    # 5. Remover ALTER TABLE ... ADD KEY (sintaxis MySQL)
+    sql_content = re.sub(r'ALTER\s+TABLE\s+[^;]*ADD\s+(?:UNIQUE\s+)?KEY\s+[^;]*;', '', sql_content, flags=re.IGNORECASE)
+    
+    # 6. Remover CREATE TRIGGER (sintaxis MySQL con ALGORITHM)
+    sql_content = re.sub(r'CREATE\s+TRIGGER\s+[^;]*ALGORITHM[^;]*;', '', sql_content, flags=re.IGNORECASE)
+    
+    # 7. Reemplazar ENGINE=InnoDB por nada (PostgreSQL no lo necesita)
     sql_content = re.sub(r'\s+ENGINE=InnoDB[^;]*', '', sql_content, flags=re.IGNORECASE)
     
-    # 4. Reemplazar DEFAULT CHARSET por nada
+    # 8. Reemplazar DEFAULT CHARSET por nada
     sql_content = re.sub(r'\s+DEFAULT CHARSET=[^\s;]*', '', sql_content, flags=re.IGNORECASE)
     
-    # 5. Reemplazar COLLATE por nada
+    # 9. Reemplazar COLLATE por nada
     sql_content = re.sub(r'\s+COLLATE=[^\s;]*', '', sql_content, flags=re.IGNORECASE)
     
-    # 6. Reemplazar AUTO_INCREMENT por SERIAL
+    # 10. Reemplazar AUTO_INCREMENT por SERIAL
     sql_content = re.sub(r'\bAUTO_INCREMENT\b', 'SERIAL', sql_content, flags=re.IGNORECASE)
     
-    # 7. Reemplazar backticks por comillas dobles
+    # 11. Reemplazar backticks por comillas dobles
     sql_content = sql_content.replace('`', '"')
     
-    # 8. Reemplazar int(11) por integer
+    # 12. Reemplazar int(11) por integer
     sql_content = re.sub(r'\bint\s*\(\d+\)', 'integer', sql_content, flags=re.IGNORECASE)
     
-    # 9. Reemplazar bigint(20) por bigint
+    # 13. Reemplazar bigint(20) por bigint
     sql_content = re.sub(r'\bbigint\s*\(\d+\)', 'bigint', sql_content, flags=re.IGNORECASE)
     
-    # 10. Reemplazar varchar(X) por character varying(X)
+    # 14. Reemplazar varchar(X) por character varying(X)
     sql_content = re.sub(r'\bvarchar\s*\(', 'character varying(', sql_content, flags=re.IGNORECASE)
     
-    # 11. Reemplazar tinyint por smallint
+    # 15. Reemplazar tinyint por smallint
     sql_content = re.sub(r'\btinyint\s*\(\d+\)', 'smallint', sql_content, flags=re.IGNORECASE)
     
-    # 12. Reemplazar UNSIGNED por nada (PostgreSQL maneja esto diferente)
+    # 16. Reemplazar UNSIGNED por nada (PostgreSQL maneja esto diferente)
     sql_content = re.sub(r'\bUNSIGNED\b', '', sql_content, flags=re.IGNORECASE)
     
-    # 13. Reemplazar PRIMARY KEY AUTO_INCREMENT por PRIMARY KEY SERIAL
-    sql_content = re.sub(
-        r'(\w+)\s+integer\s+NOT NULL\s+AUTO_INCREMENT',
-        r'\1 SERIAL',
-        sql_content,
-        flags=re.IGNORECASE
-    )
-    
-    # 14. Remover líneas vacías múltiples
+    # 17. Remover líneas vacías múltiples
     sql_content = re.sub(r'\n\s*\n+', '\n', sql_content)
     
     return sql_content
