@@ -64,10 +64,54 @@ def convert_mysql_to_postgres(sql_content):
     # 16. Reemplazar UNSIGNED por nada (PostgreSQL maneja esto diferente)
     sql_content = re.sub(r'\bUNSIGNED\b', '', sql_content, flags=re.IGNORECASE)
     
-    # 17. Remover líneas vacías múltiples
+    # 17. Convertir valores booleanos en INSERT statements
+    # Reemplazar 0 y 1 por false y true en contextos booleanos
+    # Esto es un poco arriesgado pero necesario para PostgreSQL
+    sql_content = re.sub(r"VALUES\s*\(([^)]*)\)", lambda m: convert_boolean_values(m.group(1)), sql_content, flags=re.IGNORECASE)
+    
+    # 18. Remover líneas vacías múltiples
     sql_content = re.sub(r'\n\s*\n+', '\n', sql_content)
     
     return sql_content
+
+
+def convert_boolean_values(values_str):
+    """Convertir 0/1 a false/true en VALUES"""
+    # Dividir por comas pero respetando strings
+    parts = []
+    current = []
+    in_string = False
+    string_char = None
+    
+    for i, char in enumerate(values_str):
+        if char in ('"', "'") and (i == 0 or values_str[i-1] != '\\'):
+            if not in_string:
+                in_string = True
+                string_char = char
+            elif char == string_char:
+                in_string = False
+        
+        if char == ',' and not in_string:
+            parts.append(''.join(current).strip())
+            current = []
+        else:
+            current.append(char)
+    
+    if current:
+        parts.append(''.join(current).strip())
+    
+    # Convertir valores booleanos
+    converted = []
+    for part in parts:
+        # Si es solo 0 o 1 (sin comillas), convertir a false/true
+        if part == '0':
+            converted.append('false')
+        elif part == '1':
+            converted.append('true')
+        else:
+            converted.append(part)
+    
+    return f"VALUES ({', '.join(converted)})"
 
 
 def main():
