@@ -865,10 +865,12 @@ def registro(request):
                     fechaCreacion=timezone.now()
                 )
 
+            messages.success(request, "¡Cuenta creada exitosamente! Por favor inicia sesión.")
             return redirect('login')
 
         except Exception as e:
-            pass
+            messages.error(request, f"Error al crear la cuenta: {str(e)}")
+            return render(request, 'registrar_usuario.html', {'input': request.POST})
 
     return render(request, 'registrar_usuario.html')
 
