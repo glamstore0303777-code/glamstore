@@ -12,11 +12,10 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RunSQL(
             sql="""
-            INSERT INTO distribuidores ("idDistribuidor", "nombreDistribuidor", "contacto") 
+            INSERT OR IGNORE INTO distribuidores ("idDistribuidor", "nombreDistribuidor", "contacto") 
             VALUES 
             (1, 'Proveedor Central', '214748364'),
-            (7, 'Proveedor Central tt', '214748364755')
-            ON CONFLICT ("idDistribuidor") DO NOTHING;
+            (7, 'Proveedor Central tt', '214748364755');
             """,
             reverse_sql="DELETE FROM distribuidores WHERE \"idDistribuidor\" IN (1, 7);",
             state_operations=[]

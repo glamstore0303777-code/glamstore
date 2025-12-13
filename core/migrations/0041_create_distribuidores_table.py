@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
         migrations.RunSQL(
             sql="""
             CREATE TABLE IF NOT EXISTS distribuidores (
-                "idDistribuidor" SERIAL PRIMARY KEY,
+                "idDistribuidor" INTEGER PRIMARY KEY AUTOINCREMENT,
                 "nombreDistribuidor" varchar(30) NULL,
                 "contacto" varchar(100) NULL,
                 "telefono" varchar(20) NULL,
@@ -21,19 +21,19 @@ class Migration(migrations.Migration):
                 "direccion" varchar(255) NULL
             );
             """,
-            reverse_sql="DROP TABLE IF EXISTS distribuidores CASCADE;",
+            reverse_sql="DROP TABLE IF EXISTS distribuidores;",
             state_operations=[]
         ),
         migrations.RunSQL(
             sql="""
             CREATE TABLE IF NOT EXISTS distribuidor_producto (
-                "id" SERIAL PRIMARY KEY,
+                "id" INTEGER PRIMARY KEY AUTOINCREMENT,
                 "idDistribuidor" integer NOT NULL,
                 "idProducto" integer NOT NULL,
                 "precioCompra" numeric(10, 2) NOT NULL
             );
             """,
-            reverse_sql="DROP TABLE IF EXISTS distribuidor_producto CASCADE;",
+            reverse_sql="DROP TABLE IF EXISTS distribuidor_producto;",
             state_operations=[]
         ),
     ]

@@ -23,10 +23,10 @@ class Migration(migrations.Migration):
         migrations.RunSQL(
             sql="""
             UPDATE productos 
-            SET fechavencimiento = CURRENT_DATE + INTERVAL '730 days'
+            SET fechavencimiento = date('now', '+730 days')
             WHERE fechavencimiento IS NULL;
             """,
-            reverse_sql="UPDATE productos SET fechavencimiento = NULL WHERE fechavencimiento > CURRENT_DATE;",
+            reverse_sql="UPDATE productos SET fechavencimiento = NULL WHERE fechavencimiento > date('now');",
             state_operations=[]
         ),
     ]
