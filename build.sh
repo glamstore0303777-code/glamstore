@@ -11,12 +11,8 @@ python manage.py migrate
 echo "2. Initializing database..."
 python init_db.py
 
-# Restore data from MySQL dump
-echo "3. Restoring data from database dump..."
-python ejecutar_en_render.py glamstoredb.sql || echo "Warning: Data restoration failed, continuing..."
-
 # Collect static files
-echo "4. Collecting static files..."
+echo "3. Collecting static files..."
 python manage.py collectstatic --noinput
 
 echo "=== Build process completed successfully ==="

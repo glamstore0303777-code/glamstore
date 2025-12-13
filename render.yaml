@@ -5,10 +5,9 @@ services:
     plan: free
     buildCommand: bash build.sh
     startCommand: gunicorn glamstore.wsgi:application --bind 0.0.0.0:8000
+    postDeployCommand: bash post_deploy.sh
     envVars:
       - key: DATABASE_URL
         scope: build
       - key: PYTHON_VERSION
         value: 3.13.0
-    # Force Render to use this configuration
-    preDeployCommand: echo "Deploying GlamStore"
