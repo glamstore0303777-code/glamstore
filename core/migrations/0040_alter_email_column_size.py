@@ -10,11 +10,25 @@ class Migration(migrations.Migration):
         ('core', '0039_create_imagenes_tables'),
     ]
 
+    def alter_email_column(apps, schema_editor):
+        """Alter email column size - compatible with PostgreSQL and SQLite"""
+        with schema_editor.connection.cursor() as cursor:
+            db_vendor = schema_editor.connection.vendor
+            
+            try:
+                if db_vendor == 'postgresql':
+                    cursor.execute("""
+                        ALTER TABLE usuarios 
+                        ALTER COLUMN email TYPE VARCHAR(255);
+                    """)
+                # SQLite doesn't support ALTER COLUMN, so we skip it
+            except Exception:
+                pass  # Column might already be correct size
+
+    def reverse_alter_email(apps, schema_editor):
+        """Reverse - no-op for both databases"""
+        pass
+
     operations = [
-        migrations.RunSQL(
-            # Forward: Increase email column size to 255 (SQLite compatible)
-            sql="SELECT 1",
-            # Reverse: No-op for SQLite
-            reverse_sql="SELECT 1",
-        ),
+        migrations.RunPython(alter_email_column, reverse_alter_email),
     ]

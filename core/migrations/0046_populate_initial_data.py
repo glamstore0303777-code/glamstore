@@ -6,17 +6,26 @@ from datetime import datetime, timedelta
 
 
 def populate_data(apps, schema_editor):
-    """Populate initial data - tables already exist in MySQL glamstoredb"""
+    """Populate initial data - compatible with PostgreSQL and SQLite"""
     
     with schema_editor.connection.cursor() as cursor:
-        # Insert admin user if doesn't exist
+        db_vendor = schema_editor.connection.vendor
+        
+        # Check if admin user exists
         cursor.execute("SELECT COUNT(*) FROM usuarios WHERE email = %s", ['admin@glamstore.com'])
         if cursor.fetchone()[0] == 0:
             hashed_password = make_password('admin123')
-            cursor.execute("""
-                INSERT INTO usuarios (email, password, id_rol, nombre, fechacreacion)
-                VALUES (%s, %s, %s, %s, %s)
-            """, ['admin@glamstore.com', hashed_password, 1, 'Administrador', datetime.now()])
+            
+            if db_vendor == 'postgresql':
+                cursor.execute("""
+                    INSERT INTO usuarios (email, password, id_rol, nombre, fechacreacion)
+                    VALUES (%s, %s, %s, %s, %s)
+                """, ['admin@glamstore.com', hashed_password, 1, 'Administrador', datetime.now()])
+            else:
+                cursor.execute("""
+                    INSERT INTO usuarios (email, password, id_rol, nombre, fechacreacion)
+                    VALUES (?, ?, ?, ?, ?)
+                """, ['admin@glamstore.com', hashed_password, 1, 'Administrador', datetime.now()])
 
 
 def reverse_populate(apps, schema_editor):
