@@ -114,8 +114,12 @@ def calcular_capacidad_repartidor(repartidor, fecha=None):
 
 def enviar_factura_cliente(pedido):
     """
-    Envía la factura al cliente por correo electrónico cuando se asigna un repartidor.
-    Incluye: productos, IVA, detalles de entrega, total a pagar, fecha de entrega y si debe pagar envío.
+    Envía la factura al cliente por correo electrónico.
+    Se usa cuando:
+    1. Se crea el pedido (sin repartidor)
+    2. Se asigna un repartidor al pedido (con datos del repartidor)
+    
+    La factura se adapta automáticamente según si hay repartidor asignado o no.
     """
     cliente = pedido.idCliente
     
@@ -124,173 +128,18 @@ def enviar_factura_cliente(pedido):
         return False
     
     try:
-        # Obtener detalles del pedido
-        detalles = DetallePedido.objects.filter(idPedido=pedido).select_related('idProducto')
+        # Generar HTML de la factura (se adapta según si hay repartidor o no)
+        html_message = generar_html_factura(pedido)
         
-        # Calcular totales
-        subtotal_productos = sum(d.subtotal for d in detalles)
-        # Calcular IVA sobre el subtotal (se suma adicional)
-        iva = int(subtotal_productos * IVA_PORCENTAJE)
-        
-        # Determinar si debe pagar envío
-        debe_pagar_envio = pedido.estado_pago == 'Pago Parcial'
-        costo_envio = COSTO_ENVIO if debe_pagar_envio else 0
-        
-        total_a_pagar = costo_envio if debe_pagar_envio else 0  # Solo paga envío si es pago parcial
-        
-        # Calcular fecha de entrega estimada
-        if not pedido.fecha_vencimiento:
-            ciudad = 'Soacha' if 'soacha' in cliente.direccion.lower() else 'Bogotá'
-            fecha_entrega = calcular_fecha_vencimiento(pedido.fechaCreacion.date(), ciudad)
-            pedido.fecha_vencimiento = fecha_entrega
-            pedido.save()
-        else:
-            fecha_entrega = pedido.fecha_vencimiento
-        
-        fecha_entrega_formateada = fecha_entrega.strftime('%d de %B de %Y')
-        
-        # Preparar lista de productos
-        productos_html = ""
-        for detalle in detalles:
-            productos_html += f"""
-            <tr>
-                <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">{detalle.idProducto.nombreProducto}</td>
-                <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: center;">{detalle.cantidad}</td>
-                <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: right;">${detalle.precio_unitario:,.0f}</td>
-                <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: right;">${detalle.subtotal:,.0f}</td>
-            </tr>
-            """
-        
-        # Información del repartidor y fecha de entrega
-        repartidor_info = ""
+        # Determinar el asunto según el estado
         if pedido.idRepartidor:
-            repartidor_info = f"""
-            <div style="background-color: #f3f0ff; padding: 15px; border-radius: 8px; margin: 20px 0;">
-                <h3 style="color: #7c3aed; margin: 0 0 10px 0;">Información de Entrega</h3>
-                <p style="margin: 5px 0;"><strong>Repartidor:</strong> {pedido.idRepartidor.nombreRepartidor}</p>
-                <p style="margin: 5px 0;"><strong>Teléfono:</strong> {pedido.idRepartidor.telefono}</p>
-                <p style="margin: 5px 0;"><strong>Fecha estimada de entrega:</strong> {fecha_entrega_formateada}</p>
-                <p style="margin: 5px 0;"><strong>Estado del pedido:</strong> {pedido.estado_pedido}</p>
-            </div>
-            """
-        
-        # Mensaje sobre pago de envío
-        pago_envio_html = ""
-        if debe_pagar_envio:
-            pago_envio_html = f"""
-            <div style="background-color: #fef2f2; border: 2px solid #dc2626; padding: 15px; border-radius: 8px; margin: 20px 0;">
-                <h3 style="color: #dc2626; margin: 0 0 10px 0;">IMPORTANTE: Pago Contra Entrega</h3>
-                <p style="margin: 5px 0; color: #991b1b;">Tu pedido tiene <strong>Pago Parcial</strong>. Debes pagar el envío al repartidor:</p>
-                <p style="margin: 10px 0; font-size: 24px; font-weight: bold; color: #dc2626;">Total a pagar: ${costo_envio:,.0f}</p>
-            </div>
-            """
+            asunto = f"Factura de tu Pedido #{pedido.idPedido} - Repartidor Asignado - Glam Store"
         else:
-            pago_envio_html = """
-            <div style="background-color: #f0fdf4; border: 2px solid #22c55e; padding: 15px; border-radius: 8px; margin: 20px 0;">
-                <h3 style="color: #16a34a; margin: 0 0 10px 0;">Pago Completo</h3>
-                <p style="margin: 5px 0; color: #166534;">Tu pedido está completamente pagado. No debes pagar nada al repartidor.</p>
-            </div>
-            """
-        
-        # HTML del correo
-        html_message = f"""
-        <!DOCTYPE html>
-        <html lang="es">
-        <head>
-            <meta charset="UTF-8">
-            <style>
-                body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; }}
-                .container {{ max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden; }}
-                .header {{ background: linear-gradient(135deg, #e8d5ff 0%, #f0e6ff 100%); color: #6b46c1; padding: 30px; text-align: center; }}
-                .header h1 {{ margin: 0; font-size: 28px; font-weight: 700; }}
-                .content {{ padding: 30px; }}
-                .footer {{ background-color: #f8f9fa; padding: 20px; text-align: center; color: #9ca3af; font-size: 12px; }}
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <div class="header">
-                    <h1>Glam Store</h1>
-                    <p>Factura de tu Pedido #{pedido.idPedido}</p>
-                </div>
-                
-                <div class="content">
-                    <p>Hola <strong>{cliente.nombre}</strong>,</p>
-                    <p>Tu pedido ha sido asignado a un repartidor y pronto estará en camino. Aquí están los detalles de tu compra:</p>
-                    
-                    {repartidor_info}
-                    
-                    <h3 style="color: #374151; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;">Detalle de Productos</h3>
-                    <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
-                        <thead>
-                            <tr style="background-color: #f3f0ff;">
-                                <th style="padding: 10px; text-align: left; color: #7c3aed;">Producto</th>
-                                <th style="padding: 10px; text-align: center; color: #7c3aed;">Cantidad</th>
-                                <th style="padding: 10px; text-align: right; color: #7c3aed;">Precio Unit.</th>
-                                <th style="padding: 10px; text-align: right; color: #7c3aed;">Subtotal</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {productos_html}
-                        </tbody>
-                    </table>
-                    
-                    <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;">
-                        <table style="width: 100%;">
-                            <tr>
-                                <td style="padding: 5px 0;"><strong>Subtotal:</strong></td>
-                                <td style="padding: 5px 0; text-align: right;">${subtotal_productos:,.0f}</td>
-                            </tr>
-                            <tr>
-                                <td style="padding: 5px 0;"><strong>IVA (19%):</strong></td>
-                                <td style="padding: 5px 0; text-align: right;">${iva:,.0f}</td>
-                            </tr>
-                            <tr>
-                                <td style="padding: 5px 0;"><strong>Subtotal:</strong></td>
-                                <td style="padding: 5px 0; text-align: right;">${subtotal_productos:,.0f}</td>
-                            </tr>
-                            <tr>
-                                <td style="padding: 5px 0;"><strong>IVA (19%):</strong></td>
-                                <td style="padding: 5px 0; text-align: right;">${iva:,.0f}</td>
-                            </tr>
-                            <tr>
-                                <td style="padding: 5px 0;"><strong>Envío:</strong></td>
-                                <td style="padding: 5px 0; text-align: right;">${COSTO_ENVIO:,.0f}</td>
-                            </tr>
-                            <tr style="border-top: 2px solid #e5e7eb;">
-                                <td style="padding: 10px 0; font-size: 18px;"><strong>TOTAL:</strong></td>
-                                <td style="padding: 10px 0; text-align: right; font-size: 18px; font-weight: bold; color: #7c3aed;">${subtotal_productos + iva + COSTO_ENVIO:,.0f}</td>
-                            </tr>
-                        </table>
-                    </div>
-                    
-                    {pago_envio_html}
-                    
-                    <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;">
-                        <h3 style="color: #374151; margin: 0 0 10px 0;">Dirección de Entrega</h3>
-                        <p style="margin: 5px 0;">{cliente.direccion}</p>
-                        <p style="margin: 5px 0;"><strong>Teléfono:</strong> {cliente.telefono}</p>
-                    </div>
-                    
-                    <p style="color: #6b7280; font-size: 14px;">
-                        Si tienes alguna pregunta, contáctanos en <strong>glamstore0303777@gmail.com</strong>
-                    </p>
-                </div>
-                
-                <div class="footer">
-                    <p><strong>Glam Store</strong></p>
-                    <p>Gracias por tu compra</p>
-                </div>
-            </div>
-        </body>
-        </html>
-        """
+            asunto = f"Factura de tu Pedido #{pedido.idPedido} - Glam Store"
         
         # Enviar correo
-        subject = f"Factura de tu Pedido #{pedido.idPedido} - Glam Store"
-        
         email = EmailMultiAlternatives(
-            subject=subject,
+            subject=asunto,
             body=strip_tags(html_message),
             from_email='glamstore0303777@gmail.com',
             to=[cliente.email]
@@ -300,7 +149,8 @@ def enviar_factura_cliente(pedido):
         resultado = email.send()
         
         if resultado > 0:
-            print(f"[DEBUG] Factura enviada a {cliente.email} para pedido #{pedido.idPedido}")
+            estado = "con repartidor" if pedido.idRepartidor else "sin repartidor"
+            print(f"[DEBUG] Factura enviada a {cliente.email} para pedido #{pedido.idPedido} ({estado})")
             return True
         else:
             print(f"[DEBUG] Error al enviar factura a {cliente.email}")
@@ -308,6 +158,9 @@ def enviar_factura_cliente(pedido):
             
     except Exception as e:
         print(f"[DEBUG] Error al enviar factura: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return False
         return False
 
 
@@ -407,7 +260,7 @@ def generar_html_factura(pedido):
             
             <div class="content">
                 <p>Hola <strong>{cliente.nombre}</strong>,</p>
-                <p>Tu pedido ha sido creado exitosamente. Aquí están los detalles de tu compra:</p>
+                <p>{"Tu pedido ha sido asignado a un repartidor y pronto estará en camino." if pedido.idRepartidor else "Tu pedido ha sido creado exitosamente. Aquí están los detalles de tu compra:"} Aquí están los detalles:</p>
                 
                 {repartidor_info}
                 
