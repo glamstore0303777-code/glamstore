@@ -4,6 +4,7 @@ from django.db import migrations
 
 def create_tables(apps, schema_editor):
     """Crear todas las tablas necesarias"""
+    # Crear tablas sin foreign keys primero
     schema_editor.execute("""
     CREATE TABLE IF NOT EXISTS categorias (
         idcategoria SERIAL PRIMARY KEY,
@@ -17,7 +18,7 @@ def create_tables(apps, schema_editor):
     CREATE TABLE IF NOT EXISTS subcategorias (
         idsubcategoria SERIAL PRIMARY KEY,
         nombresubcategoria VARCHAR(50) NOT NULL,
-        idcategoria INTEGER NOT NULL REFERENCES categorias(idcategoria)
+        idcategoria INTEGER
     );
     """)
     
@@ -32,8 +33,8 @@ def create_tables(apps, schema_editor):
         cantidaddisponible INTEGER DEFAULT 0,
         fechaingreso TIMESTAMP,
         fechavencimiento DATE,
-        idcategoria INTEGER REFERENCES categorias(idcategoria),
-        idsubcategoria INTEGER REFERENCES subcategorias(idsubcategoria),
+        idcategoria INTEGER,
+        idsubcategoria INTEGER,
         imagen VARCHAR(100),
         precio_venta NUMERIC(10, 2) DEFAULT 0
     );
@@ -63,7 +64,7 @@ def create_tables(apps, schema_editor):
     schema_editor.execute("""
     CREATE TABLE IF NOT EXISTS pedidos (
         idpedido SERIAL PRIMARY KEY,
-        idcliente INTEGER REFERENCES clientes(idcliente),
+        idcliente INTEGER,
         total NUMERIC(10, 2),
         estado VARCHAR(50),
         estado_pago VARCHAR(50),
@@ -78,8 +79,8 @@ def create_tables(apps, schema_editor):
     schema_editor.execute("""
     CREATE TABLE IF NOT EXISTS detallepedido (
         iddetallepedido SERIAL PRIMARY KEY,
-        idpedido INTEGER REFERENCES pedidos(idpedido),
-        idproducto BIGINT REFERENCES productos(idproducto),
+        idpedido INTEGER,
+        idproducto BIGINT,
         cantidad INTEGER,
         precio_unitario NUMERIC(10, 2),
         subtotal NUMERIC(10, 2),
@@ -103,16 +104,14 @@ def create_tables(apps, schema_editor):
         total_con_iva INTEGER,
         iva INTEGER,
         descripcion TEXT,
-        fecha_movimiento TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (idproducto) REFERENCES productos(idproducto),
-        FOREIGN KEY (id_pedido) REFERENCES pedidos(idpedido)
+        fecha_movimiento TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
     """)
     
     schema_editor.execute("""
     CREATE TABLE IF NOT EXISTS loteproducto (
         idlote SERIAL PRIMARY KEY,
-        idproducto BIGINT REFERENCES productos(idproducto),
+        idproducto BIGINT,
         codigo_lote VARCHAR(100),
         cantidad_total INTEGER,
         cantidad_disponible INTEGER,
