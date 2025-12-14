@@ -115,6 +115,7 @@ class Command(BaseCommand):
 
     def _load_productos_raw(self):
         """Cargar productos usando SQL directo"""
+        # (id, nombre, precio, desc, stock, cat, subcat, imagen, precio_venta)
         productos_data = [
             (7700000000001, 'Rubor Rosado Glow', 34000, 'Rubor en polvo con acabado satinado y pigmento suave.', 469, 1, 4, 'productos/rubor.jpg', 44100),
             (7700000000002, 'Iluminador Perla Glam', 32000, 'Ilumina tus mejillas con un brillo nacarado y elegante.', 387, 1, 5, 'productos/ilumi_p.webp', 41500),
@@ -153,8 +154,9 @@ class Command(BaseCommand):
                 id_prod, nombre, precio, desc, stock, id_cat, id_sub, imagen, precio_venta = data
                 try:
                     cursor.execute("""
-                        INSERT INTO productos (idproducto, nombreproducto, precio, descripcion, stock, idcategoria, idsubcategoria, imagen, precio_venta)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        INSERT INTO productos (idproducto, nombreproducto, precio, descripcion, stock, 
+                                               idcategoria, idsubcategoria, imagen, precio_venta, cantidaddisponible)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                         ON CONFLICT (idproducto) DO UPDATE SET
                             nombreproducto = EXCLUDED.nombreproducto,
                             precio = EXCLUDED.precio,
@@ -163,8 +165,9 @@ class Command(BaseCommand):
                             idcategoria = EXCLUDED.idcategoria,
                             idsubcategoria = EXCLUDED.idsubcategoria,
                             imagen = EXCLUDED.imagen,
-                            precio_venta = EXCLUDED.precio_venta
-                    """, [id_prod, nombre, precio, desc, stock, id_cat, id_sub, imagen, precio_venta])
+                            precio_venta = EXCLUDED.precio_venta,
+                            cantidaddisponible = EXCLUDED.cantidaddisponible
+                    """, [id_prod, nombre, precio, desc, stock, id_cat, id_sub, imagen, precio_venta, stock])
                     inserted += 1
                 except Exception as e:
                     self.stdout.write(f'  Error insertando producto {id_prod}: {e}')
