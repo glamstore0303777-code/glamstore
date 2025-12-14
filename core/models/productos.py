@@ -16,14 +16,16 @@ class Producto(models.Model):
         'Categoria',
         on_delete=models.SET_NULL,
         null=True,
-        db_column='idcategoria'
+        db_column='idcategoria',
+        db_constraint=False
     )
 
     idSubcategoria = models.ForeignKey(
         'Subcategoria',
         on_delete=models.SET_NULL,
         null=True,
-        db_column='idsubcategoria'
+        db_column='idsubcategoria',
+        db_constraint=False
     )
 
     imagen = models.ImageField(upload_to='productos/', blank=True, null=True, db_column='imagen')
