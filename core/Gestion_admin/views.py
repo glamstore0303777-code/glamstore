@@ -2024,7 +2024,7 @@ def notificaciones_view(request):
         notificaciones = NotificacionProblema.objects.select_related(
             'idPedido__idCliente',
             'idPedido__idRepartidor'
-        ).order_by('-fechareporte')
+        ).order_by('-fechaReporte')
         
         # Contar notificaciones no leídas
         notificaciones_no_leidas = notificaciones.filter(leida=False).count()

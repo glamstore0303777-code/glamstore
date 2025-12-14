@@ -1610,7 +1610,7 @@ def notificaciones_cliente(request):
     try:
         notificaciones = NotificacionProblema.objects.filter(
             idPedido__idCliente=cliente
-        ).select_related('idPedido').order_by('-fechareporte')
+        ).select_related('idPedido').order_by('-fechaReporte')
     except Exception as e:
         notificaciones = []
     
