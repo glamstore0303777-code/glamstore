@@ -2,21 +2,21 @@ from django.db import models
 
 
 class Producto(models.Model):
-    idProducto = models.BigAutoField(primary_key=True, db_column='idProducto')
-    nombreProducto = models.CharField(max_length=50, db_column='nombreProducto')
+    idProducto = models.BigAutoField(primary_key=True, db_column='idproducto')
+    nombreProducto = models.CharField(max_length=50, db_column='nombreproducto')
     precio = models.DecimalField(max_digits=10, decimal_places=2, db_column='precio')
     stock = models.IntegerField(default=0, db_column='stock')
     descripcion = models.TextField(blank=True, null=True, db_column='descripcion')
     lote = models.CharField(max_length=100, blank=True, null=True, help_text="Código del lote actual", db_column='lote')
-    cantidadDisponible = models.IntegerField(default=0, db_column='cantidadDisponible')
-    fechaIngreso = models.DateTimeField(blank=True, null=True, db_column='fechaIngreso')
-    fechaVencimiento = models.DateField(blank=True, null=True, db_column='fechaVencimiento')
+    cantidadDisponible = models.IntegerField(default=0, db_column='cantidaddisponible')
+    fechaIngreso = models.DateTimeField(blank=True, null=True, db_column='fechaingreso')
+    fechaVencimiento = models.DateField(blank=True, null=True, db_column='fechavencimiento')
 
     idCategoria = models.ForeignKey(
         'Categoria',
         on_delete=models.SET_NULL,
         null=True,
-        db_column='idCategoria',
+        db_column='idcategoria',
         db_constraint=False
     )
 
@@ -24,7 +24,7 @@ class Producto(models.Model):
         'Subcategoria',
         on_delete=models.SET_NULL,
         null=True,
-        db_column='idSubcategoria',
+        db_column='idsubcategoria',
         db_constraint=False
     )
 
@@ -33,7 +33,7 @@ class Producto(models.Model):
 
     class Meta:
         db_table = 'productos'
-        managed = True  # Django maneja la creación y actualización de esta tabla
+        managed = True
         app_label = 'core'
 
     def __str__(self):
@@ -45,14 +45,10 @@ class Producto(models.Model):
         from decimal import Decimal
         
         if self.precio:
-            # Convertir precio a Decimal si es string
             precio_decimal = Decimal(str(self.precio)) if not isinstance(self.precio, Decimal) else self.precio
-            # Usar margen por defecto de 10%
             margen = Decimal('10')
-            # Precio de Venta = Costo × 1.19 (IVA) × (1 + margen/100)
             factor_margen = Decimal('1') + (margen / Decimal('100'))
             precio_calculado = float(precio_decimal * Decimal('1.19') * factor_margen)
-            # Redondear al múltiplo de 50 más cercano
             precio_redondeado = round(precio_calculado / 50) * 50
             return int(precio_redondeado)
         return 0

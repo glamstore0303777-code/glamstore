@@ -2,7 +2,7 @@ from django.db import models, connection
 from django.conf import settings
 
 class Repartidor(models.Model):
-    idRepartidor = models.AutoField(primary_key=True, db_column='idRepartidor')
+    idRepartidor = models.AutoField(primary_key=True, db_column='idrepartidor')
     nombreRepartidor = models.CharField(max_length=50, null=True, db_column='nombre')
     telefono = models.CharField(max_length=20, null=True, db_column='telefono')
     email = models.EmailField(max_length=100, null=True, blank=True, db_column='email')
@@ -17,7 +17,7 @@ class Repartidor(models.Model):
     
     @classmethod
     def ensure_email_column_exists(cls):
-        """Asegura que la columna email existe en la tabla (compatible con PostgreSQL, MySQL, SQLite)"""
+        """Asegura que la columna email existe en la tabla"""
         try:
             db_engine = settings.DATABASES['default']['ENGINE']
             
@@ -57,7 +57,7 @@ class Repartidor(models.Model):
     
     @classmethod
     def ensure_telefono_column_size(cls):
-        """Asegura que la columna telefono tiene el tamaño correcto (compatible con PostgreSQL, MySQL, SQLite)"""
+        """Asegura que la columna telefono tiene el tamaño correcto"""
         try:
             db_engine = settings.DATABASES['default']['ENGINE']
             
@@ -90,6 +90,4 @@ class Repartidor(models.Model):
                             MODIFY COLUMN telefono VARCHAR(20) NULL
                         """)
         except Exception:
-            pass     
-
-        
+            pass
