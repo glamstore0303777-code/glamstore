@@ -3,7 +3,7 @@ services:
     name: glamstore
     env: python
     plan: free
-    buildCommand: pip install -r requirements.txt && python manage.py migrate && python manage.py load_initial_data && python manage.py collectstatic --noinput
+    buildCommand: chmod +x build.sh && ./build.sh
     startCommand: gunicorn glamstore.wsgi:application --bind 0.0.0.0:8000
     envVars:
       - key: PYTHON_VERSION
