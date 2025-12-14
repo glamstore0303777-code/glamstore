@@ -1,5 +1,5 @@
 """
-Migration to fix FK constraints pointing to wrong table names
+Migration to drop subcategoria FK constraint
 """
 from django.db import migrations
 
@@ -7,18 +7,17 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0044_fix_column_case_sensitivity'),
+        ('core', '0045_fix_fk_constraints'),
     ]
 
     operations = [
-        # Drop old FK constraints that point to wrong table names
         migrations.RunSQL(
             sql="""
             DO $$
             DECLARE
                 r RECORD;
             BEGIN
-                -- Drop ALL FK constraints on productos table to clean up
+                -- Drop ALL FK constraints on productos table
                 FOR r IN (
                     SELECT constraint_name 
                     FROM information_schema.table_constraints 
