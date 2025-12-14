@@ -220,7 +220,7 @@ def dashboard_admin_view(request):
                 proveedor = "Sin especificar"
                 fuente = "Manual"
                 lote = mov.lote if mov.lote else None
-                fecha_vencimiento = mov.fecha_vencimiento.strftime('%d/%m/%Y') if mov.fecha_vencimiento else None
+                fecha_vencimiento = None
                 total_con_iva = int(mov.total_con_iva) if mov.total_con_iva is not None else None
                 iva = int(mov.iva) if mov.iva is not None else None
                 
