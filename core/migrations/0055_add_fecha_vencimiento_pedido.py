@@ -1,6 +1,7 @@
 # Generated migration - fecha_vencimiento column already exists in database
+# This migration is a no-op since the column was already created
 
-from django.db import migrations, models
+from django.db import migrations
 
 
 class Migration(migrations.Migration):
@@ -10,9 +11,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='pedido',
-            name='fecha_vencimiento',
-            field=models.DateField(null=True, blank=True, db_column='fecha_vencimiento'),
-        ),
+        # No operations - column already exists in database
     ]
