@@ -22,8 +22,10 @@ DEBUG = DEBUG_ENV.lower() in ('true', '1', 'yes')
 
 if DEBUG:
     ALLOWED_HOSTS = ['*']
+    CSRF_TRUSTED_ORIGINS = ['*']
 else:
     ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,*.onrender.com').split(',')
+    CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in ALLOWED_HOSTS]
 
 import os
 import sys
@@ -47,10 +49,11 @@ MIDDLEWARE = [
     'core.middleware.MediaFilesMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',  # Desactivado temporalmente para diagnosticar
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'glamstore.middleware.ErrorLoggingMiddleware',
 ]
 
 ROOT_URLCONF = 'glamstore.urls'
@@ -184,3 +187,32 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'glamstore0303777@gmail.com'
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = 'Glam Store <glamstore0303777@gmail.com>'
+
+# Logging configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    },
+}

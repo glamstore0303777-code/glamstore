@@ -1,3 +1,4 @@
++
 # Generated migration - update Pedido model with new fields
 
 from django.db import migrations, models
