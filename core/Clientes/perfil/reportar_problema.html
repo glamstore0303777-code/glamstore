@@ -5,8 +5,38 @@
 <head>
     <meta charset="UTF-8">
     <title>Reportar Problema | Glam Store</title>
-    <link rel="stylesheet" href="{% static 'css/sidebar.css' %}">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Neue', cursive, Arial, sans-serif;
+            background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+            color: #1a1a1a;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, #faf5ff 0%, #f3e8ff 100%);
+            padding: 2rem;
+            width: 240px;
+            height: 100vh;
+            position: fixed;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            border-right: 2px solid #d8b4fe;
+            box-shadow: 4px 0 20px rgba(168, 85, 247, 0.15);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .logo-container {
+            width: 100%;
+        }
 
         .logo-container img {
             width: 100px;

@@ -6,11 +6,88 @@
 <head>
   <meta charset="UTF-8">
   <title>Mis Pedidos | Glam Store</title>
-  <link rel="stylesheet" href="{% static 'css/sidebar.css' %}">
   <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
       font-family: 'Comic Neue', cursive, Arial, sans-serif;
+      background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+    }
+
+    .sidebar {
+      background: linear-gradient(180deg, #faf5ff 0%, #f3e8ff 100%);
+      padding: 2rem;
+      width: 240px;
+      height: 100vh;
+      position: fixed;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      border-right: 2px solid #d8b4fe;
+      box-shadow: 4px 0 20px rgba(168, 85, 247, 0.15);
+      z-index: 1000;
+      overflow-y: auto;
+    }
+
+    .sidebar img.logo {
+      width: 80px;
+      margin-bottom: 1.5rem;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar img.logo:hover {
+      transform: scale(1.05);
+    }
+
+    .sidebar h1 {
+      color: #6b21a8;
+      font-size: 1.3rem;
+      margin: 0 0 0.5rem 0;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .sidebar p {
+      color: #9333ea;
+      font-size: 0.85rem;
+      margin: 0 0 2rem 0;
+      font-style: italic;
+    }
+
+    .sidebar nav ul {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 2rem 0;
+      flex: 1;
+      width: 100%;
+    }
+
+    .sidebar nav li {
+      margin-bottom: 0.6rem;
+    }
+
+    .sidebar nav a {
+      display: block;
+      padding: 0.75rem 1.2rem;
+      text-decoration: none;
+      color: #1a1a1a;
+      font-weight: 500;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      font-size: 0.95rem;
+    }
+
+    .sidebar nav a:hover,
+    .sidebar nav a.active {
+      background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+      color: white;
+      transform: translateX(5px);
     }
 
     .main-content {
