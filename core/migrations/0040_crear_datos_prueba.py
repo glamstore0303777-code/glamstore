@@ -94,17 +94,27 @@ def crear_datos_prueba(apps, schema_editor):
 
 def revertir(apps, schema_editor):
     """Revertir la creación de datos de prueba"""
-    Producto = apps.get_model('core', 'Producto')
-    Subcategoria = apps.get_model('core', 'Subcategoria')
-    Categoria = apps.get_model('core', 'Categoria')
-    
-    # Eliminar en orden inverso por dependencias
-    Producto.objects.filter(nombreProducto__in=[
-        'Labial Rojo', 'Crema Facial', 'Base de Maquillaje', 'Sérum Vitamina C'
-    ]).delete()
-    
-    Subcategoria.objects.filter(idSubcategoria__in=[1, 2]).delete()
-    Categoria.objects.filter(idCategoria__in=[1, 2]).delete()
+    from django.db import connection
+    from django.conf import settings
+
+    db_engine = settings.DATABASES['default']['ENGINE']
+
+    with connection.cursor() as cursor:
+        # Eliminar en orden inverso por dependencias
+        if 'postgresql' in db_engine:
+            cursor.execute(
+                "DELETE FROM productos WHERE nombreproducto IN (%s, %s, %s, %s)",
+                ['Labial Rojo', 'Crema Facial', 'Base de Maquillaje', 'Sérum Vitamina C']
+            )
+            cursor.execute("DELETE FROM subcategorias WHERE idsubcategoria IN (1, 2)")
+            cursor.execute("DELETE FROM categorias WHERE idcategoria IN (1, 2)")
+        else:
+            cursor.execute(
+                "DELETE FROM productos WHERE nombreproducto IN (?, ?, ?, ?)",
+                ['Labial Rojo', 'Crema Facial', 'Base de Maquillaje', 'Sérum Vitamina C']
+            )
+            cursor.execute("DELETE FROM subcategorias WHERE idsubcategoria IN (1, 2)")
+            cursor.execute("DELETE FROM categorias WHERE idcategoria IN (1, 2)")
 
 class Migration(migrations.Migration):
 
