@@ -12,16 +12,12 @@ class Command(BaseCommand):
     help = 'Carga datos iniciales de productos, categorías y subcategorías'
 
     def handle(self, *args, **options):
-        self.stdout.write('Verificando datos existentes...')
+        self.stdout.write('Cargando datos iniciales (upsert mode)...')
         
-        # Verificar si ya hay productos
-        if Producto.objects.exists():
-            self.stdout.write(self.style.WARNING(
-                f'Ya existen {Producto.objects.count()} productos en la BD. Saltando carga.'
-            ))
-            return
-        
-        self.stdout.write('Cargando datos iniciales...')
+        # Mostrar estado actual
+        productos_count = Producto.objects.count()
+        if productos_count > 0:
+            self.stdout.write(f'  Productos existentes: {productos_count} - se actualizarán si es necesario')
         
         try:
             # Primero cargar categorías
