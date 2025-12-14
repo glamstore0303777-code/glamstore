@@ -183,13 +183,9 @@ def generar_html_factura(pedido):
     costo_envio = COSTO_ENVIO if debe_pagar_envio else 0
     
     # Calcular fecha de entrega estimada
-    if not pedido.fecha_vencimiento:
-        ciudad = 'Soacha' if 'soacha' in cliente.direccion.lower() else 'Bogotá'
-        fecha_entrega = calcular_fecha_vencimiento(pedido.fechaCreacion.date(), ciudad)
-        pedido.fecha_vencimiento = fecha_entrega
-        pedido.save()
-    else:
-        fecha_entrega = pedido.fecha_vencimiento
+    # NOTA: El campo fecha_vencimiento no existe en la BD, se calcula dinámicamente
+    ciudad = 'Soacha' if 'soacha' in cliente.direccion.lower() else 'Bogotá'
+    fecha_entrega = calcular_fecha_vencimiento(pedido.fechaCreacion.date(), ciudad)
     
     fecha_entrega_formateada = fecha_entrega.strftime('%d de %B de %Y')
     
@@ -436,14 +432,9 @@ def generar_pdf_pedidos_repartidor(repartidor, fecha=None):
     for idx, pedido in enumerate(pedidos):
         hora_fin = hora_inicio + (TIEMPO_ENTREGA_MINUTOS // 60)
         
-        # Calcular fecha de vencimiento si no existe
-        if not pedido.fecha_vencimiento:
-            ciudad = 'Soacha' if 'soacha' in pedido.idCliente.direccion.lower() else 'Bogotá'
-            fecha_vencimiento = calcular_fecha_vencimiento(pedido.fechaCreacion.date(), ciudad)
-            pedido.fecha_vencimiento = fecha_vencimiento
-            pedido.save()
-        else:
-            fecha_vencimiento = pedido.fecha_vencimiento
+        # Calcular fecha de vencimiento dinámicamente (el campo no existe en BD)
+        ciudad = 'Soacha' if 'soacha' in pedido.idCliente.direccion.lower() else 'Bogotá'
+        fecha_vencimiento = calcular_fecha_vencimiento(pedido.fechaCreacion.date(), ciudad)
         
         # Calcular días hábiles restantes
         dias_restantes = calcular_dias_habiles_restantes(pedido.fechaCreacion.date(), fecha_vencimiento)
@@ -532,14 +523,9 @@ def enviar_correo_repartidor_detallado(repartidor, fecha=None):
         pedidos_con_info = []
         
         for idx, pedido in enumerate(todos_pedidos, 1):
-            # Calcular fecha de vencimiento si no existe (basado en fecha de creación)
-            if not pedido.fecha_vencimiento:
-                ciudad = 'Soacha' if 'soacha' in pedido.idCliente.direccion.lower() else 'Bogotá'
-                fecha_vencimiento = calcular_fecha_vencimiento(pedido.fechaCreacion.date(), ciudad)
-                pedido.fecha_vencimiento = fecha_vencimiento
-                pedido.save()
-            else:
-                fecha_vencimiento = pedido.fecha_vencimiento
+            # Calcular fecha de vencimiento dinámicamente (el campo no existe en BD)
+            ciudad = 'Soacha' if 'soacha' in pedido.idCliente.direccion.lower() else 'Bogotá'
+            fecha_vencimiento = calcular_fecha_vencimiento(pedido.fechaCreacion.date(), ciudad)
             
             # Calcular días hábiles restantes hasta la fecha de vencimiento
             dias_restantes = calcular_dias_habiles_restantes(pedido.fechaCreacion.date(), fecha_vencimiento)
@@ -870,14 +856,9 @@ def generar_pdf_pedidos_repartidor(repartidor, fecha=None):
         for idx, pedido in enumerate(todos_pedidos, 1):
             estado_pago_texto = "Pagado" if pedido.estado_pago == 'Pago Completo' else "Pago Parcial"
             
-            # Calcular fecha de vencimiento si no existe (basado en fecha de creación)
-            if not pedido.fecha_vencimiento:
-                ciudad = 'Soacha' if 'soacha' in pedido.idCliente.direccion.lower() else 'Bogotá'
-                fecha_vencimiento = calcular_fecha_vencimiento(pedido.fechaCreacion.date(), ciudad)
-                pedido.fecha_vencimiento = fecha_vencimiento
-                pedido.save()
-            else:
-                fecha_vencimiento = pedido.fecha_vencimiento
+            # Calcular fecha de vencimiento dinámicamente (el campo no existe en BD)
+            ciudad = 'Soacha' if 'soacha' in pedido.idCliente.direccion.lower() else 'Bogotá'
+            fecha_vencimiento = calcular_fecha_vencimiento(pedido.fechaCreacion.date(), ciudad)
             
             # Calcular días hábiles restantes hasta la fecha de vencimiento
             dias_restantes = calcular_dias_habiles_restantes(pedido.fechaCreacion.date(), fecha_vencimiento)

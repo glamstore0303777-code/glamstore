@@ -8,7 +8,6 @@ class NotificacionProblema(models.Model):
         on_delete=models.CASCADE,
         db_column='idpedido'
     )
-    motivo = models.TextField(db_column='motivo')
     foto = models.ImageField(upload_to='problemas_entrega/', null=True, blank=True, db_column='foto')
     fechaReporte = models.DateTimeField(auto_now_add=True, db_column='fechareporte')
     leida = models.BooleanField(default=False, db_column='leida')

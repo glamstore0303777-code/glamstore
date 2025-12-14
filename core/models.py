@@ -5,7 +5,7 @@ from core.models.categoria import Categoria, Subcategoria
 from core.models.pedidos import Pedido, DetallePedido, PedidoProducto
 from core.models.configuracion import ConfiguracionGlobal
 from core.models.notificaciones import NotificacionProblema, NotificacionReporte
-from core.models.mensajes import MensajeContacto
+# from core.models.mensajes import MensajeContacto  # Tabla no existe en BD
 from core.models.usuarios import Usuario
 from core.models.rol import Rol
 from core.models.repartidores import Repartidor

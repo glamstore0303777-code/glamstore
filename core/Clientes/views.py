@@ -145,12 +145,13 @@ def perfil(request):
     )
     
     ahora = timezone.now().date()
-    for pedido in pedidos_en_camino:
-        # Usar la fecha de vencimiento guardada en el pedido
-        if pedido.fecha_vencimiento and ahora >= pedido.fecha_vencimiento:
-            # Si ya pasó la fecha de vencimiento, marcar como entregado
-            pedido.estado_pedido = 'Entregado'
-            pedido.save()
+    # NOTA: El campo fecha_vencimiento no existe en la BD
+    # for pedido in pedidos_en_camino:
+    #     # Usar la fecha de vencimiento guardada en el pedido
+    #     if pedido.fecha_vencimiento and ahora >= pedido.fecha_vencimiento:
+    #         # Si ya pasó la fecha de vencimiento, marcar como entregado
+    #         pedido.estado_pedido = 'Entregado'
+    #         pedido.save()
     
     # Obtener los pedidos del cliente determinado
     pedidos = Pedido.objects.filter(idCliente=cliente.idCliente).order_by('-fechaCreacion')
@@ -1221,13 +1222,9 @@ def pedido_confirmado(request, idPedido):
     # Calcular fecha de entrega estimada
     from core.Gestion_admin.services_repartidores import calcular_fecha_vencimiento
     
-    if not pedido.fecha_vencimiento:
-        ciudad = 'Soacha' if 'soacha' in pedido.idCliente.direccion.lower() else 'Bogotá'
-        fecha_entrega = calcular_fecha_vencimiento(pedido.fechaCreacion.date(), ciudad)
-        pedido.fecha_vencimiento = fecha_entrega
-        pedido.save()
-    else:
-        fecha_entrega = pedido.fecha_vencimiento
+    # NOTA: El campo fecha_vencimiento no existe en la BD, se calcula dinámicamente
+    ciudad = 'Soacha' if 'soacha' in pedido.idCliente.direccion.lower() else 'Bogotá'
+    fecha_entrega = calcular_fecha_vencimiento(pedido.fechaCreacion.date(), ciudad)
     
     context = {
         'pedido': pedido,

@@ -224,7 +224,7 @@ def dashboard_admin_view(request):
         ventas_categoria_limpio.sort(key=lambda x: x['total'], reverse=True)
         
         # === PRODUCTO MÁS VENDIDO INDIVIDUAL ===
-        producto_mas_vendido = productos_mas_vendidos[0] if productos_mas_vendidos else None
+        producto_mas_vendido = productos_vendidos_completos[0] if productos_vendidos_completos else None
     
         # === REABASTECIMIENTO RECIENTE ===
         reabastecimientos_procesados = []
@@ -429,7 +429,7 @@ def dashboard_admin_view(request):
             'clientes_semana_pasada': clientes_semana_pasada,
             'clientes_hace_2_semanas': clientes_hace_2_semanas,
             'pedidos_nuevos': pedidos_nuevos,
-            'ventas_por_categoria': ventas_por_categoria,
+            'ventas_por_categoria': ventas_categoria_limpio,
             'categorias': categorias,
             'reabastecimientos_recientes': reabastecimientos_recientes,
             'hay_capacidad_repartidores': hay_capacidad_repartidores,
@@ -1272,15 +1272,16 @@ def pedido_editar_view(request, id):
                 pedido.fechaCreacion = datetime.fromisoformat(fecha_creacion.replace('T', ' '))
                 
                 # Recalcular fecha de vencimiento basada en la nueva fecha de creación
-                direccion_lower = (pedido.idCliente.direccion or "").lower()
-                if 'soacha' in direccion_lower:
-                    dias_entrega = 3
-                elif 'bogota' in direccion_lower or 'bogotá' in direccion_lower:
-                    dias_entrega = 2
-                else:
-                    dias_entrega = 3
-                
-                pedido.fecha_vencimiento = (pedido.fechaCreacion + timedelta(days=dias_entrega)).date()
+                # NOTA: El campo fecha_vencimiento no existe en la BD, se calcula dinámicamente
+                # direccion_lower = (pedido.idCliente.direccion or "").lower()
+                # if 'soacha' in direccion_lower:
+                #     dias_entrega = 3
+                # elif 'bogota' in direccion_lower or 'bogotá' in direccion_lower:
+                #     dias_entrega = 2
+                # else:
+                #     dias_entrega = 3
+                # 
+                # pedido.fecha_vencimiento = (pedido.fechaCreacion + timedelta(days=dias_entrega)).date()
             
             # Actualizar estados de forma independiente
             if estado_pago:
@@ -1566,17 +1567,8 @@ def admin_editar_view(request, id):
 # Panel Repartidores
 def calcular_fecha_entrega(pedido):
     """Retorna la fecha de entrega estimada del pedido"""
-    # Si el pedido tiene fecha_vencimiento guardada, usarla
-    if pedido.fecha_vencimiento:
-        from datetime import datetime
-        # Convertir a datetime si es necesario
-        if isinstance(pedido.fecha_vencimiento, datetime):
-            return pedido.fecha_vencimiento
-        else:
-            return datetime.combine(pedido.fecha_vencimiento, datetime.min.time())
-    
-    # Fallback: calcular basado en ubicación (para pedidos antiguos sin fecha guardada)
-    from datetime import timedelta
+    # NOTA: El campo fecha_vencimiento no existe en la BD, se calcula dinámicamente
+    from datetime import timedelta, datetime
     
     direccion_cliente = pedido.idCliente.direccion or ""
     direccion_lower = direccion_cliente.lower()
@@ -1603,11 +1595,13 @@ def verificar_y_actualizar_pedidos_entregados():
     pedidos_actualizados = 0
     
     for pedido in pedidos_en_camino:
+        # NOTA: El campo fecha_vencimiento no existe en la BD
         # Usar la fecha de vencimiento guardada en el pedido
-        if pedido.fecha_vencimiento and ahora >= pedido.fecha_vencimiento:
-            pedido.estado_pedido = 'Entregado'
-            pedido.save()
-            pedidos_actualizados += 1
+        # if pedido.fecha_vencimiento and ahora >= pedido.fecha_vencimiento:
+        #     pedido.estado_pedido = 'Entregado'
+        #     pedido.save()
+        #     pedidos_actualizados += 1
+        pass
     
     return pedidos_actualizados
 
