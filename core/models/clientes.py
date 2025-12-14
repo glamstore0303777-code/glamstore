@@ -3,7 +3,7 @@ from django.db import models
 class Cliente(models.Model):
     idCliente = models.AutoField(primary_key=True, db_column='idcliente')
     nombre = models.CharField(max_length=100, null=True, blank=True, db_column='nombrecliente')
-    apellido = models.CharField(max_length=100, null=True, blank=True, db_column='apellidocliente')
+    apellido = models.CharField(max_length=100, default='', db_column='apellidocliente')
     email = models.EmailField(max_length=100, null=True, blank=True, db_column='emailcliente')
     telefono = models.CharField(max_length=20, null=True, blank=True, db_column='telefonocliente')
     direccion = models.TextField(null=True, blank=True, db_column='direccioncliente')

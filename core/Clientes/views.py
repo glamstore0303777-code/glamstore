@@ -806,7 +806,7 @@ def registro(request):
         telefono = request.POST.get('telefono', '').strip()
 
         # 2. Validaciones
-        if not all([nombre, email, password, cedula, direccion, telefono]):
+        if not all([nombre, email, password, direccion, telefono]):
             messages.error(request, "Por favor completa todos los campos.")
             return render(request, 'registrar_usuario.html', {'input': request.POST})
 
@@ -841,7 +841,6 @@ def registro(request):
                     cliente = Cliente.objects.create(
                         nombre=nombre,
                         email=email,
-                        cedula=cedula,
                         direccion=direccion,
                         telefono=telefono
                     )
@@ -1353,7 +1352,6 @@ def handle_editar_perfil(request):
     # Obtener los datos del formulario
     nombre = request.POST.get('nombre', '').strip()
     email = request.POST.get('email', '').strip()
-    cedula = request.POST.get('cedula', '').strip()
     telefono = request.POST.get('telefono', '').strip()
     direccion = request.POST.get('direccion', '').strip()
     
@@ -1445,7 +1443,6 @@ def editar_perfil(request):
         # Obtener los datos del formulario
         nombre = request.POST.get('nombre', '').strip()
         email = request.POST.get('email', '').strip()
-        cedula = request.POST.get('cedula', '').strip()
         telefono = request.POST.get('telefono', '').strip()
         direccion = request.POST.get('direccion', '').strip()
         
