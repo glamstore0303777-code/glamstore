@@ -1281,7 +1281,8 @@ def ver_seguimiento(request, idPedido):
         ciudad_entrega = 'Bogotá'
     
     # Usar la función calcular_fecha_vencimiento para obtener la fecha correcta
-    fecha_entrega_estimada = calcular_fecha_vencimiento(pedido.fechaCreacion.date(), ciudad_entrega)
+    fecha_pedido = pedido.fechaPedido if pedido.fechaPedido else timezone.now()
+    fecha_entrega_estimada = calcular_fecha_vencimiento(fecha_pedido.date(), ciudad_entrega)
     
     # Calcular días hábiles desde la fecha de creación hasta la fecha de entrega
     dias_entrega = 2 if 'bogota' in ciudad_entrega.lower() else 3
@@ -1589,18 +1590,29 @@ def notificaciones_cliente(request):
     cliente_id = request.session.get('cliente_id')
     
     if usuario_id:
-        usuario = get_object_or_404(Usuario, idUsuario=usuario_id)
-        cliente = usuario.idCliente
+        try:
+            usuario = Usuario.objects.get(idUsuario=usuario_id)
+            cliente = usuario.idCliente
+        except Usuario.DoesNotExist:
+            messages.error(request, "Usuario no encontrado.")
+            return redirect('login')
     elif cliente_id:
-        cliente = get_object_or_404(Cliente, idCliente=cliente_id)
+        try:
+            cliente = Cliente.objects.get(idCliente=cliente_id)
+        except Cliente.DoesNotExist:
+            messages.error(request, "Cliente no encontrado.")
+            return redirect('login')
     else:
         messages.error(request, "Debes iniciar sesión para ver tus notificaciones.")
         return redirect('login')
     
     # Obtener notificaciones del cliente
-    notificaciones = NotificacionProblema.objects.filter(
-        idPedido__idCliente=cliente
-    ).select_related('idPedido').order_by('-fechaReporte')
+    try:
+        notificaciones = NotificacionProblema.objects.filter(
+            idPedido__idCliente=cliente
+        ).select_related('idPedido').order_by('-fechaReporte')
+    except Exception as e:
+        notificaciones = []
     
     return render(request, 'notificaciones_cliente.html', {
         'notificaciones': notificaciones
