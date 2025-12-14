@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0014_repartidor_email'),
+        ('core', '0004_cliente_distribuidor_distribuidorproducto_repartidor_and_more'),
     ]
 
     operations = [

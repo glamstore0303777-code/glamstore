@@ -11,12 +11,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # Add new fields to Pedido
-        migrations.AddField(
-            model_name='pedido',
-            name='fechaCreacion',
-            field=models.DateTimeField(blank=True, db_column='fechacreacion', null=True),
-        ),
+        # Add remaining fields to Pedido
         migrations.AddField(
             model_name='pedido',
             name='estado_pago',
@@ -31,15 +26,5 @@ class Migration(migrations.Migration):
             model_name='pedido',
             name='idRepartidor',
             field=models.ForeignKey(blank=True, db_column='idrepartidor', null=True, on_delete=django.db.models.deletion.SET_NULL, to='core.repartidor'),
-        ),
-        migrations.AddField(
-            model_name='pedido',
-            name='fecha_vencimiento',
-            field=models.DateField(blank=True, db_column='fecha_vencimiento', null=True),
-        ),
-        migrations.AddField(
-            model_name='pedido',
-            name='facturas_enviadas',
-            field=models.PositiveIntegerField(db_column='facturas_enviadas', default=0),
         ),
     ]

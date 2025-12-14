@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0023_alter_movimientoproducto_tipo_movimiento_and_more'),
+        ('core', '0022_alter_movimientoproducto_tipo_movimiento'),
     ]
 
     operations = [
