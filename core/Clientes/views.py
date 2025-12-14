@@ -798,26 +798,28 @@ def checkout(request):
 def registro(request):
     if request.method == 'POST':
         # 1. Obtener datos del formulario
-        nombre = request.POST.get('nombre')
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        confirmar_password = request.POST.get('confirmar_password')
-        cedula = request.POST.get('cedula')
-        direccion = request.POST.get('direccion')
-        telefono = request.POST.get('telefono')
+        nombre = request.POST.get('nombre', '').strip()
+        email = request.POST.get('email', '').strip().lower()
+        password = request.POST.get('password', '')
+        confirmar_password = request.POST.get('confirmar_password', '')
+        cedula = request.POST.get('cedula', '').strip()
+        direccion = request.POST.get('direccion', '').strip()
+        telefono = request.POST.get('telefono', '').strip()
 
         # 2. Validaciones
+        if not all([nombre, email, password, cedula, direccion, telefono]):
+            messages.error(request, "Por favor completa todos los campos.")
+            return render(request, 'registrar_usuario.html', {'input': request.POST})
+
         if password != confirmar_password:
             messages.error(request, "Las contraseñas no coinciden.")
             return render(request, 'registrar_usuario.html', {'input': request.POST})
 
-        # Validar longitud mínima de contraseña
         if len(password) < 6:
             messages.error(request, "La contraseña debe tener al menos 6 caracteres.")
             return render(request, 'registrar_usuario.html', {'input': request.POST})
 
         # Verificar si ya existe un usuario con este email
-        # Nota: Si solo existe un Cliente (sin Usuario), se permite el registro
         if Usuario.objects.filter(email=email).exists():
             messages.error(request, "Ya tienes una cuenta registrada con este correo. Por favor, inicia sesión.")
             return render(request, 'registrar_usuario.html', {'input': request.POST, 'email_existe': True})
@@ -835,7 +837,6 @@ def registro(request):
                     cliente_existente.direccion = direccion
                     cliente_existente.telefono = telefono
                     cliente_existente.save()
-                    
                     cliente = cliente_existente
                 else:
                     # Crear nuevo cliente
@@ -849,44 +850,26 @@ def registro(request):
 
                 # 4. Crear el Usuario asociado con rol de Cliente (rol=2)
                 from django.utils import timezone
-                from django.db import connection
-                from django.conf import settings
                 
-                # Usar raw SQL porque managed=False no genera IDs automáticamente
-                # NO especificamos idusuario para que PostgreSQL/SQLite use la secuencia
-                with connection.cursor() as cursor:
-                    # Detectar si es PostgreSQL o SQLite
-                    db_engine = settings.DATABASES['default']['ENGINE']
-                    
-                    if 'postgresql' in db_engine:
-                        # PostgreSQL usa %s
-                        sql = """
-                            INSERT INTO usuarios (email, password, id_rol, idcliente, fechacreacion, nombre, telefono, direccion)
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-                        """
-                    else:
-                        # SQLite usa ?
-                        sql = """
-                            INSERT INTO usuarios (email, password, id_rol, idcliente, fechacreacion, nombre, telefono, direccion)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                        """
-                    
-                    cursor.execute(sql, [
-                        email,
-                        make_password(password),
-                        2,  # Rol de Cliente
-                        cliente.idCliente,
-                        timezone.now(),
-                        nombre,
-                        telefono,
-                        direccion
-                    ])
+                usuario = Usuario.objects.create(
+                    email=email,
+                    password=make_password(password),
+                    id_rol=2,  # Rol de Cliente
+                    idCliente=cliente.idCliente,
+                    fechaCreacion=timezone.now(),
+                    nombre=nombre,
+                    telefono=telefono,
+                    direccion=direccion
+                )
 
             messages.success(request, "¡Cuenta creada exitosamente! Por favor inicia sesión.")
             return redirect('login')
 
         except Exception as e:
-            messages.error(request, f"Error al crear la cuenta: {str(e)}")
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error al crear la cuenta: {str(e)}", exc_info=True)
+            messages.error(request, f"Error al crear la cuenta. Por favor intenta de nuevo.")
             return render(request, 'registrar_usuario.html', {'input': request.POST})
 
     return render(request, 'registrar_usuario.html')
