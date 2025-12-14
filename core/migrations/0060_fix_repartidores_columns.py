@@ -76,7 +76,7 @@ def fix_repartidores_columns(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0059_add_repartidores_columns'),
+        ('core', '0059_5_make_columns_nullable_first'),
     ]
 
     operations = [
