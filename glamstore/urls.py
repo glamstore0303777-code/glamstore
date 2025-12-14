@@ -11,11 +11,20 @@ def diagnostico_view(request):
     import os
     from django.conf import settings
     
+    try:
+        # Intentar conectar a la base de datos
+        from django.db import connection
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1")
+            db_status = "OK"
+    except Exception as e:
+        db_status = f"ERROR: {str(e)}"
+    
     diagnostico = {
         'DEBUG': settings.DEBUG,
         'ALLOWED_HOSTS': settings.ALLOWED_HOSTS,
-        'DATABASE_URL': os.getenv('DATABASE_URL', 'NO CONFIGURADO'),
-        'DATABASES': str(settings.DATABASES),
+        'DATABASE_URL': os.getenv('DATABASE_URL', 'NO CONFIGURADO')[:50] + '...',
+        'DB_STATUS': db_status,
         'INSTALLED_APPS': settings.INSTALLED_APPS,
     }
     
