@@ -24,8 +24,17 @@ if DEBUG:
     ALLOWED_HOSTS = ['*']
     CSRF_TRUSTED_ORIGINS = ['*']
 else:
-    ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,*.onrender.com').split(',')
-    CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in ALLOWED_HOSTS]
+    # En producción, permitir Render y localhost
+    ALLOWED_HOSTS = [
+        'localhost',
+        '127.0.0.1',
+        'glamstore-qgvu.onrender.com',
+        '*.onrender.com',
+    ]
+    CSRF_TRUSTED_ORIGINS = [
+        'https://glamstore-qgvu.onrender.com',
+        'https://*.onrender.com',
+    ]
 
 import os
 import sys
