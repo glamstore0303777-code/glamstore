@@ -10,21 +10,29 @@ def add_missing_columns(apps, schema_editor):
     
     db_engine = settings.DATABASES['default']['ENGINE']
     
-    with connection.cursor() as cursor:
+    if 'postgresql' in db_engine:
+        # PostgreSQL - cada operación en su propio contexto
         try:
-            if 'postgresql' in db_engine:
-                # PostgreSQL
+            with connection.cursor() as cursor:
                 cursor.execute("""
                     ALTER TABLE notificacionproblema
                     ADD COLUMN IF NOT EXISTS foto VARCHAR(255);
                 """)
-                
+        except Exception:
+            pass
+        
+        try:
+            with connection.cursor() as cursor:
                 cursor.execute("""
                     ALTER TABLE loteproducto
                     ADD COLUMN IF NOT EXISTS codigo_lote VARCHAR(100);
                 """)
-            else:
-                # SQLite
+        except Exception:
+            pass
+    else:
+        # SQLite
+        try:
+            with connection.cursor() as cursor:
                 cursor.execute("""
                     PRAGMA table_info(notificacionproblema);
                 """)
@@ -34,7 +42,11 @@ def add_missing_columns(apps, schema_editor):
                         ALTER TABLE notificacionproblema
                         ADD COLUMN foto VARCHAR(255);
                     """)
-                
+        except Exception:
+            pass
+        
+        try:
+            with connection.cursor() as cursor:
                 cursor.execute("""
                     PRAGMA table_info(loteproducto);
                 """)
@@ -44,7 +56,7 @@ def add_missing_columns(apps, schema_editor):
                         ALTER TABLE loteproducto
                         ADD COLUMN codigo_lote VARCHAR(100);
                     """)
-        except:
+        except Exception:
             pass
 
 

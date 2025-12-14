@@ -10,19 +10,28 @@ def add_repartidores_columns(apps, schema_editor):
     
     db_engine = settings.DATABASES['default']['ENGINE']
     
-    with connection.cursor() as cursor:
+    if 'postgresql' in db_engine:
         try:
-            if 'postgresql' in db_engine:
+            with connection.cursor() as cursor:
                 cursor.execute("""
                     ALTER TABLE repartidores
                     ADD COLUMN IF NOT EXISTS telefono VARCHAR(20);
                 """)
+        except Exception:
+            pass
+        
+        try:
+            with connection.cursor() as cursor:
                 cursor.execute("""
                     ALTER TABLE repartidores
                     ADD COLUMN IF NOT EXISTS email VARCHAR(100);
                 """)
-            else:
-                # SQLite
+        except Exception:
+            pass
+    else:
+        # SQLite
+        try:
+            with connection.cursor() as cursor:
                 cursor.execute("""
                     PRAGMA table_info(repartidores);
                 """)
@@ -33,13 +42,22 @@ def add_repartidores_columns(apps, schema_editor):
                         ALTER TABLE repartidores
                         ADD COLUMN telefono VARCHAR(20);
                     """)
+        except Exception:
+            pass
+        
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    PRAGMA table_info(repartidores);
+                """)
+                columns = [col[1] for col in cursor.fetchall()]
                 
                 if 'email' not in columns:
                     cursor.execute("""
                         ALTER TABLE repartidores
                         ADD COLUMN email VARCHAR(100);
                     """)
-        except:
+        except Exception:
             pass
 
 

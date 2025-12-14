@@ -10,15 +10,19 @@ def add_nombre_column(apps, schema_editor):
     
     db_engine = settings.DATABASES['default']['ENGINE']
     
-    with connection.cursor() as cursor:
+    if 'postgresql' in db_engine:
         try:
-            if 'postgresql' in db_engine:
+            with connection.cursor() as cursor:
                 cursor.execute("""
                     ALTER TABLE repartidores
                     ADD COLUMN IF NOT EXISTS nombre VARCHAR(50);
                 """)
-            else:
-                # SQLite
+        except Exception:
+            pass
+    else:
+        # SQLite
+        try:
+            with connection.cursor() as cursor:
                 cursor.execute("""
                     PRAGMA table_info(repartidores);
                 """)
@@ -28,7 +32,7 @@ def add_nombre_column(apps, schema_editor):
                         ALTER TABLE repartidores
                         ADD COLUMN nombre VARCHAR(50);
                     """)
-        except:
+        except Exception:
             pass
 
 
