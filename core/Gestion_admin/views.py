@@ -39,20 +39,39 @@ def dashboard_admin_view(request):
     from django.db.models import Q, F, Max
     from django.utils import timezone
     
+    # Inicializar todas las variables con valores por defecto
+    total_productos = 0
+    total_clientes = 0
+    total_pedidos = 0
+    ventas_totales = 0
+    ganancias_totales = 0
+    margen_ganancia_global = 0
+    productos_mas_vendidos = []
+    producto_mas_vendido = None
+    productos_por_surtir = []
+    clientes_esta_semana = 0
+    clientes_semana_pasada = 0
+    clientes_hace_2_semanas = 0
+    pedidos_nuevos = []
+    ventas_por_categoria = []
+    categorias = []
+    reabastecimientos_recientes = []
+    hay_capacidad_repartidores = False
+    pedidos_sin_asignar = 0
+    repartidores_disponibles = 0
+    calificaciones_recientes = []
+    repartidor_estrella = None
+    total_notificaciones_no_leidas = 0
+    pedidos_por_asignar = []
+    productos_vencidos = []
+    productos_por_vencer = []
+    error = None
+    
     try:
-        # Asegurar que la columna email existe (comentado para evitar errores en deploy)
-        # Repartidor.ensure_email_column_exists()
-        
         # Definir umbrales de tiempo
         ahora = timezone.now()
         una_semana_atras = ahora - timedelta(days=7)
         dos_semanas_atras = ahora - timedelta(days=14)
-        
-        # Inicializar variables con valores por defecto
-        repartidor_estrella = None
-        total_notificaciones_no_leidas = 0
-        pedidos_por_asignar = []
-        reabastecimientos_recientes = []
         
         # === ESTADÍSTICAS GENERALES - TIEMPO REAL ===
         # Contar productos activos (con stock o disponibles)
@@ -391,36 +410,38 @@ def dashboard_admin_view(request):
         return render(request, 'admin_dashboard.html', context)
     except Exception as e:
         import traceback
-        print(f"Error en dashboard_admin_view: {str(e)}")
+        error_msg = str(e)
+        print(f"Error en dashboard_admin_view: {error_msg}")
         traceback.print_exc()
-        # Retornar contexto vacío pero sin errores
+        
+        # Retornar contexto con valores por defecto
         return render(request, 'admin_dashboard.html', {
-            'total_productos': 0,
-            'total_clientes': 0,
-            'total_pedidos': 0,
-            'ventas_totales': 0,
-            'ganancias_totales': 0,
-            'margen_ganancia_global': 0,
-            'productos_mas_vendidos': [],
-            'producto_mas_vendido': None,
-            'productos_por_surtir': [],
-            'clientes_esta_semana': 0,
-            'clientes_semana_pasada': 0,
-            'clientes_hace_2_semanas': 0,
-            'pedidos_nuevos': [],
-            'ventas_por_categoria': [],
-            'categorias': [],
-            'reabastecimientos_recientes': [],
-            'hay_capacidad_repartidores': False,
-            'pedidos_sin_asignar': 0,
-            'repartidores_disponibles': 0,
-            'calificaciones_recientes': [],
-            'repartidor_estrella': None,
-            'total_notificaciones_no_leidas': 0,
-            'pedidos_por_asignar': [],
-            'productos_vencidos': [],
-            'productos_por_vencer': [],
-            'error': str(e)
+            'total_productos': total_productos,
+            'total_clientes': total_clientes,
+            'total_pedidos': total_pedidos,
+            'ventas_totales': ventas_totales,
+            'ganancias_totales': ganancias_totales,
+            'margen_ganancia_global': margen_ganancia_global,
+            'productos_mas_vendidos': productos_mas_vendidos,
+            'producto_mas_vendido': producto_mas_vendido,
+            'productos_por_surtir': productos_por_surtir,
+            'clientes_esta_semana': clientes_esta_semana,
+            'clientes_semana_pasada': clientes_semana_pasada,
+            'clientes_hace_2_semanas': clientes_hace_2_semanas,
+            'pedidos_nuevos': pedidos_nuevos,
+            'ventas_por_categoria': ventas_por_categoria,
+            'categorias': categorias,
+            'reabastecimientos_recientes': reabastecimientos_recientes,
+            'hay_capacidad_repartidores': hay_capacidad_repartidores,
+            'pedidos_sin_asignar': pedidos_sin_asignar,
+            'repartidores_disponibles': repartidores_disponibles,
+            'calificaciones_recientes': calificaciones_recientes,
+            'repartidor_estrella': repartidor_estrella,
+            'total_notificaciones_no_leidas': total_notificaciones_no_leidas,
+            'pedidos_por_asignar': pedidos_por_asignar,
+            'productos_vencidos': productos_vencidos,
+            'productos_por_vencer': productos_por_vencer,
+            'error': error_msg
         })
         return render(request, 'admin_dashboard.html', {'error': str(e)})
 # core/views.py
