@@ -36,7 +36,7 @@ def make_nullable(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0062_fix_pedidos_facturas_enviadas'),
+        ('core', '0059_add_repartidores_columns'),
     ]
 
     operations = [
