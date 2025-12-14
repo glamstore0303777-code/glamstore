@@ -25,6 +25,7 @@ class MovimientoProducto(models.Model):
     
     # Campos adicionales para reabastecimiento
     lote = models.CharField(max_length=100, blank=True, null=True, db_column='lote', help_text="Código del lote del producto")
+    fecha_vencimiento = models.DateField(blank=True, null=True, db_column='fecha_vencimiento', help_text="Fecha de vencimiento del lote")
     total_con_iva = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, db_column='total_con_iva', help_text="Total incluyendo IVA")
     iva = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, db_column='iva', help_text="Valor del IVA (19%)")
     

@@ -1142,6 +1142,7 @@ def reabastecimiento_view(request):
                         stock_nuevo=stock_nuevo,
                         descripcion=descripcion_completa,
                         lote=lote if lote else None,
+                        fecha_vencimiento=fecha_vencimiento if fecha_vencimiento else None,
                         iva=iva_valor,
                         total_con_iva=total_con_iva
                     )
@@ -2023,7 +2024,7 @@ def notificaciones_view(request):
         notificaciones = NotificacionProblema.objects.select_related(
             'idPedido__idCliente',
             'idPedido__idRepartidor'
-        ).order_by('-fechaReporte')
+        ).order_by('-fechareporte')
         
         # Contar notificaciones no leídas
         notificaciones_no_leidas = notificaciones.filter(leida=False).count()
