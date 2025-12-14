@@ -36,8 +36,13 @@ def index(request):
     return render(request, 'index.html')  # o cualquier plantilla que tengas
 # Dashboard principal
 def dashboard_admin_view(request):
-    from django.db.models import Q, F, Max
+    from django.db.models import Q, F, Max, Sum, Count, Avg
     from django.utils import timezone
+    from datetime import timedelta
+    
+    # Verificar si es una petición AJAX para estadísticas solamente
+    stats_only = request.GET.get('stats_only') == '1'
+    ajax_request = request.GET.get('ajax') == '1'
     
     # Inicializar todas las variables con valores por defecto
     total_productos = 0
@@ -408,12 +413,38 @@ def dashboard_admin_view(request):
             'productos_vencidos': productos_vencidos,
             'productos_por_vencer': productos_por_vencer,
         }
+        
+        # Si es una petición AJAX para estadísticas solamente, retornar JSON
+        if stats_only or ajax_request:
+            return JsonResponse({
+                'total_productos': total_productos,
+                'total_clientes': total_clientes,
+                'total_pedidos': total_pedidos,
+                'ventas_totales': int(ventas_totales) if ventas_totales else 0,
+                'ganancias_totales': ganancias_totales,
+                'total_notificaciones_no_leidas': total_notificaciones_no_leidas,
+                'actualizar': True
+            })
+        
         return render(request, 'admin_dashboard.html', context)
     except Exception as e:
         import traceback
         error_msg = str(e)
         print(f"Error en dashboard_admin_view: {error_msg}")
         traceback.print_exc()
+        
+        # Si es una petición AJAX, retornar JSON con error
+        if stats_only or ajax_request:
+            return JsonResponse({
+                'total_productos': total_productos,
+                'total_clientes': total_clientes,
+                'total_pedidos': total_pedidos,
+                'ventas_totales': ventas_totales,
+                'ganancias_totales': ganancias_totales,
+                'total_notificaciones_no_leidas': total_notificaciones_no_leidas,
+                'error': error_msg,
+                'actualizar': False
+            })
         
         # Retornar contexto con valores por defecto
         return render(request, 'admin_dashboard.html', {

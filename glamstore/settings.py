@@ -126,7 +126,7 @@ import dj_database_url
 # Usar DATABASE_URL de Render PostgreSQL
 DATABASE_URL = os.getenv('DATABASE_URL')
 
-if DATABASE_URL:
+if DATABASE_URL and DATABASE_URL.strip():
     # Render PostgreSQL
     DATABASES = {
         'default': dj_database_url.config(
@@ -136,15 +136,11 @@ if DATABASE_URL:
         )
     }
 else:
-    # Fallback para desarrollo local
+    # Fallback para desarrollo local - usar SQLite
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.getenv('DB_NAME', 'glamstoredb'),
-            'USER': os.getenv('DB_USER', 'postgres'),
-            'PASSWORD': os.getenv('DB_PASSWORD', ''),
-            'HOST': os.getenv('DB_HOST', 'localhost'),
-            'PORT': os.getenv('DB_PORT', '5432'),
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         }
     }
 
