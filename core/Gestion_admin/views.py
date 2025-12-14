@@ -1297,7 +1297,7 @@ def reabastecimiento_view(request):
         'categorias': categorias,
         'proveedores': proveedores,
         'productos_reabastecidos': productos_reabastecidos,
-        'errores': errores
+        'errores': errores_reabastecimiento
     })
 
 # Panel Pedidos
@@ -1464,7 +1464,7 @@ def producto_detalle_view(request, id):
     
     # Obtener movimientos recientes del producto
     movimientos_recientes = MovimientoProducto.objects.filter(
-        producto=id
+        producto=producto
     ).order_by('-fecha')[:5]
     
     # Obtener el lote activo (el más antiguo con stock, según FIFO)
@@ -1476,12 +1476,12 @@ def producto_detalle_view(request, id):
     
     # Calcular estadísticas del producto
     total_entradas = MovimientoProducto.objects.filter(
-        producto=id,
+        producto=producto,
         tipo_movimiento__in=['ENTRADA_INICIAL', 'AJUSTE_MANUAL_ENTRADA']
     ).aggregate(total=Sum('cantidad'))['total'] or 0
     
     total_salidas = MovimientoProducto.objects.filter(
-        producto=id,
+        producto=producto,
         tipo_movimiento__in=['SALIDA_VENTA', 'AJUSTE_MANUAL_SALIDA']
     ).aggregate(total=Sum('cantidad'))['total'] or 0
     
@@ -1497,7 +1497,7 @@ def cliente_detalle_view(request, id):
     cliente = get_object_or_404(Cliente, idCliente=id)
     
     # Obtener todos los pedidos del cliente
-    pedidos = Pedido.objects.filter(idCliente=id).order_by('-fechaCreacion')
+    pedidos = Pedido.objects.filter(idCliente=cliente).order_by('-fechaCreacion')
     
     # Calcular estadísticas del cliente
     total_pedidos = pedidos.count()
@@ -1511,7 +1511,7 @@ def cliente_detalle_view(request, id):
     # Pedidos confirmados por el cliente (que tienen confirmación de entrega)
     from core.models import ConfirmacionEntrega
     pedidos_confirmados_cliente = ConfirmacionEntrega.objects.filter(
-        pedido__idCliente=id
+        pedido__idCliente=cliente
     ).count()
     
     # Pedidos recientes (últimos 5)
