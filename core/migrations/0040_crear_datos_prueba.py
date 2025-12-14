@@ -5,98 +5,92 @@ from django.utils import timezone
 from datetime import timedelta
 
 def crear_datos_prueba(apps, schema_editor):
-    """Crear datos de prueba para la tienda"""
-    Categoria = apps.get_model('core', 'Categoria')
-    Subcategoria = apps.get_model('core', 'Subcategoria')
-    Producto = apps.get_model('core', 'Producto')
+    """Crear datos de prueba para la tienda usando SQL directo"""
+    from django.db import connection
+    from django.conf import settings
     
-    # Crear categorías si no existen
-    cat_belleza, _ = Categoria.objects.get_or_create(
-        idCategoria=1,
-        defaults={
-            'nombreCategoria': 'Belleza',
-            'descripcion': 'Productos de belleza y cuidado personal'
-        }
-    )
+    db_engine = settings.DATABASES['default']['ENGINE']
+    fecha_vencimiento = (timezone.now() + timedelta(days=365)).date()
     
-    cat_cuidado, _ = Categoria.objects.get_or_create(
-        idCategoria=2,
-        defaults={
-            'nombreCategoria': 'Cuidado',
-            'descripcion': 'Productos de cuidado de la piel'
-        }
-    )
-    
-    # Crear subcategorías si no existen
-    subcat_maquillaje, _ = Subcategoria.objects.get_or_create(
-        idSubcategoria=1,
-        defaults={
-            'nombreSubcategoria': 'Maquillaje',
-            'idCategoria': cat_belleza
-        }
-    )
-    
-    subcat_skincare, _ = Subcategoria.objects.get_or_create(
-        idSubcategoria=2,
-        defaults={
-            'nombreSubcategoria': 'Skincare',
-            'idCategoria': cat_cuidado
-        }
-    )
-    
-    # Crear productos de prueba si no existen
-    fecha_vencimiento = timezone.now().date() + timedelta(days=365)
-    
-    productos_prueba = [
-        {
-            'nombreProducto': 'Labial Rojo',
-            'precio': 15000,
-            'stock': 50,
-            'descripcion': 'Labial de larga duración color rojo intenso',
-            'idCategoria': cat_belleza,
-            'idSubcategoria': subcat_maquillaje,
-        },
-        {
-            'nombreProducto': 'Crema Facial',
-            'precio': 25000,
-            'stock': 30,
-            'descripcion': 'Crema hidratante para todo tipo de piel',
-            'idCategoria': cat_cuidado,
-            'idSubcategoria': subcat_skincare,
-        },
-        {
-            'nombreProducto': 'Base de Maquillaje',
-            'precio': 35000,
-            'stock': 40,
-            'descripcion': 'Base líquida de cobertura media',
-            'idCategoria': cat_belleza,
-            'idSubcategoria': subcat_maquillaje,
-        },
-        {
-            'nombreProducto': 'Sérum Vitamina C',
-            'precio': 45000,
-            'stock': 25,
-            'descripcion': 'Sérum antioxidante con vitamina C',
-            'idCategoria': cat_cuidado,
-            'idSubcategoria': subcat_skincare,
-        },
-    ]
-    
-    for prod_data in productos_prueba:
-        Producto.objects.get_or_create(
-            nombreProducto=prod_data['nombreProducto'],
-            defaults={
-                'precio': prod_data['precio'],
-                'stock': prod_data['stock'],
-                'descripcion': prod_data['descripcion'],
-                'idCategoria': prod_data['idCategoria'],
-                'idSubcategoria': prod_data['idSubcategoria'],
-                'cantidadDisponible': prod_data['stock'],
-                'fechaIngreso': timezone.now(),
-                'fechaVencimiento': fecha_vencimiento,
-                'precio_venta': int(prod_data['precio'] * 1.19 * 1.1 / 50) * 50,  # Precio con IVA y margen
-            }
-        )
+    with connection.cursor() as cursor:
+        # Crear categorías
+        if 'postgresql' in db_engine:
+            cursor.execute("SELECT COUNT(*) FROM categorias WHERE idcategoria = 1")
+        else:
+            cursor.execute("SELECT COUNT(*) FROM categorias WHERE idcategoria = 1")
+        
+        if cursor.fetchone()[0] == 0:
+            if 'postgresql' in db_engine:
+                cursor.execute("""
+                    INSERT INTO categorias (idcategoria, nombrecategoria, descripcion)
+                    VALUES (1, %s, %s)
+                """, ['Belleza', 'Productos de belleza y cuidado personal'])
+                cursor.execute("""
+                    INSERT INTO categorias (idcategoria, nombrecategoria, descripcion)
+                    VALUES (2, %s, %s)
+                """, ['Cuidado', 'Productos de cuidado de la piel'])
+            else:
+                cursor.execute("""
+                    INSERT INTO categorias (idcategoria, nombrecategoria, descripcion)
+                    VALUES (1, ?, ?)
+                """, ['Belleza', 'Productos de belleza y cuidado personal'])
+                cursor.execute("""
+                    INSERT INTO categorias (idcategoria, nombrecategoria, descripcion)
+                    VALUES (2, ?, ?)
+                """, ['Cuidado', 'Productos de cuidado de la piel'])
+        
+        # Crear subcategorías
+        if 'postgresql' in db_engine:
+            cursor.execute("SELECT COUNT(*) FROM subcategorias WHERE idsubcategoria = 1")
+        else:
+            cursor.execute("SELECT COUNT(*) FROM subcategorias WHERE idsubcategoria = 1")
+        
+        if cursor.fetchone()[0] == 0:
+            if 'postgresql' in db_engine:
+                cursor.execute("""
+                    INSERT INTO subcategorias (idsubcategoria, nombresubcategoria, idcategoria)
+                    VALUES (1, %s, 1)
+                """, ['Maquillaje'])
+                cursor.execute("""
+                    INSERT INTO subcategorias (idsubcategoria, nombresubcategoria, idcategoria)
+                    VALUES (2, %s, 2)
+                """, ['Skincare'])
+            else:
+                cursor.execute("""
+                    INSERT INTO subcategorias (idsubcategoria, nombresubcategoria, idcategoria)
+                    VALUES (1, ?, 1)
+                """, ['Maquillaje'])
+                cursor.execute("""
+                    INSERT INTO subcategorias (idsubcategoria, nombresubcategoria, idcategoria)
+                    VALUES (2, ?, 2)
+                """, ['Skincare'])
+        
+        # Crear productos
+        productos_prueba = [
+            ('Labial Rojo', 15000, 50, 'Labial de larga duración color rojo intenso', 1, 1),
+            ('Crema Facial', 25000, 30, 'Crema hidratante para todo tipo de piel', 2, 2),
+            ('Base de Maquillaje', 35000, 40, 'Base líquida de cobertura media', 1, 1),
+            ('Sérum Vitamina C', 45000, 25, 'Sérum antioxidante con vitamina C', 2, 2),
+        ]
+        
+        for nombre, precio, stock, desc, cat_id, subcat_id in productos_prueba:
+            precio_venta = int(precio * 1.19 * 1.1 / 50) * 50
+            
+            if 'postgresql' in db_engine:
+                cursor.execute("""
+                    INSERT INTO productos (nombreproducto, precio, stock, descripcion, 
+                                          cantidaddisponible, fechaingreso, fechavencimiento, 
+                                          idcategoria, idsubcategoria, precio_venta)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    ON CONFLICT DO NOTHING
+                """, [nombre, precio, stock, desc, stock, timezone.now(), fecha_vencimiento, cat_id, subcat_id, precio_venta])
+            else:
+                cursor.execute("""
+                    INSERT OR IGNORE INTO productos (nombreproducto, precio, stock, descripcion, 
+                                                     cantidaddisponible, fechaingreso, fechavencimiento, 
+                                                     idcategoria, idsubcategoria, precio_venta)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, [nombre, precio, stock, desc, stock, timezone.now(), fecha_vencimiento, cat_id, subcat_id, precio_venta])
 
 def revertir(apps, schema_editor):
     """Revertir la creación de datos de prueba"""
