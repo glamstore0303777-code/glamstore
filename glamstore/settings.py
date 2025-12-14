@@ -17,7 +17,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('CLAVE_SECRETA') or os.getenv('SECRET_KEY', 'django-insecure-fallback-key-for-development')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG_ENV = os.getenv('DEPURAR') or os.getenv('DEBUG', 'False')
+DEBUG_ENV = os.getenv('DEPURAR') or os.getenv('DEBUG', 'True')
 DEBUG = DEBUG_ENV.lower() in ('true', '1', 'yes')
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,*.onrender.com').split(',')
