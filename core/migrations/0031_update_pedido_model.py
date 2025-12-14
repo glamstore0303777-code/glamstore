@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0020_loteproducto_movimientolote_and_more'),
+        ('core', '0029_detallepedido_margen_ganancia'),
     ]
 
     operations = [
