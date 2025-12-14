@@ -462,7 +462,6 @@ def simular_pago(request):
             print(f"   Cliente existente encontrado: {cliente.idCliente}")
             # Actualizar datos del cliente
             cliente.nombre = f"{nombre} {apellidos}"
-            cliente.cedula = documento
             cliente.telefono = telefono
             cliente.direccion = direccion_completa
             cliente.save()
@@ -834,7 +833,6 @@ def registro(request):
                     # El cliente ya existe (hizo pedido como invitado)
                     # Actualizar sus datos con la información del registro
                     cliente_existente.nombre = nombre
-                    cliente_existente.cedula = cedula
                     cliente_existente.direccion = direccion
                     cliente_existente.telefono = telefono
                     cliente_existente.save()
@@ -1376,14 +1374,12 @@ def handle_editar_perfil(request):
         print(f"DEBUG - Actualizando cliente ID: {cliente.idCliente}")
         print(f"  Nombre: {cliente.nombre} -> {nombre}")
         print(f"  Email: {cliente.email} -> {email}")
-        print(f"  Cédula: {cliente.cedula} -> {cedula}")
         print(f"  Teléfono: {cliente.telefono} -> {telefono}")
         print(f"  Dirección: {cliente.direccion} -> {direccion}")
         
         # Actualizar los datos del cliente
         cliente.nombre = nombre
         cliente.email = email
-        cliente.cedula = cedula if cedula else None
         cliente.telefono = telefono if telefono else None
         cliente.direccion = direccion if direccion else None
         cliente.save()
@@ -1469,7 +1465,6 @@ def editar_perfil(request):
             # Actualizar los datos del cliente
             cliente.nombre = nombre
             cliente.email = email
-            cliente.cedula = cedula if cedula else None
             cliente.telefono = telefono if telefono else None
             cliente.direccion = direccion if direccion else None
             cliente.save()

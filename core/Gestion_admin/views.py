@@ -530,7 +530,6 @@ def cliente_editar_view(request, id):
     cliente = get_object_or_404(Cliente, idCliente=id)  # usa tu campo real
 
     if request.method == "POST":
-        cliente.cedula = request.POST.get("cedula")
         cliente.nombre = request.POST.get("nombre")
         cliente.email = request.POST.get("email")
         cliente.direccion = request.POST.get("direccion")

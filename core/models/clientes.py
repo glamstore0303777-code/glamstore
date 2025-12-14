@@ -10,7 +10,6 @@ class Cliente(models.Model):
     ciudad = models.CharField(max_length=50, null=True, blank=True, db_column='ciudadcliente')
     departamento = models.CharField(max_length=50, null=True, blank=True, db_column='departamentocliente')
     codigo_postal = models.CharField(max_length=20, null=True, blank=True, db_column='codigopostalcliente')
-    cedula = models.CharField(max_length=20, null=True, blank=True, db_column='cedula')
 
     class Meta:
         db_table = 'clientes'
