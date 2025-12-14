@@ -16,12 +16,16 @@ def fix_schema_issues(apps, schema_editor):
             ADD COLUMN IF NOT EXISTS producto_id INTEGER
         """)
         
-        # Add foreign key constraint if it doesn't exist
-        cursor.execute("""
-            ALTER TABLE lotes_producto
-            ADD CONSTRAINT IF NOT EXISTS lotes_producto_producto_id_fk
-            FOREIGN KEY (producto_id) REFERENCES productos(idproducto) ON DELETE CASCADE
-        """)
+        # Add foreign key constraint - check if it exists first
+        try:
+            cursor.execute("""
+                ALTER TABLE lotes_producto
+                ADD CONSTRAINT lotes_producto_producto_id_fk
+                FOREIGN KEY (producto_id) REFERENCES productos(idproducto) ON DELETE CASCADE
+            """)
+        except Exception:
+            # Constraint already exists, ignore
+            pass
         
         # 2. Ensure estado_pago column exists in pedidos table
         cursor.execute("""
