@@ -18,6 +18,7 @@ class Pedido(models.Model):
     ]
     
     idPedido = models.AutoField(primary_key=True, db_column='idpedido')
+    fechaPedido = models.DateTimeField(db_column='fechapedido', null=False, blank=False, auto_now_add=True)
     fechaCreacion = models.DateTimeField(db_column='fechacreacion', null=True, blank=True)
     estado = models.CharField(max_length=20, default='Pedido Recibido', db_column='estado')
     estado_pago = models.CharField(max_length=20, choices=ESTADO_PAGO_CHOICES, default='Pago Completo', db_column='estado_pago')
