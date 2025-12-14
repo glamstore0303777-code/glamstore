@@ -59,11 +59,11 @@ class Pedido(models.Model):
 
 
 class DetallePedido(models.Model):
-    idDetallePedido = models.AutoField(primary_key=True, db_column='iddetallepedido')
+    idDetallePedido = models.AutoField(primary_key=True, db_column='idDetallePedido')
     idPedido = models.ForeignKey(
         Pedido,
         on_delete=models.CASCADE,
-        db_column='idpedido',
+        db_column='idPedido',
         null=True,
         blank=True
     )
@@ -98,7 +98,7 @@ class PedidoProducto(models.Model):
     idPedido = models.ForeignKey(
         Pedido,
         on_delete=models.CASCADE,
-        db_column='idpedido',
+        db_column='idPedido',
         null=True,
         blank=True
     )
