@@ -1,6 +1,6 @@
-# Generated migration - add email field to Repartidor
+# Generated migration - no-op (email already added in 0004)
 
-from django.db import migrations, models
+from django.db import migrations
 
 
 class Migration(migrations.Migration):
@@ -10,9 +10,4 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='repartidor',
-            name='email',
-            field=models.EmailField(blank=True, db_column='email', max_length=100, null=True),
-        ),
     ]

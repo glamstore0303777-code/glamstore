@@ -16,6 +16,7 @@ class Migration(migrations.Migration):
                 ('idRepartidor', models.AutoField(primary_key=True, serialize=False)),
                 ('nombreRepartidor', models.CharField(max_length=100, db_column='nomberepartidor')),
                 ('telefonoRepartidor', models.CharField(max_length=20, db_column='telefonoRepartidor')),
+                ('email', models.EmailField(blank=True, db_column='email', max_length=100, null=True)),
             ],
             options={
                 'db_table': 'repartidores',
