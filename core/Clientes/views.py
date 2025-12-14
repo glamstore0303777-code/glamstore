@@ -84,10 +84,18 @@ def tienda(request):
         productos_query = Producto.objects.all().order_by('-idProducto')[:12]
         productos_destacados = filtrar_productos_no_vencidos(productos_query)
     except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error en vista tienda: {str(e)}", exc_info=True)
         # Si hay error, mostrar productos sin filtrar
-        categorias = Categoria.objects.all()
-        productos_query = Producto.objects.all().order_by('-idProducto')[:12]
-        productos_destacados = list(productos_query)
+        try:
+            categorias = Categoria.objects.all()
+            productos_query = Producto.objects.all().order_by('-idProducto')[:12]
+            productos_destacados = list(productos_query)
+        except Exception as e2:
+            logger.error(f"Error al cargar productos de fallback: {str(e2)}", exc_info=True)
+            categorias = []
+            productos_destacados = []
     
     return render(request, 'tienda.html', {
         'categorias': categorias,
