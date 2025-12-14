@@ -402,12 +402,9 @@
                       </div>
                     </div>
                     
-                    <!-- Estado y Facturas Enviadas -->
+                    <!-- Estado del Pedido -->
                     <div style="margin-bottom: 14px; display: flex; gap: 8px; align-items: center;">
                       <span style="background-color: #fff3cd; color: #856404; padding: 5px 10px; border-radius: 5px; font-size: 12px; font-weight: 600;">{{ pedido.estado_pedido }}</span>
-                      {% if pedido.facturas_enviadas > 0 %}
-                        <span style="background-color: #d4edda; color: #155724; padding: 5px 10px; border-radius: 5px; font-size: 12px; font-weight: 600;">Facturas: {{ pedido.facturas_enviadas }}</span>
-                      {% endif %}
                     </div>
                     
                     <!-- Botón Ver Detalle -->

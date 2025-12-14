@@ -2477,9 +2477,7 @@ def enviar_facturas_multiples_view(request):
                     pedido = Pedido.objects.select_related('idCliente', 'idRepartidor').get(idPedido=pedido_id)
                     
                     if enviar_factura_cliente(pedido):
-                        # Incrementar contador de facturas enviadas
-                        pedido.facturas_enviadas += 1
-                        pedido.save()
+                        # Factura enviada exitosamente
                         facturas_enviadas += 1
                     else:
                         errores += 1
