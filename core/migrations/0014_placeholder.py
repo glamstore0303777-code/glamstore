@@ -1,6 +1,11 @@
 # Generated migration - placeholder for migration sequence
+# This migration is a no-op to maintain migration history consistency
 
 from django.db import migrations
+
+
+def noop(apps, schema_editor):
+    pass
 
 
 class Migration(migrations.Migration):
@@ -10,4 +15,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunPython(noop, migrations.RunPython.noop),
     ]
