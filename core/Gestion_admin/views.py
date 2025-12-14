@@ -326,11 +326,16 @@ def dashboard_admin_view(request):
         ).select_related('idCliente').order_by('-fechaCreacion')[:10]
         
         # === INFORMACIÓN DE VENCIMIENTOS ===
-        from core.services.vencimientos_service import VencimientosService
-        
-        resumen_vencimientos = VencimientosService.obtener_resumen_vencimientos()
-        productos_vencidos = resumen_vencimientos['productos_vencidos']
-        productos_por_vencer = resumen_vencimientos['productos_por_vencer']
+        productos_vencidos = []
+        productos_por_vencer = []
+        try:
+            from core.services.vencimientos_service import VencimientosService
+            resumen_vencimientos = VencimientosService.obtener_resumen_vencimientos()
+            productos_vencidos = resumen_vencimientos['productos_vencidos']
+            productos_por_vencer = resumen_vencimientos['productos_por_vencer']
+        except Exception as e:
+            # Si hay error en vencimientos, continuar sin esa información
+            pass
         
         # === OBTENER TODAS LAS CATEGORÍAS ===
         categorias = Categoria.objects.all().order_by('nombreCategoria')
