@@ -1,4 +1,4 @@
-# Generated migration to add fecha_vencimiento column to pedidos table
+# Generated migration - fecha_vencimiento column already exists in database
 
 from django.db import migrations, models
 
