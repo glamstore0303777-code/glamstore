@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0030_placeholder'),
+        ('core', '0015_alter_repartidor_telefono'),
     ]
 
     operations = [
