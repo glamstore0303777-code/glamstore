@@ -39,8 +39,8 @@ def dashboard_admin_view(request):
     from django.db.models import Q, F, Max
     from django.utils import timezone
     
-    # Asegurar que la columna email existe
-    Repartidor.ensure_email_column_exists()
+    # Asegurar que la columna email existe (comentado para evitar errores en deploy)
+    # Repartidor.ensure_email_column_exists()
     
     # Definir umbrales de tiempo
     ahora = timezone.now()
