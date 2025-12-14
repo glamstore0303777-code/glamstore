@@ -13,10 +13,14 @@ def fix_facturas_enviadas(apps, schema_editor):
     with connection.cursor() as cursor:
         try:
             if 'postgresql' in db_engine:
-                cursor.execute("""
-                    ALTER TABLE pedidos
-                    ALTER COLUMN facturas_enviadas DROP NOT NULL;
-                """)
+                # PostgreSQL
+                try:
+                    cursor.execute("""
+                        ALTER TABLE pedidos
+                        ALTER COLUMN facturas_enviadas DROP NOT NULL;
+                    """)
+                except:
+                    pass
             else:
                 # SQLite - recrear tabla sin NOT NULL
                 try:

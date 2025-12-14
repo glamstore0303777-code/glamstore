@@ -13,13 +13,14 @@ def fix_repartidores_columns(apps, schema_editor):
     with connection.cursor() as cursor:
         try:
             if 'postgresql' in db_engine:
-                # PostgreSQL
+                # PostgreSQL - renombrar columnas
                 try:
                     cursor.execute("""
                         ALTER TABLE repartidores
                         RENAME COLUMN "nomberepartidor" TO nombre;
                     """)
-                except:
+                except Exception as e:
+                    # Columna ya existe o no existe, ignorar
                     pass
                 
                 try:
@@ -27,11 +28,11 @@ def fix_repartidores_columns(apps, schema_editor):
                         ALTER TABLE repartidores
                         RENAME COLUMN "telefonoRepartidor" TO telefono;
                     """)
-                except:
+                except Exception as e:
+                    # Columna ya existe o no existe, ignorar
                     pass
             else:
-                # SQLite - no soporta RENAME COLUMN directamente en versiones antiguas
-                # Usar SQL directo
+                # SQLite - copiar datos a las columnas correctas
                 cursor.execute("""
                     PRAGMA table_info(repartidores);
                 """)
@@ -57,7 +58,8 @@ def fix_repartidores_columns(apps, schema_editor):
                         """)
                     except:
                         pass
-        except:
+        except Exception as e:
+            # Ignorar errores
             pass
 
 

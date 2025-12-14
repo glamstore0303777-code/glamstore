@@ -5,7 +5,7 @@ from django.conf import settings
 
 
 def fix_not_null_constraints(apps, schema_editor):
-    """Permitir NULL en columnas antiguas y copiar datos"""
+    """Permitir NULL en columnas antiguas"""
     from django.db import connection
     
     db_engine = settings.DATABASES['default']['ENGINE']
@@ -13,7 +13,7 @@ def fix_not_null_constraints(apps, schema_editor):
     with connection.cursor() as cursor:
         try:
             if 'postgresql' in db_engine:
-                # PostgreSQL
+                # PostgreSQL - hacer nullable las columnas
                 try:
                     cursor.execute("""
                         ALTER TABLE repartidores
@@ -25,25 +25,22 @@ def fix_not_null_constraints(apps, schema_editor):
                 try:
                     cursor.execute("""
                         ALTER TABLE repartidores
-                        ALTER COLUMN telefonoRepartidor DROP NOT NULL;
+                        ALTER COLUMN "telefonoRepartidor" DROP NOT NULL;
                     """)
                 except:
                     pass
             else:
                 # SQLite - recrear tabla sin NOT NULL
-                # Primero, copiar datos a tabla temporal
                 try:
                     cursor.execute("""
                         CREATE TABLE repartidores_temp AS
                         SELECT * FROM repartidores;
                     """)
                     
-                    # Eliminar tabla original
                     cursor.execute("""
                         DROP TABLE repartidores;
                     """)
                     
-                    # Recrear tabla sin NOT NULL en columnas antiguas
                     cursor.execute("""
                         CREATE TABLE repartidores (
                             idRepartidor INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -55,13 +52,11 @@ def fix_not_null_constraints(apps, schema_editor):
                         );
                     """)
                     
-                    # Copiar datos de vuelta
                     cursor.execute("""
                         INSERT INTO repartidores
                         SELECT * FROM repartidores_temp;
                     """)
                     
-                    # Eliminar tabla temporal
                     cursor.execute("""
                         DROP TABLE repartidores_temp;
                     """)
