@@ -2,7 +2,7 @@ from django.db import models, connection
 from django.conf import settings
 
 class Repartidor(models.Model):
-    idRepartidor = models.AutoField(primary_key=True, db_column='idRepartidor')
+    idRepartidor = models.AutoField(primary_key=True, db_column='idrepartidor')
     nombreRepartidor = models.CharField(max_length=50, null=True, db_column='nombre')
     telefono = models.CharField(max_length=20, null=True, db_column='telefono')
     email = models.EmailField(max_length=100, null=True, blank=True, db_column='email')

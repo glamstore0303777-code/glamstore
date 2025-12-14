@@ -17,19 +17,19 @@ class Pedido(models.Model):
         ('Problema en Entrega', 'Problema en Entrega'),
     ]
     
-    idPedido = models.AutoField(primary_key=True, db_column='idPedido')
-    fechaCreacion = models.DateTimeField(db_column='fechaCreacion', null=True, blank=True)
+    idPedido = models.AutoField(primary_key=True, db_column='idpedido')
+    fechaCreacion = models.DateTimeField(db_column='fechacreacion', null=True, blank=True)
     estado = models.CharField(max_length=20, default='Pedido Recibido', db_column='estado')  # Mantener para compatibilidad
     estado_pago = models.CharField(max_length=20, choices=ESTADO_PAGO_CHOICES, default='Pago Completo', db_column='estado_pago')
     estado_pedido = models.CharField(max_length=20, choices=ESTADO_PEDIDO_CHOICES, default='Pedido Recibido', db_column='estado_pedido')
     total = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, db_column='total')
-    idCliente = models.ForeignKey('core.Cliente', on_delete=models.CASCADE, db_column='idCliente', null=True, blank=True)
+    idCliente = models.ForeignKey('core.Cliente', on_delete=models.CASCADE, db_column='idcliente', null=True, blank=True)
     idRepartidor = models.ForeignKey(
         'core.Repartidor',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        db_column='idRepartidor'
+        db_column='idrepartidor'
     )
     fecha_vencimiento = models.DateField(null=True, blank=True, db_column='fecha_vencimiento')
     facturas_enviadas = models.PositiveIntegerField(default=0, db_column='facturas_enviadas')
@@ -59,23 +59,23 @@ class Pedido(models.Model):
 
 
 class DetallePedido(models.Model):
-    idDetallePedido = models.AutoField(primary_key=True, db_column='idDetallePedido')
+    idDetallePedido = models.AutoField(primary_key=True, db_column='iddetallepedido')
     idPedido = models.ForeignKey(
         Pedido,
         on_delete=models.CASCADE,
-        db_column='idPedido',
+        db_column='idpedido',
         null=True,
         blank=True
     )
     idProducto = models.ForeignKey(
         'Producto',
         on_delete=models.CASCADE,
-        db_column='idProducto',
+        db_column='idproducto',
         null=True,
         blank=True
     )
     cantidad = models.PositiveIntegerField(default=1, blank=True, null=True, db_column='cantidad')
-    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2, db_column='precioUnitario')
+    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2, db_column='preciounitario')
     subtotal = models.DecimalField(max_digits=12, decimal_places=2, db_column='subtotal')
     margen_ganancia = models.DecimalField(
         max_digits=5, 
@@ -98,14 +98,14 @@ class PedidoProducto(models.Model):
     idPedido = models.ForeignKey(
         Pedido,
         on_delete=models.CASCADE,
-        db_column='idPedido',
+        db_column='idpedido',
         null=True,
         blank=True
     )
     idProducto = models.ForeignKey(
         'Producto',
         on_delete=models.CASCADE,
-        db_column='idProducto',
+        db_column='idproducto',
         null=True,
         blank=True
     )
