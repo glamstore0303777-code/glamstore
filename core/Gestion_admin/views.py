@@ -2067,9 +2067,9 @@ def subcategoria_eliminar_view(request, id):
     return redirect('lista_subcategorias')
 
 def notificaciones_view(request):
-    """Vista para mostrar TODAS las notificaciones de problemas de entrega y mensajes de contacto"""
+    """Vista para mostrar TODAS las notificaciones de problemas de entrega"""
     try:
-        from core.models import NotificacionProblema, MensajeContacto
+        from core.models import NotificacionProblema
         
         # Obtener TODAS las notificaciones sin filtros, ordenadas por fecha
         notificaciones = NotificacionProblema.objects.select_related(
@@ -2080,16 +2080,13 @@ def notificaciones_view(request):
         # Contar notificaciones no leídas
         notificaciones_no_leidas = notificaciones.filter(leida=False).count()
         
-        # Obtener TODOS los mensajes de contacto sin filtros
-        mensajes_contacto = MensajeContacto.objects.all().order_by('-fecha')
-        
         # Total de notificaciones no leídas
         total_no_leidas = notificaciones_no_leidas
         
         return render(request, 'notificaciones.html', {
             'notificaciones': notificaciones,
             'notificaciones_no_leidas': notificaciones_no_leidas,
-            'mensajes_contacto': mensajes_contacto,
+            'mensajes_contacto': [],
             'total_no_leidas': total_no_leidas
         })
     except Exception as e:
@@ -2602,8 +2599,7 @@ def enviar_reporte_dashboard_view(request):
             fecha_confirmacion__gte=inicio_mes,
             repartidor__isnull=False
         ).values(
-            'repartidor__nombreRepartidor',
-            'repartidor__telefono'
+            'repartidor_id'
         ).annotate(
             promedio=Avg('calificacion'),
             entregas=Count('idConfirmacion')
@@ -2961,13 +2957,18 @@ def enviar_reporte_dashboard_view(request):
         """
         
         if repartidor_estrella:
-            html_content += f"""
+            try:
+                repartidor_obj = Repartidor.objects.get(idRepartidor=repartidor_estrella['repartidor_id'])
+                nombre_repartidor = repartidor_obj.nombreRepartidor
+                html_content += f"""
                     <div style="margin-top: 15px; padding: 15px; background: white; border-radius: 10px; text-align: center;">
                         <div style="font-size: 1.2rem; color: #fbc02d; margin-bottom: 5px;">ESTRELLA DEL MES</div>
-                        <div style="font-size: 1.5rem; font-weight: bold; color: #2e7d32;">{repartidor_estrella['repartidor__nombreRepartidor']}</div>
+                        <div style="font-size: 1.5rem; font-weight: bold; color: #2e7d32;">{nombre_repartidor}</div>
                         <div style="color: #666;">Promedio: {repartidor_estrella['promedio']:.1f}/5 | {repartidor_estrella['entregas']} entregas</div>
                     </div>
-            """
+                """
+            except:
+                pass
         
         html_content += f"""
                 </div>
