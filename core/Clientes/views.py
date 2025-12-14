@@ -97,6 +97,10 @@ def tienda(request):
             categorias = []
             productos_destacados = []
     
+    # Inicializar usuario_nombre si no existe en sesión
+    if 'usuario_nombre' not in request.session:
+        request.session['usuario_nombre'] = None
+    
     return render(request, 'tienda.html', {
         'categorias': categorias,
         'productos_destacados': productos_destacados

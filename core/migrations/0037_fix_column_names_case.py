@@ -14,17 +14,14 @@ def fix_column_names(apps, schema_editor):
         ('productos', 'fechaVencimiento', 'fechavencimiento'),
         ('productos', 'idCategoria', 'idcategoria'),
         ('productos', 'idSubcategoria', 'idsubcategoria'),
-        ('categorias', 'idcategoria', 'idcategoria'),  # Already correct
-        ('categorias', 'nombrecategoria', 'nombrecategoria'),  # Already correct
-        ('subcategorias', 'idsubcategoria', 'idsubcategoria'),  # Already correct
-        ('subcategorias', 'nombresubcategoria', 'nombresubcategoria'),  # Already correct
-        ('clientes', 'idcliente', 'idcliente'),  # Already correct
-        ('repartidores', 'idrepartidor', 'idrepartidor'),  # Already correct
-        ('pedidos', 'idpedido', 'idpedido'),  # Already correct
-        ('detallepedido', 'iddetallepedido', 'iddetallepedido'),  # Already correct
-        ('movimientoproducto', 'idmovimiento', 'idmovimiento'),  # Already correct
-        ('loteproducto', 'idlote', 'idlote'),  # Already correct
-        ('usuarios', 'idusuario', 'idusuario'),  # Already correct
+        # Usuarios table columns
+        ('usuarios', 'idUsuario', 'idusuario'),
+        ('usuarios', 'id_rol', 'id_rol'),
+        ('usuarios', 'idcliente', 'idcliente'),
+        ('usuarios', 'fechacreacion', 'fechacreacion'),
+        ('usuarios', 'reset_token', 'reset_token'),
+        ('usuarios', 'reset_token_expires', 'reset_token_expires'),
+        ('usuarios', 'ultimoacceso', 'ultimoacceso'),
     ]
     
     for table, old_col, new_col in renames:
