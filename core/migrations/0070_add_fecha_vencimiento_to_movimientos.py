@@ -1,6 +1,7 @@
-# Generated migration to add fecha_vencimiento field to MovimientoProducto
+# Generated migration - fecha_vencimiento already exists in database
+# This is a no-op migration to mark the state as applied
 
-from django.db import migrations, models
+from django.db import migrations
 
 
 class Migration(migrations.Migration):
@@ -10,9 +11,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='movimientoproducto',
-            name='fecha_vencimiento',
-            field=models.DateField(blank=True, db_column='fecha_vencimiento', help_text='Fecha de vencimiento del lote', null=True),
-        ),
+        # No-op: fecha_vencimiento column already exists in movimientos_producto table
     ]
