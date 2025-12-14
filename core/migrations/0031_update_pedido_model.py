@@ -11,17 +11,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # Add remaining fields to Pedido
-        migrations.AddField(
-            model_name='pedido',
-            name='estado_pago',
-            field=models.CharField(choices=[('Pago Completo', 'Pago Completo'), ('Pago Parcial', 'Pago Parcial')], db_column='estado_pago', default='Pago Completo', max_length=20),
-        ),
-        migrations.AddField(
-            model_name='pedido',
-            name='estado_pedido',
-            field=models.CharField(choices=[('Pedido Recibido', 'Pedido Recibido'), ('Pago Confirmado', 'Pago Confirmado'), ('En Preparación', 'En Preparación'), ('En Camino', 'En Camino'), ('Entregado', 'Entregado'), ('Completado', 'Completado'), ('Problema en Entrega', 'Problema en Entrega')], db_column='estado_pedido', default='Pedido Recibido', max_length=20),
-        ),
+        # Add idRepartidor field to Pedido
         migrations.AddField(
             model_name='pedido',
             name='idRepartidor',
