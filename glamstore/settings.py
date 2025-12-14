@@ -30,6 +30,7 @@ else:
         '127.0.0.1',
         'glamstore-qgvu.onrender.com',
         '*.onrender.com',
+        'glamstore-qgvu.onrender.com:10000',
     ]
     CSRF_TRUSTED_ORIGINS = [
         'https://glamstore-qgvu.onrender.com',
