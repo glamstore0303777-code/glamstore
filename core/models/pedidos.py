@@ -70,7 +70,7 @@ class DetallePedido(models.Model):
     idProducto = models.ForeignKey(
         'Producto',
         on_delete=models.CASCADE,
-        db_column='idproducto',
+        db_column='idProducto',
         null=True,
         blank=True
     )
@@ -105,7 +105,7 @@ class PedidoProducto(models.Model):
     idProducto = models.ForeignKey(
         'Producto',
         on_delete=models.CASCADE,
-        db_column='idproducto',
+        db_column='idProducto',
         null=True,
         blank=True
     )
