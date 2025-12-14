@@ -393,6 +393,35 @@ def dashboard_admin_view(request):
         import traceback
         print(f"Error en dashboard_admin_view: {str(e)}")
         traceback.print_exc()
+        # Retornar contexto vacío pero sin errores
+        return render(request, 'admin_dashboard.html', {
+            'total_productos': 0,
+            'total_clientes': 0,
+            'total_pedidos': 0,
+            'ventas_totales': 0,
+            'ganancias_totales': 0,
+            'margen_ganancia_global': 0,
+            'productos_mas_vendidos': [],
+            'producto_mas_vendido': None,
+            'productos_por_surtir': [],
+            'clientes_esta_semana': 0,
+            'clientes_semana_pasada': 0,
+            'clientes_hace_2_semanas': 0,
+            'pedidos_nuevos': [],
+            'ventas_por_categoria': [],
+            'categorias': [],
+            'reabastecimientos_recientes': [],
+            'hay_capacidad_repartidores': False,
+            'pedidos_sin_asignar': 0,
+            'repartidores_disponibles': 0,
+            'calificaciones_recientes': [],
+            'repartidor_estrella': None,
+            'total_notificaciones_no_leidas': 0,
+            'pedidos_por_asignar': [],
+            'productos_vencidos': [],
+            'productos_por_vencer': [],
+            'error': str(e)
+        })
         return render(request, 'admin_dashboard.html', {'error': str(e)})
 # core/views.py
 
