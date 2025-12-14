@@ -1039,18 +1039,14 @@ def reabastecimiento_view(request):
             categoria = get_object_or_404(Categoria, idCategoria=categoria_id)
             proveedor = get_object_or_404(Distribuidor, idDistribuidor=proveedor_id)
             
-            # Cargar el archivo Excel (data_only=True para leer valores de fórmulas)
             wb = openpyxl.load_workbook(archivo_excel, data_only=True)
             ws = wb.active
             
             productos_procesados = []
             errores_lista = []
             
-            # Iterar sobre las filas (comenzando desde la fila 2, asumiendo que la fila 1 es encabezado)
-            # Columnas: Producto, Cantidad, Precio Unitario, Total con IVA, Lote, Fecha Vencimiento, IVA (19%)
             for row_idx, row in enumerate(ws.iter_rows(min_row=2, values_only=True), start=2):
                 try:
-                    # Saltar filas completamente vacías
                     if not any(row):
                         continue
                     
@@ -1062,34 +1058,28 @@ def reabastecimiento_view(request):
                     fecha_vencimiento = row[5] if len(row) > 5 else None
                     iva_valor = row[6] if len(row) > 6 else None
                     
-                    # Limpiar espacios en blanco y saltos de línea del nombre del producto
                     if nombre_producto:
                         nombre_producto = str(nombre_producto).strip().replace('\n', ' ').replace('\r', ' ')
-                        # Eliminar espacios múltiples
                         nombre_producto = ' '.join(nombre_producto.split())
                     
-                    # Validar que los datos básicos no sean None o vacíos
                     if not nombre_producto or cantidad is None or precio_unitario is None:
-                        errores_lista.append(f"Fila {row_idx}: Datos incompletos - Producto: '{nombre_producto}', Cantidad: {cantidad}, Precio: {precio_unitario}")
+                        errores_lista.append(f"Fila {row_idx}: Datos incompletos")
                         continue
                     
-                    # Limpiar y convertir cantidad
                     try:
                         cantidad = int(float(cantidad))
                     except (ValueError, TypeError):
-                        errores_lista.append(f"Fila {row_idx}: Cantidad inválida '{cantidad}'")
+                        errores_lista.append(f"Fila {row_idx}: Cantidad inválida")
                         continue
                     
-                    # Limpiar y convertir precio unitario
                     try:
                         if isinstance(precio_unitario, str):
                             precio_unitario = precio_unitario.replace('$', '').replace('.', '').replace(',', '').strip()
                         precio_unitario = Decimal(str(precio_unitario))
                     except (ValueError, TypeError):
-                        errores_lista.append(f"Fila {row_idx}: Precio unitario inválido '{precio_unitario}'")
+                        errores_lista.append(f"Fila {row_idx}: Precio unitario inválido")
                         continue
                     
-                    # Limpiar valores monetarios
                     if total_con_iva:
                         try:
                             if isinstance(total_con_iva, str):
@@ -1112,45 +1102,11 @@ def reabastecimiento_view(request):
                         except (ValueError, TypeError):
                             iva_valor = None
                     
-                    # Limpiar y convertir precio unitario (remover $, puntos, comas)
-                    try:
-                        if isinstance(precio_unitario, str):
-                            precio_unitario = precio_unitario.replace('$', '').replace('.', '').replace(',', '').strip()
-                        precio_unitario = Decimal(str(precio_unitario))
-                    except (ValueError, TypeError):
-                        errores_lista.append(f"Fila {row_idx}: Precio unitario inválido '{precio_unitario}'")
-                        continue
-                    
-                    # Limpiar valores monetarios (remover $, puntos, comas)
-                    if total_con_iva:
-                        try:
-                            if isinstance(total_con_iva, str):
-                                total_con_iva = total_con_iva.replace('$', '').replace('.', '').replace(',', '').strip()
-                            if total_con_iva:
-                                total_con_iva = Decimal(str(total_con_iva))
-                            else:
-                                total_con_iva = None
-                        except (ValueError, TypeError):
-                            total_con_iva = None
-                    
-                    if iva_valor:
-                        try:
-                            if isinstance(iva_valor, str):
-                                iva_valor = iva_valor.replace('$', '').replace('.', '').replace(',', '').strip()
-                            if iva_valor:
-                                iva_valor = Decimal(str(iva_valor))
-                            else:
-                                iva_valor = None
-                        except (ValueError, TypeError):
-                            iva_valor = None
-                    
-                    # Buscar el producto por nombre en la categoría (búsqueda exacta primero)
                     producto = Producto.objects.filter(
                         nombreProducto__iexact=nombre_producto,
                         idCategoria=categoria
                     ).first()
                     
-                    # Si no se encuentra, intentar búsqueda parcial
                     if not producto:
                         producto = Producto.objects.filter(
                             nombreProducto__icontains=nombre_producto,
@@ -1158,20 +1114,13 @@ def reabastecimiento_view(request):
                         ).first()
                     
                     if not producto:
-                        # Mostrar productos disponibles en la categoría para ayudar
-                        productos_disponibles = Producto.objects.filter(idCategoria=categoria).values_list('nombreProducto', flat=True)[:5]
-                        sugerencia = f" Productos disponibles: {', '.join(productos_disponibles)}" if productos_disponibles else ""
-                        errores_lista.append(f"Fila {row_idx}: Producto '{nombre_producto}' no encontrado en la categoría '{categoria.nombreCategoria}'.{sugerencia}")
+                        errores_lista.append(f"Fila {row_idx}: Producto '{nombre_producto}' no encontrado")
                         continue
                     
-                    # Actualizar el precio del producto con el precio unitario del Excel
                     producto.precio = precio_unitario
-                    
-                    # Crear movimiento de entrada
                     stock_anterior = producto.stock
                     stock_nuevo = stock_anterior + cantidad
                     
-                    # Construir descripción con toda la información
                     descripcion_partes = [
                         f'Reabastecimiento desde Excel - {categoria.nombreCategoria}',
                         f'Proveedor: {proveedor.nombreDistribuidor}'
@@ -1180,58 +1129,8 @@ def reabastecimiento_view(request):
                         descripcion_partes.append(f'Lote: {lote}')
                     if fecha_vencimiento:
                         descripcion_partes.append(f'Vencimiento: {fecha_vencimiento}')
-                    if total_con_iva:
-                        descripcion_partes.append(f'Total con IVA: ${total_con_iva:,.0f}')
-                    if iva_valor:
-                        descripcion_partes.append(f'IVA: ${iva_valor:,.0f}')
                     
                     descripcion_completa = ' | '.join(descripcion_partes)
-                    
-                    # Validar fecha de vencimiento
-                    fecha_venc_a_guardar = None
-                    if fecha_vencimiento:
-                        from datetime import timedelta
-                        try:
-                            # Convertir la fecha a objeto date si es necesario
-                            if isinstance(fecha_vencimiento, datetime):
-                                fecha_venc_obj = fecha_vencimiento.date()
-                            elif isinstance(fecha_vencimiento, str):
-                                # Intentar varios formatos de fecha
-                                for fmt in ['%d/%m/%Y', '%Y-%m-%d', '%d-%m-%Y']:
-                                    try:
-                                        fecha_venc_obj = datetime.strptime(fecha_vencimiento, fmt).date()
-                                        break
-                                    except ValueError:
-                                        continue
-                                else:
-                                    errores_lista.append(f"Fila {row_idx}: Formato de fecha de vencimiento inválido '{fecha_vencimiento}'")
-                                    continue
-                            else:
-                                fecha_venc_obj = fecha_vencimiento
-                            
-                            # Calcular fecha mínima (hoy + 3 meses)
-                            hoy = date.today()
-                            fecha_minima = hoy + timedelta(days=90)  # 3 meses = 90 días
-                            
-                            # Verificar que no esté vencida
-                            if fecha_venc_obj <= hoy:
-                                errores_lista.append(f"Fila {row_idx}: Producto '{nombre_producto}' - Fecha de vencimiento ({fecha_venc_obj.strftime('%d/%m/%Y')}) ya está vencida o es hoy")
-                                continue
-                            
-                            # Verificar que tenga al menos 3 meses de caducidad
-                            if fecha_venc_obj < fecha_minima:
-                                errores_lista.append(f"Fila {row_idx}: Producto '{nombre_producto}' - Fecha de vencimiento ({fecha_venc_obj.strftime('%d/%m/%Y')}) debe tener al menos 3 meses de caducidad. Mínimo: {fecha_minima.strftime('%d/%m/%Y')}")
-                                continue
-                            
-                            fecha_venc_a_guardar = fecha_vencimiento
-                        except Exception as e:
-                            errores_lista.append(f"Fila {row_idx}: Error al validar fecha de vencimiento - {str(e)}")
-                            continue
-                    
-                    # Preparar valores para guardar
-                    lote_a_guardar = lote if lote else None
-                    iva_a_guardar = Decimal(iva_valor) if iva_valor else None
-                    total_iva_a_guardar = Decimal(total_con_iva) if total_con_iva else None
                     
                     MovimientoProducto.objects.create(
                         producto=producto,
@@ -1242,44 +1141,26 @@ def reabastecimiento_view(request):
                         stock_anterior=stock_anterior,
                         stock_nuevo=stock_nuevo,
                         descripcion=descripcion_completa,
-                        lote=lote_a_guardar,
-                        fecha_vencimiento=fecha_venc_a_guardar,
-                        iva=iva_a_guardar,
-                        total_con_iva=total_iva_a_guardar
+                        lote=lote if lote else None,
+                        fecha_vencimiento=fecha_vencimiento if fecha_vencimiento else None,
+                        iva=iva_valor,
+                        total_con_iva=total_con_iva
                     )
                     
-                    # Actualizar stock y precio del producto
                     producto.stock = stock_nuevo
                     producto.save()
                     
-                    # Convertir fecha a string si es datetime
-                    fecha_venc_str = None
-                    if fecha_vencimiento:
-                        if isinstance(fecha_vencimiento, datetime):
-                            fecha_venc_str = fecha_vencimiento.strftime('%d/%m/%Y')
-                        else:
-                            fecha_venc_str = str(fecha_vencimiento)
-                    
-                    # Guardar información del producto reabastecido
                     productos_procesados.append({
                         'nombre': producto.nombreProducto,
                         'cantidad': cantidad,
                         'costo_unitario': float(precio_unitario),
                         'stock_anterior': stock_anterior,
-                        'stock_nuevo': stock_nuevo,
-                        'valor_total': float(precio_unitario * Decimal(cantidad)),
-                        'lote': str(lote) if lote else None,
-                        'fecha_vencimiento': fecha_venc_str,
-                        'total_con_iva': float(total_con_iva) if total_con_iva else None,
-                        'iva': float(iva_valor) if iva_valor else None
+                        'stock_nuevo': stock_nuevo
                     })
                     
-                except (ValueError, TypeError) as e:
-                    errores_lista.append(f"Fila {row_idx}: Error en los datos - {str(e)}")
                 except Exception as e:
                     errores_lista.append(f"Fila {row_idx}: {str(e)}")
             
-            # Guardar en sesión para mostrar en la página
             request.session['productos_reabastecidos'] = productos_procesados
             request.session['errores_reabastecimiento'] = errores_lista
             
@@ -1297,10 +1178,8 @@ def reabastecimiento_view(request):
         'categorias': categorias,
         'proveedores': proveedores,
         'productos_reabastecidos': productos_reabastecidos,
-        'errores': errores_reabastecimiento
+        'errores': errores
     })
-
-# Panel Pedidos
 
 
 def lista_pedidos_view(request):

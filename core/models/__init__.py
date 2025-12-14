@@ -12,3 +12,4 @@ from .rol import Rol
 from .movimientos import MovimientoProducto
 from .lotes import LoteProducto, MovimientoLote
 from .confirmacion_entrega import ConfirmacionEntrega
+from .correos_pendientes import CorreoPendiente
