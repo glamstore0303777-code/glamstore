@@ -67,7 +67,6 @@ class LotesService:
                 stock_anterior=stock_anterior,
                 stock_nuevo=stock_nuevo,
                 lote=codigo_lote,
-                fecha_vencimiento=fecha_vencimiento,
                 total_con_iva=total_con_iva,
                 iva=iva,
                 descripcion=descripcion
@@ -118,7 +117,6 @@ class LotesService:
                     stock_nuevo=stock_anterior - cantidad_a_tomar,
                     id_pedido=id_pedido,
                     lote=lote.codigo_lote,
-                    fecha_vencimiento=lote.fecha_vencimiento,
                     lote_origen=lote,
                     descripcion=descripcion
                 )
