@@ -114,7 +114,7 @@ class Command(BaseCommand):
         self.stdout.write(f'  - {len(subcategorias_data)} subcategorias cargadas')
 
     def _load_productos_raw(self):
-        """Cargar productos usando SQL directo para evitar problemas de FK"""
+        """Cargar productos usando SQL directo"""
         productos_data = [
             (7700000000001, 'Rubor Rosado Glow', 34000, 'Rubor en polvo con acabado satinado y pigmento suave.', 469, 1, 4, 'productos/rubor.jpg', 44100),
             (7700000000002, 'Iluminador Perla Glam', 32000, 'Ilumina tus mejillas con un brillo nacarado y elegante.', 387, 1, 5, 'productos/ilumi_p.webp', 41500),
@@ -147,10 +147,8 @@ class Command(BaseCommand):
             (7709876543221, 'Serum Centella Asiatica', 8500, 'Serum Centella Asiatica Antiedad Calmante Control Poros', 8, 9, 28, 'productos/serum.png', 11050),
         ]
         
+        inserted = 0
         with connection.cursor() as cursor:
-            # Desactivar constraints temporalmente
-            cursor.execute("SET session_replication_role = 'replica';")
-            
             for data in productos_data:
                 id_prod, nombre, precio, desc, stock, id_cat, id_sub, imagen, precio_venta = data
                 try:
@@ -167,10 +165,8 @@ class Command(BaseCommand):
                             imagen = EXCLUDED.imagen,
                             precio_venta = EXCLUDED.precio_venta
                     """, [id_prod, nombre, precio, desc, stock, id_cat, id_sub, imagen, precio_venta])
+                    inserted += 1
                 except Exception as e:
                     self.stdout.write(f'  Error insertando producto {id_prod}: {e}')
-            
-            # Reactivar constraints
-            cursor.execute("SET session_replication_role = 'origin';")
         
-        self.stdout.write(f'  - {len(productos_data)} productos cargados')
+        self.stdout.write(f'  - {inserted}/{len(productos_data)} productos cargados')
