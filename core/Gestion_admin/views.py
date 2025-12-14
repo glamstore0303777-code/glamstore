@@ -39,343 +39,356 @@ def dashboard_admin_view(request):
     from django.db.models import Q, F, Max
     from django.utils import timezone
     
-    # Asegurar que la columna email existe (comentado para evitar errores en deploy)
-    # Repartidor.ensure_email_column_exists()
+    try:
+        # Asegurar que la columna email existe (comentado para evitar errores en deploy)
+        # Repartidor.ensure_email_column_exists()
+        
+        # Definir umbrales de tiempo
+        ahora = timezone.now()
+        una_semana_atras = ahora - timedelta(days=7)
+        dos_semanas_atras = ahora - timedelta(days=14)
+        
+        # Inicializar variables con valores por defecto
+        repartidor_estrella = None
+        total_notificaciones_no_leidas = 0
+        pedidos_por_asignar = []
+        reabastecimientos_recientes = []
+        
+        # === ESTADÍSTICAS GENERALES - TIEMPO REAL ===
+        # Contar productos activos (con stock o disponibles)
+        total_productos = Producto.objects.count()
+        
+        # Contar todos los clientes registrados
+        total_clientes = Cliente.objects.count()
+        
+        # Contar todos los pedidos
+        total_pedidos = Pedido.objects.count()
+        
+        # Calcular ventas totales de manera más precisa
+        # Sumar tanto el campo 'total' de pedidos como el cálculo desde detalles
+        ventas_desde_pedidos = Pedido.objects.aggregate(
+            total=Sum('total')
+        )['total'] or 0
+        
+        # Verificar con el cálculo desde detalles para mayor precisión
+        ventas_desde_detalles = DetallePedido.objects.aggregate(
+            total=Sum(F('cantidad') * F('precio_unitario'))
+        )['total'] or 0
+        
+        # Usar el mayor de los dos cálculos (más preciso)
+        ventas_totales = max(ventas_desde_pedidos, ventas_desde_detalles)
+        
+        # === CÁLCULO DE GANANCIAS BASADO EN MARGEN HISTÓRICO ===
+        # Calcular ganancias reales basadas en el margen de ganancia que se cobró en cada pedido
+        # Fórmula: Para cada detalle de pedido, calcular: (precio_venta - costo) donde:
+        # - precio_venta = costo_unitario * 1.19 * (1 + margen_histórico/100)
+        # - margen_histórico es el que se guardó en el momento del pedido
+        
+        from core.models.configuracion import ConfiguracionGlobal
+        
+        margen_global = Decimal(str(ConfiguracionGlobal.get_margen_ganancia()))
+        ganancias_totales = Decimal('0')
+        costo_total = Decimal('0')
+        
+        # Iterar sobre todos los detalles de pedidos para calcular ganancias reales
+        detalles = DetallePedido.objects.select_related('idProducto').all()
+        
+        for detalle in detalles:
+            if detalle.idProducto:
+                # Obtener el costo unitario del producto
+                costo_unitario = Decimal(str(detalle.idProducto.precio)) if detalle.idProducto.precio else Decimal('0')
+                cantidad = Decimal(str(detalle.cantidad))
+                
+                # Usar el margen histórico guardado en el detalle del pedido
+                margen_historico = Decimal(str(detalle.margen_ganancia)) if detalle.margen_ganancia else margen_global
+                
+                # Calcular precio de venta: costo * 1.19 (IVA) * (1 + margen_histórico/100)
+                factor_margen = Decimal('1') + (margen_historico / Decimal('100'))
+                precio_venta_unitario = costo_unitario * Decimal('1.19') * factor_margen
+                
+                # Ganancia por unidad = precio_venta - costo
+                ganancia_unitaria = precio_venta_unitario - costo_unitario
+                
+                # Acumular ganancias y costos
+                ganancias_totales += ganancia_unitaria * cantidad
+                costo_total += costo_unitario * cantidad
+        
+        # Convertir a entero (pesos colombianos sin decimales)
+        ganancias_totales = int(ganancias_totales)
+        costo_total = int(costo_total)
     
-    # Definir umbrales de tiempo
-    ahora = timezone.now()
-    una_semana_atras = ahora - timedelta(days=7)
-    dos_semanas_atras = ahora - timedelta(days=14)
-    
-    # === ESTADÍSTICAS GENERALES - TIEMPO REAL ===
-    # Contar productos activos (con stock o disponibles)
-    total_productos = Producto.objects.count()
-    
-    # Contar todos los clientes registrados
-    total_clientes = Cliente.objects.count()
-    
-    # Contar todos los pedidos
-    total_pedidos = Pedido.objects.count()
-    
-    # Calcular ventas totales de manera más precisa
-    # Sumar tanto el campo 'total' de pedidos como el cálculo desde detalles
-    ventas_desde_pedidos = Pedido.objects.aggregate(
-        total=Sum('total')
-    )['total'] or 0
-    
-    # Verificar con el cálculo desde detalles para mayor precisión
-    ventas_desde_detalles = DetallePedido.objects.aggregate(
-        total=Sum(F('cantidad') * F('precio_unitario'))
-    )['total'] or 0
-    
-    # Usar el mayor de los dos cálculos (más preciso)
-    ventas_totales = max(ventas_desde_pedidos, ventas_desde_detalles)
-    
-    # === CÁLCULO DE GANANCIAS BASADO EN MARGEN HISTÓRICO ===
-    # Calcular ganancias reales basadas en el margen de ganancia que se cobró en cada pedido
-    # Fórmula: Para cada detalle de pedido, calcular: (precio_venta - costo) donde:
-    # - precio_venta = costo_unitario * 1.19 * (1 + margen_histórico/100)
-    # - margen_histórico es el que se guardó en el momento del pedido
-    
-    from core.models.configuracion import ConfiguracionGlobal
-    
-    margen_global = Decimal(str(ConfiguracionGlobal.get_margen_ganancia()))
-    ganancias_totales = Decimal('0')
-    costo_total = Decimal('0')
-    
-    # Iterar sobre todos los detalles de pedidos para calcular ganancias reales
-    detalles = DetallePedido.objects.select_related('idProducto').all()
-    
-    for detalle in detalles:
-        if detalle.idProducto:
-            # Obtener el costo unitario del producto
-            costo_unitario = Decimal(str(detalle.idProducto.precio)) if detalle.idProducto.precio else Decimal('0')
-            cantidad = Decimal(str(detalle.cantidad))
+        # === PRODUCTOS MÁS VENDIDOS ===
+        productos_mas_vendidos = DetallePedido.objects.filter(
+            idPedido__fechaCreacion__gte=una_semana_atras
+        ).values(
+            'idProducto__idProducto',
+            'idProducto__nombreProducto',
+            'idProducto__imagen'
+        ).annotate(
+            total_vendido=Sum('cantidad'),
+            ultima_venta=Max('idPedido__fechaCreacion')
+        ).order_by('-total_vendido')[:5]
+        
+        # Agregar información de productos para las imágenes
+        productos_vendidos_completos = []
+        for item in productos_mas_vendidos:
+            try:
+                producto = Producto.objects.get(idProducto=item['idProducto__idProducto'])
+                productos_vendidos_completos.append({
+                    'idProducto': producto.idProducto,
+                    'nombreProducto': producto.nombreProducto,
+                    'imagen': producto.imagen,
+                    'total_vendido': item['total_vendido'],
+                    'ultima_venta': item['ultima_venta'],
+                    'precio': producto.precio,
+                    'stock': producto.stock
+                })
+            except Producto.DoesNotExist:
+                continue
+        
+        # === PRODUCTOS POR SURTIR ===
+        productos_por_surtir = Producto.objects.filter(stock__lt=10).order_by('stock')[:10]
+        
+        # === ESTADÍSTICAS DE CLIENTES ===
+        # === CLIENTES ACTIVOS POR SEMANA - DINÁMICO (3 SEMANAS) ===
+        # Obtener clientes que hicieron pedidos por semana (últimas 3 semanas)
+        clientes_esta_semana = Pedido.objects.filter(
+            fechaCreacion__gte=una_semana_atras
+        ).values('idCliente').distinct().count()
+        
+        clientes_semana_pasada = Pedido.objects.filter(
+            fechaCreacion__gte=dos_semanas_atras,
+            fechaCreacion__lt=una_semana_atras
+        ).values('idCliente').distinct().count()
+        
+        clientes_hace_2_semanas = Pedido.objects.filter(
+            fechaCreacion__gte=dos_semanas_atras - timedelta(days=7),
+            fechaCreacion__lt=dos_semanas_atras
+        ).values('idCliente').distinct().count()
+        
+        # === PEDIDOS NUEVOS ===
+        pedidos_nuevos = Pedido.objects.filter(
+            fechaCreacion__gte=una_semana_atras
+        ).select_related('idCliente').order_by('-fechaCreacion')[:10]
+        
+        # === VENTAS POR CATEGORÍA - COMPLETAMENTE DINÁMICO ===
+        # Obtener TODAS las categorías que tienen productos (sin límite)
+        categorias_existentes = Categoria.objects.filter(
+            producto__isnull=False
+        ).distinct().order_by('nombreCategoria')
+        
+        ventas_categoria_limpio = []
+        
+        # Para cada categoría existente, obtener sus ventas reales
+        for categoria in categorias_existentes:
+            # Obtener ventas de todos los tiempos para esta categoría
+            ventas_reales = DetallePedido.objects.filter(
+                idProducto__idCategoria=categoria
+            ).aggregate(
+                total=Sum(F('cantidad') * F('precio_unitario')),
+                cantidad_vendida=Sum('cantidad'),
+                num_pedidos=Count('idPedido', distinct=True),
+                num_productos=Count('idProducto', distinct=True)
+            )
             
-            # Usar el margen histórico guardado en el detalle del pedido
-            margen_historico = Decimal(str(detalle.margen_ganancia)) if detalle.margen_ganancia else margen_global
-            
-            # Calcular precio de venta: costo * 1.19 (IVA) * (1 + margen_histórico/100)
-            factor_margen = Decimal('1') + (margen_historico / Decimal('100'))
-            precio_venta_unitario = costo_unitario * Decimal('1.19') * factor_margen
-            
-            # Ganancia por unidad = precio_venta - costo
-            ganancia_unitaria = precio_venta_unitario - costo_unitario
-            
-            # Acumular ganancias y costos
-            ganancias_totales += ganancia_unitaria * cantidad
-            costo_total += costo_unitario * cantidad
-    
-    # Convertir a entero (pesos colombianos sin decimales)
-    ganancias_totales = int(ganancias_totales)
-    costo_total = int(costo_total)
-    
-    # === PRODUCTOS MÁS VENDIDOS ===
-    productos_mas_vendidos = DetallePedido.objects.filter(
-        idPedido__fechaCreacion__gte=una_semana_atras
-    ).values(
-        'idProducto__idProducto',
-        'idProducto__nombreProducto',
-        'idProducto__imagen'
-    ).annotate(
-        total_vendido=Sum('cantidad'),
-        ultima_venta=Max('idPedido__fechaCreacion')
-    ).order_by('-total_vendido')[:5]
-    
-    # Agregar información de productos para las imágenes
-    productos_vendidos_completos = []
-    for item in productos_mas_vendidos:
-        try:
-            producto = Producto.objects.get(idProducto=item['idProducto__idProducto'])
-            productos_vendidos_completos.append({
-                'idProducto': producto.idProducto,
-                'nombreProducto': producto.nombreProducto,
-                'imagen': producto.imagen,
-                'total_vendido': item['total_vendido'],
-                'ultima_venta': item['ultima_venta'],
-                'precio': producto.precio,
-                'stock': producto.stock
+            # Agregar la categoría con sus datos reales (incluso si es 0)
+            ventas_categoria_limpio.append({
+                'categoria': categoria.nombreCategoria,
+                'total': float(ventas_reales['total'] or 0),
+                'cantidad_vendida': ventas_reales['cantidad_vendida'] or 0,
+                'num_pedidos': ventas_reales['num_pedidos'] or 0,
+                'num_productos': ventas_reales['num_productos'] or 0,
+                'promedio_por_pedido': float(ventas_reales['total'] or 0) / max(ventas_reales['num_pedidos'] or 1, 1)
             })
-        except Producto.DoesNotExist:
-            continue
-    
-    # === PRODUCTOS POR SURTIR ===
-    productos_por_surtir = Producto.objects.filter(stock__lt=10).order_by('stock')[:10]
-    
-    # === ESTADÍSTICAS DE CLIENTES ===
-    # === CLIENTES ACTIVOS POR SEMANA - DINÁMICO (3 SEMANAS) ===
-    # Obtener clientes que hicieron pedidos por semana (últimas 3 semanas)
-    clientes_esta_semana = Pedido.objects.filter(
-        fechaCreacion__gte=una_semana_atras
-    ).values('idCliente').distinct().count()
-    
-    clientes_semana_pasada = Pedido.objects.filter(
-        fechaCreacion__gte=dos_semanas_atras,
-        fechaCreacion__lt=una_semana_atras
-    ).values('idCliente').distinct().count()
-    
-    clientes_hace_2_semanas = Pedido.objects.filter(
-        fechaCreacion__gte=dos_semanas_atras - timedelta(days=7),
-        fechaCreacion__lt=dos_semanas_atras
-    ).values('idCliente').distinct().count()
-    
-    # === PEDIDOS NUEVOS ===
-    pedidos_nuevos = Pedido.objects.filter(
-        fechaCreacion__gte=una_semana_atras
-    ).select_related('idCliente').order_by('-fechaCreacion')[:10]
-    
-    # === VENTAS POR CATEGORÍA - COMPLETAMENTE DINÁMICO ===
-    # Obtener TODAS las categorías que tienen productos (sin límite)
-    categorias_existentes = Categoria.objects.filter(
-        producto__isnull=False
-    ).distinct().order_by('nombreCategoria')
-    
-    ventas_categoria_limpio = []
-    
-    # Para cada categoría existente, obtener sus ventas reales
-    for categoria in categorias_existentes:
-        # Obtener ventas de todos los tiempos para esta categoría
-        ventas_reales = DetallePedido.objects.filter(
-            idProducto__idCategoria=categoria
-        ).aggregate(
-            total=Sum(F('cantidad') * F('precio_unitario')),
-            cantidad_vendida=Sum('cantidad'),
-            num_pedidos=Count('idPedido', distinct=True),
-            num_productos=Count('idProducto', distinct=True)
-        )
         
-        # Agregar la categoría con sus datos reales (incluso si es 0)
-        ventas_categoria_limpio.append({
-            'categoria': categoria.nombreCategoria,
-            'total': float(ventas_reales['total'] or 0),
-            'cantidad_vendida': ventas_reales['cantidad_vendida'] or 0,
-            'num_pedidos': ventas_reales['num_pedidos'] or 0,
-            'num_productos': ventas_reales['num_productos'] or 0,
-            'promedio_por_pedido': float(ventas_reales['total'] or 0) / max(ventas_reales['num_pedidos'] or 1, 1)
-        })
-    
-    # Ordenar por total de ventas (de mayor a menor)
-    ventas_categoria_limpio.sort(key=lambda x: x['total'], reverse=True)
-    
-    # === PRODUCTO MÁS VENDIDO INDIVIDUAL ===
-    producto_mas_vendido = productos_mas_vendidos[0] if productos_mas_vendidos else None
-    
-    # === REABASTECIMIENTO RECIENTE ===
-    reabastecimientos_recientes = MovimientoProducto.objects.filter(
-        tipo_movimiento='AJUSTE_MANUAL_ENTRADA',
-        fecha__gte=una_semana_atras
-    ).select_related('producto').order_by('-fecha')[:10]
-    
-    # Procesar reabastecimientos para extraer información de la descripción y campos directos
-    reabastecimientos_procesados = []
-    for mov in reabastecimientos_recientes:
-        proveedor = "Sin especificar"
-        fuente = "Manual"
-        lote = mov.lote if mov.lote else None
-        fecha_vencimiento = mov.fecha_vencimiento.strftime('%d/%m/%Y') if mov.fecha_vencimiento else None
-        total_con_iva = int(mov.total_con_iva) if mov.total_con_iva is not None else None
-        iva = int(mov.iva) if mov.iva is not None else None
+        # Ordenar por total de ventas (de mayor a menor)
+        ventas_categoria_limpio.sort(key=lambda x: x['total'], reverse=True)
         
-        # Detectar si es Excel o Manual basándose en la descripción
-        if mov.descripcion:
-            if "Proveedor:" in mov.descripcion or "Reabastecimiento desde Excel" in mov.descripcion:
-                fuente = "Excel"
-                # Extraer información de la descripción para reabastecimientos desde Excel
-                partes = mov.descripcion.split(" | ")
-                for parte in partes:
-                    if "Proveedor:" in parte:
-                        proveedor = parte.split("Proveedor:")[-1].strip()
-                    elif "Lote:" in parte and not lote:
-                        lote = parte.split("Lote:")[-1].strip()
-                    elif "Vencimiento:" in parte and not fecha_vencimiento:
-                        fecha_str = parte.split("Vencimiento:")[-1].strip()
-                        try:
-                            if ' ' in fecha_str:
-                                fecha_obj = datetime.strptime(fecha_str.split()[0], '%Y-%m-%d')
-                                fecha_vencimiento = fecha_obj.strftime('%d/%m/%Y')
-                            else:
-                                fecha_vencimiento = fecha_str
-                        except:
-                            fecha_vencimiento = fecha_str
-        
-        # Calcular IVA y Total con IVA si no existen en la base de datos
-        costo_unitario_val = int(mov.costo_unitario) if mov.costo_unitario else 0
-        cantidad_val = mov.cantidad
-        
-        # Si no hay IVA guardado, calcularlo (19% del costo total)
-        if iva is None and costo_unitario_val > 0 and cantidad_val > 0:
-            costo_total = costo_unitario_val * cantidad_val
-            iva = int(costo_total * Decimal('0.19'))
-            total_con_iva = costo_total + iva
-        
-        reabastecimientos_procesados.append({
-            'producto': mov.producto.nombreProducto,
-            'cantidad': cantidad_val,
-            'costo_unitario': costo_unitario_val,
-            'valor_total': int(mov.costo_unitario * Decimal(mov.cantidad)) if mov.costo_unitario else 0,
-            'proveedor': proveedor,
-            'fuente': fuente,
-            'lote': lote,
-            'fecha_vencimiento': fecha_vencimiento,
-            'total_con_iva': int(total_con_iva) if total_con_iva is not None else None,
-            'iva': int(iva) if iva is not None else None,
-            'stock_anterior': mov.stock_anterior,
-            'stock_nuevo': mov.stock_nuevo,
-            'fecha': mov.fecha
-        })
+        # === PRODUCTO MÁS VENDIDO INDIVIDUAL ===
+        producto_mas_vendido = productos_mas_vendidos[0] if productos_mas_vendidos else None
+    
+        # === REABASTECIMIENTO RECIENTE ===
+        reabastecimientos_procesados = []
+        try:
+            reabastecimientos_recientes = MovimientoProducto.objects.filter(
+                tipo_movimiento='AJUSTE_MANUAL_ENTRADA',
+                fecha__gte=una_semana_atras
+            ).select_related('producto').order_by('-fecha')[:10]
+            
+            # Procesar reabastecimientos para extraer información de la descripción y campos directos
+            for mov in reabastecimientos_recientes:
+                proveedor = "Sin especificar"
+                fuente = "Manual"
+                lote = mov.lote if mov.lote else None
+                fecha_vencimiento = mov.fecha_vencimiento.strftime('%d/%m/%Y') if mov.fecha_vencimiento else None
+                total_con_iva = int(mov.total_con_iva) if mov.total_con_iva is not None else None
+                iva = int(mov.iva) if mov.iva is not None else None
+                
+                # Detectar si es Excel o Manual basándose en la descripción
+                if mov.descripcion:
+                    if "Proveedor:" in mov.descripcion or "Reabastecimiento desde Excel" in mov.descripcion:
+                        fuente = "Excel"
+                        # Extraer información de la descripción para reabastecimientos desde Excel
+                        partes = mov.descripcion.split(" | ")
+                        for parte in partes:
+                            if "Proveedor:" in parte:
+                                proveedor = parte.split("Proveedor:")[-1].strip()
+                            elif "Lote:" in parte and not lote:
+                                lote = parte.split("Lote:")[-1].strip()
+                            elif "Vencimiento:" in parte and not fecha_vencimiento:
+                                fecha_str = parte.split("Vencimiento:")[-1].strip()
+                                try:
+                                    if ' ' in fecha_str:
+                                        fecha_obj = datetime.strptime(fecha_str.split()[0], '%Y-%m-%d')
+                                        fecha_vencimiento = fecha_obj.strftime('%d/%m/%Y')
+                                    else:
+                                        fecha_vencimiento = fecha_str
+                                except:
+                                    fecha_vencimiento = fecha_str
+                
+                # Calcular IVA y Total con IVA si no existen en la base de datos
+                costo_unitario_val = int(mov.costo_unitario) if mov.costo_unitario else 0
+                cantidad_val = mov.cantidad
+                
+                # Si no hay IVA guardado, calcularlo (19% del costo total)
+                if iva is None and costo_unitario_val > 0 and cantidad_val > 0:
+                    costo_total = costo_unitario_val * cantidad_val
+                    iva = int(costo_total * Decimal('0.19'))
+                    total_con_iva = costo_total + iva
+                
+                reabastecimientos_procesados.append({
+                    'producto': mov.producto.nombreProducto,
+                    'cantidad': cantidad_val,
+                    'costo_unitario': costo_unitario_val,
+                    'valor_total': int(mov.costo_unitario * Decimal(mov.cantidad)) if mov.costo_unitario else 0,
+                    'proveedor': proveedor,
+                    'fuente': fuente,
+                    'lote': lote,
+                    'fecha_vencimiento': fecha_vencimiento,
+                    'total_con_iva': int(total_con_iva) if total_con_iva is not None else None,
+                    'iva': int(iva) if iva is not None else None,
+                    'stock_anterior': mov.stock_anterior,
+                    'stock_nuevo': mov.stock_nuevo,
+                    'fecha': mov.fecha
+                })
+        except Exception as e:
+            reabastecimientos_procesados = []
 
-    # === CALIFICACIONES DE REPARTIDORES ===
-    from core.models import ConfirmacionEntrega
-    from django.db.models import Avg
-    
-    # Obtener calificaciones recientes (últimas 10)
-    # TODO: repartidor removido temporalmente por problemas con el nombre de columna en PostgreSQL
-    calificaciones_recientes = ConfirmacionEntrega.objects.select_related(
-        'pedido', 'pedido__idCliente'
-    ).order_by('-fecha_confirmacion')[:10]
-    
-    # Repartidor estrella del mes (mejor promedio de calificación este mes)
-    inicio_mes = ahora.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-    
-    repartidores_calificados = ConfirmacionEntrega.objects.filter(
-        fecha_confirmacion__gte=inicio_mes,
-        repartidor__isnull=False
-    ).values(
-        'repartidor_id'
-    ).annotate(
-        promedio_calificacion=Avg('calificacion'),
-        total_entregas=Count('idConfirmacion')
-    ).order_by('-promedio_calificacion', '-total_entregas')
-    
-    repartidor_estrella = None
-    if repartidores_calificados.exists():
-        top_repartidor_data = repartidores_calificados.first()
-        repartidor_obj = Repartidor.objects.get(idRepartidor=top_repartidor_data['repartidor_id'])
-        repartidor_estrella = {
-            'repartidor__nombreRepartidor': repartidor_obj.nombreRepartidor,
-            'repartidor__telefono': repartidor_obj.telefono,
-            'promedio_calificacion': top_repartidor_data['promedio_calificacion'],
-            'total_entregas': top_repartidor_data['total_entregas']
+        # === CALIFICACIONES DE REPARTIDORES ===
+        from core.models import ConfirmacionEntrega
+        from django.db.models import Avg
+        
+        # Obtener calificaciones recientes (últimas 10)
+        # TODO: repartidor removido temporalmente por problemas con el nombre de columna en PostgreSQL
+        calificaciones_recientes = ConfirmacionEntrega.objects.select_related(
+            'pedido', 'pedido__idCliente'
+        ).order_by('-fecha_confirmacion')[:10]
+        
+        # Repartidor estrella del mes (mejor promedio de calificación este mes)
+        inicio_mes = ahora.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        
+        repartidor_estrella = None
+        try:
+            repartidores_calificados = ConfirmacionEntrega.objects.filter(
+                fecha_confirmacion__gte=inicio_mes,
+                repartidor__isnull=False
+            ).values(
+                'repartidor_id'
+            ).annotate(
+                promedio_calificacion=Avg('calificacion'),
+                total_entregas=Count('idconfirmacion')
+            ).order_by('-promedio_calificacion', '-total_entregas')
+            
+            if repartidores_calificados.exists():
+                top_repartidor_data = repartidores_calificados.first()
+                repartidor_obj = Repartidor.objects.get(idRepartidor=top_repartidor_data['repartidor_id'])
+                repartidor_estrella = {
+                    'repartidor__nombreRepartidor': repartidor_obj.nombreRepartidor,
+                    'repartidor__telefono': repartidor_obj.telefono,
+                    'promedio_calificacion': top_repartidor_data['promedio_calificacion'],
+                    'total_entregas': top_repartidor_data['total_entregas']
+                }
+        except Exception as e:
+            repartidor_estrella = None
+
+        # === NOTIFICACIONES NO LEÍDAS ===
+        from core.models import NotificacionProblema
+        
+        # Solo contar problemas de entrega (los reportes se envían por correo)
+        total_notificaciones_no_leidas = NotificacionProblema.objects.filter(leida=False).count()
+        
+        # === PEDIDOS SIN ASIGNAR REPARTIDOR ===
+        # Incluir pedidos confirmados y en preparación sin repartidor
+        pedidos_por_asignar = Pedido.objects.filter(
+            idRepartidor__isnull=True
+        ).exclude(
+            estado_pedido__in=['Entregado', 'Completado', 'Cancelado']
+        ).select_related('idCliente').order_by('-fechaCreacion')[:10]
+        
+        # === INFORMACIÓN DE VENCIMIENTOS ===
+        from core.services.vencimientos_service import VencimientosService
+        
+        resumen_vencimientos = VencimientosService.obtener_resumen_vencimientos()
+        productos_vencidos = resumen_vencimientos['productos_vencidos']
+        productos_por_vencer = resumen_vencimientos['productos_por_vencer']
+        
+        # === OBTENER TODAS LAS CATEGORÍAS ===
+        categorias = Categoria.objects.all().order_by('nombreCategoria')
+        
+        context = {
+            # Estadísticas generales (tiempo real - se actualizan automáticamente)
+            'total_productos': total_productos,
+            'total_clientes': total_clientes,
+            'total_pedidos': total_pedidos,
+            'ventas_totales': int(ventas_totales) if ventas_totales else 0,
+            'ganancias_totales': ganancias_totales,
+            'margen_ganancia_global': float(margen_global),
+            
+            # Productos
+            'productos_mas_vendidos': productos_vendidos_completos,
+            'producto_mas_vendido': producto_mas_vendido,
+            'productos_por_surtir': productos_por_surtir,
+            
+            # Clientes activos por semana (3 semanas)
+            'clientes_esta_semana': clientes_esta_semana,
+            'clientes_semana_pasada': clientes_semana_pasada,
+            'clientes_hace_2_semanas': clientes_hace_2_semanas,
+            
+            # Pedidos
+            'pedidos_nuevos': pedidos_nuevos,
+            
+            # Ventas por categoría (dinámico y real)
+            'ventas_por_categoria': ventas_categoria_limpio,
+            'categorias': categorias,
+            
+            # Reabastecimiento reciente
+            'reabastecimientos_recientes': reabastecimientos_procesados,
+            
+            # Información de repartidores
+            'hay_capacidad_repartidores': verificar_capacidad_repartidores(),
+            'pedidos_sin_asignar': obtener_pedidos_sin_asignar().count(),
+            'repartidores_disponibles': obtener_repartidores_disponibles().count(),
+            
+            # Calificaciones de repartidores
+            'calificaciones_recientes': calificaciones_recientes,
+            'repartidor_estrella': repartidor_estrella,
+            
+            # Notificaciones
+            'total_notificaciones_no_leidas': total_notificaciones_no_leidas,
+            
+            # Pedidos por asignar
+            'pedidos_por_asignar': pedidos_por_asignar,
+            
+            # Información de vencimientos
+            'productos_vencidos': productos_vencidos,
+            'productos_por_vencer': productos_por_vencer,
         }
-
-    # === NOTIFICACIONES NO LEÍDAS ===
-    from core.models import NotificacionProblema
-    
-    # Solo contar problemas de entrega (los reportes se envían por correo)
-    total_notificaciones_no_leidas = NotificacionProblema.objects.filter(leida=False).count()
-    
-    # === PEDIDOS SIN ASIGNAR REPARTIDOR ===
-    # Incluir pedidos confirmados y en preparación sin repartidor
-    pedidos_por_asignar = Pedido.objects.filter(
-        idRepartidor__isnull=True
-    ).exclude(
-        estado_pedido__in=['Entregado', 'Completado', 'Cancelado']
-    ).select_related('idCliente').order_by('-fechaCreacion')[:10]
-    
-    # Debug: imprimir información
-    print(f"DEBUG - Pedidos sin repartidor encontrados: {pedidos_por_asignar.count()}")
-    for p in pedidos_por_asignar:
-        print(f"  Pedido #{p.idPedido} - Estado: {p.estado_pedido} - Cliente: {p.idCliente.nombre}")
-    
-    # === INFORMACIÓN DE VENCIMIENTOS ===
-    from core.services.vencimientos_service import VencimientosService
-    
-    resumen_vencimientos = VencimientosService.obtener_resumen_vencimientos()
-    productos_vencidos = resumen_vencimientos['productos_vencidos']
-    productos_por_vencer = resumen_vencimientos['productos_por_vencer']
-    
-    # === OBTENER TODAS LAS CATEGORÍAS ===
-    categorias = Categoria.objects.all().order_by('nombreCategoria')
-    
-    context = {
-        # Estadísticas generales (tiempo real - se actualizan automáticamente)
-        'total_productos': total_productos,
-        'total_clientes': total_clientes,
-        'total_pedidos': total_pedidos,
-        'ventas_totales': int(ventas_totales) if ventas_totales else 0,
-        'ganancias_totales': ganancias_totales,
-        'margen_ganancia_global': float(margen_global),
-        
-        # Productos
-        'productos_mas_vendidos': productos_vendidos_completos,
-        'producto_mas_vendido': producto_mas_vendido,
-        'productos_por_surtir': productos_por_surtir,
-        
-        # Clientes activos por semana (3 semanas)
-        'clientes_esta_semana': clientes_esta_semana,
-        'clientes_semana_pasada': clientes_semana_pasada,
-        'clientes_hace_2_semanas': clientes_hace_2_semanas,
-        
-        # Pedidos
-        'pedidos_nuevos': pedidos_nuevos,
-        
-        # Ventas por categoría (dinámico y real)
-        'ventas_por_categoria': ventas_categoria_limpio,
-        'categorias': categorias,
-        
-        # Reabastecimiento reciente
-        'reabastecimientos_recientes': reabastecimientos_procesados,
-        
-        # Información de repartidores
-        'hay_capacidad_repartidores': verificar_capacidad_repartidores(),
-        'pedidos_sin_asignar': obtener_pedidos_sin_asignar().count(),
-        'repartidores_disponibles': obtener_repartidores_disponibles().count(),
-        
-        # Calificaciones de repartidores
-        'calificaciones_recientes': calificaciones_recientes,
-        'repartidor_estrella': repartidor_estrella,
-        
-        # Notificaciones
-        'total_notificaciones_no_leidas': total_notificaciones_no_leidas,
-        
-        # Pedidos por asignar
-        'pedidos_por_asignar': pedidos_por_asignar,
-        
-        # Información de vencimientos
-        'productos_vencidos': productos_vencidos,
-        'productos_por_vencer': productos_por_vencer,
-    }
-    return render(request, 'admin_dashboard.html', context)
+        return render(request, 'admin_dashboard.html', context)
+    except Exception as e:
+        import traceback
+        print(f"Error en dashboard_admin_view: {str(e)}")
+        traceback.print_exc()
+        return render(request, 'admin_dashboard.html', {'error': str(e)})
 # core/views.py
 
 # Panel Admin
