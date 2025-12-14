@@ -15,14 +15,30 @@ def ensure_repartidor_table(apps, schema_editor):
                 WHERE table_name = 'repartidores'
             )
         """)
-        if not cursor.fetchone()[0]:
+        table_exists = cursor.fetchone()[0]
+        
+        if table_exists:
+            # Check if idRepartidor column exists
+            cursor.execute("""
+                SELECT EXISTS (
+                    SELECT 1 FROM information_schema.columns 
+                    WHERE table_name = 'repartidores' AND column_name = 'idRepartidor'
+                )
+            """)
+            if not cursor.fetchone()[0]:
+                # Add the column if it doesn't exist
+                cursor.execute("""
+                    ALTER TABLE repartidores 
+                    ADD COLUMN "idRepartidor" SERIAL PRIMARY KEY
+                """)
+        else:
             # If table doesn't exist, create it
             cursor.execute("""
                 CREATE TABLE repartidores (
-                    idRepartidor SERIAL PRIMARY KEY,
-                    nomberepartidor VARCHAR(100),
-                    telefonoRepartidor VARCHAR(20),
-                    email VARCHAR(100)
+                    "idRepartidor" SERIAL PRIMARY KEY,
+                    "nomberepartidor" VARCHAR(100),
+                    "telefonoRepartidor" VARCHAR(20),
+                    "email" VARCHAR(100)
                 )
             """)
 
