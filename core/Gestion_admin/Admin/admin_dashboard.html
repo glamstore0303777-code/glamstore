@@ -1263,8 +1263,8 @@
                 {% for pedido in pedidos_por_asignar %}
                 <tr style="border-bottom: 1px solid #e9d5ff;">
                   <td style="padding: 0.5rem; color: #1a1a1a; font-weight: 600;">#{{ pedido.idPedido }}</td>
-                  <td style="padding: 0.5rem; color: #1a1a1a;">{{ pedido.idCliente.email|truncatewords:3 }}</td>
-                  <td style="padding: 0.5rem; color: #666; font-size: 0.8rem;">Cliente #{{ pedido.idCliente.idCliente }}</td>
+                  <td style="padding: 0.5rem; color: #1a1a1a;">Cliente #{{ pedido.idCliente_id }}</td>
+                  <td style="padding: 0.5rem; color: #666; font-size: 0.8rem;">{{ pedido.estado_pedido }}</td>
                   <td style="padding: 0.5rem; text-align: center; color: #2e7d32; font-weight: 600;">${{ pedido.total|floatformat:0|intcomma }}</td>
                   <td style="padding: 0.5rem; text-align: center;">
                     <span class="{% if pedido.estado_pago == 'Pago Completo' %}estado-pago-completo{% elif pedido.estado_pago == 'Pago Parcial' %}estado-pago-parcial{% else %}estado-pago-pendiente{% endif %}" style="padding: 0.2rem 0.5rem; border-radius: 10px; font-size: 0.75rem; font-weight: bold;">
@@ -1368,7 +1368,7 @@
               <div class="pedido-item">
                 <div class="pedido-info">
                   <div class="pedido-id">Pedido #{{ pedido.idPedido }}</div>
-                  <div class="pedido-cliente">{{ pedido.idCliente.email }}</div>
+                  <div class="pedido-cliente">Cliente #{{ pedido.idCliente_id }}</div>
                   <div class="pedido-fecha">{{ pedido.fechaCreacion|date:"d/m/Y" }} | ${{ pedido.total }}</div>
                 </div>
                 <div class="pedido-actions">
@@ -1435,7 +1435,7 @@
                   <strong>Repartidor:</strong> {% if calif.repartidor %}{{ calif.repartidor.nombreRepartidor }}{% else %}Sin asignar{% endif %}
                 </div>
                 <div style="font-size: 0.8rem; color: #999;">
-                  <strong>Cliente:</strong> {{ calif.pedido.idCliente.email|default:"N/A" }}
+                  <strong>Cliente:</strong> #{{ calif.pedido.idCliente_id|default:"N/A" }}
                 </div>
                 <div style="font-size: 0.75rem; color: #aaa;">{{ calif.fecha_confirmacion|date:"d/m/Y H:i" }}</div>
               </div>

@@ -188,7 +188,7 @@ def dashboard_admin_view(request):
         # === PEDIDOS NUEVOS ===
         pedidos_nuevos = Pedido.objects.filter(
             fechaCreacion__gte=una_semana_atras
-        ).select_related('idCliente').order_by('-fechaCreacion')[:10]
+        ).order_by('-fechaCreacion')[:10]
         
         # === VENTAS POR CATEGORÍA - COMPLETAMENTE DINÁMICO ===
         # Obtener TODAS las categorías que tienen productos (sin límite)
@@ -342,7 +342,7 @@ def dashboard_admin_view(request):
             idRepartidor__isnull=True
         ).exclude(
             estado_pedido__in=['Entregado', 'Completado', 'Cancelado']
-        ).select_related('idCliente').order_by('-fechaCreacion')[:10]
+        ).order_by('-fechaCreacion')[:10]
         
         # === INFORMACIÓN DE VENCIMIENTOS ===
         productos_vencidos = []
