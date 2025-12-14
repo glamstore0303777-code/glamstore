@@ -1,6 +1,6 @@
-# Generated migration - already exists in database
+# Generated migration - add email field to Repartidor
 
-from django.db import migrations
+from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
@@ -10,5 +10,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # Already exists - no operations needed
+        migrations.AddField(
+            model_name='repartidor',
+            name='email',
+            field=models.EmailField(blank=True, db_column='email', max_length=100, null=True),
+        ),
     ]

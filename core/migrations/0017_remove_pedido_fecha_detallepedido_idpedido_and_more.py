@@ -1,6 +1,7 @@
-# Generated migration - already exists in database
+# Generated migration - remove and add fields
 
-from django.db import migrations
+from django.db import migrations, models
+import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
@@ -10,5 +11,14 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # Already exists - no operations needed
+        migrations.AddField(
+            model_name='pedido',
+            name='fechaCreacion',
+            field=models.DateTimeField(blank=True, db_column='fechacreacion', null=True),
+        ),
+        migrations.AddField(
+            model_name='pedido',
+            name='fecha_vencimiento',
+            field=models.DateField(blank=True, db_column='fecha_vencimiento', null=True),
+        ),
     ]

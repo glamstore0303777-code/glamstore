@@ -1,4 +1,4 @@
-# Generated migration - already exists in database
+# Generated migration - alter model options
 
 from django.db import migrations
 
@@ -10,5 +10,12 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # Already exists - no operations needed
+        migrations.AlterModelOptions(
+            name='detallepedido',
+            options={'ordering': ['idPedido'], 'verbose_name': 'Detalle Pedido', 'verbose_name_plural': 'Detalles Pedido'},
+        ),
+        migrations.AlterModelOptions(
+            name='pedido',
+            options={'ordering': ['-fechaPedido'], 'verbose_name': 'Pedido', 'verbose_name_plural': 'Pedidos'},
+        ),
     ]

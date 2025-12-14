@@ -1,6 +1,6 @@
-# Generated migration - already exists in database
+# Generated migration - alter Repartidor telefono field
 
-from django.db import migrations
+from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
@@ -10,5 +10,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # Already exists - no operations needed
+        migrations.AlterField(
+            model_name='repartidor',
+            name='telefonoRepartidor',
+            field=models.CharField(db_column='telefonoRepartidor', max_length=20, verbose_name='Teléfono'),
+        ),
     ]

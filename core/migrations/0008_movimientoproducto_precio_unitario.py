@@ -1,6 +1,6 @@
-# Generated migration - already exists in database
+# Generated migration - add precio_unitario field to MovimientoProducto
 
-from django.db import migrations
+from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
@@ -10,5 +10,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # Already exists - no operations needed
+        migrations.AlterField(
+            model_name='movimientoproducto',
+            name='precio_unitario',
+            field=models.DecimalField(db_column='precio_unitario', decimal_places=2, default=0, max_digits=10, verbose_name='Precio Unitario'),
+        ),
     ]

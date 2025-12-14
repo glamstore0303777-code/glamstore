@@ -10,6 +10,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # This field will be removed in the next migration
-        # No operations needed - field will be managed by model
+        migrations.AddField(
+            model_name='producto',
+            name='margen_ganancia',
+            field=models.DecimalField(db_column='margen_ganancia', decimal_places=2, default=10, help_text='Margen de ganancia para este producto', max_digits=5),
+        ),
     ]

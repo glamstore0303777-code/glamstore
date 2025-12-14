@@ -10,6 +10,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # margen_ganancia was never actually added to Producto model
-        # This migration is a no-op for compatibility
+        migrations.RemoveField(
+            model_name='producto',
+            name='margen_ganancia',
+        ),
     ]
