@@ -472,7 +472,6 @@ def simular_pago(request):
             cliente = Cliente.objects.create(
                 nombre=f"{nombre} {apellidos}",
                 email=correo,
-                cedula=documento,
                 telefono=telefono,
                 direccion=direccion_completa
             )
