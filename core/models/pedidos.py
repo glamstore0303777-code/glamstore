@@ -75,7 +75,7 @@ class DetallePedido(models.Model):
         blank=True
     )
     cantidad = models.PositiveIntegerField(default=1, blank=True, null=True, db_column='cantidad')
-    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2, db_column='precio_unitario')
+    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2, db_column='precioUnitario')
     subtotal = models.DecimalField(max_digits=12, decimal_places=2, db_column='subtotal')
     margen_ganancia = models.DecimalField(
         max_digits=5, 

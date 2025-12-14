@@ -866,7 +866,23 @@
       <h1>Perfil del Cliente</h1>
     </div>
 
-  
+    <!-- Mensaje para usuarios sin sesión -->
+    {% if sin_sesion %}
+    <div class="content-card" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 4px solid #f59e0b;">
+      <h2 style="color: #92400e; margin-bottom: 1rem;">Inicia sesión para ver tu perfil</h2>
+      <p style="color: #78350f; margin-bottom: 1.5rem;">
+        Para acceder a tu perfil, historial de pedidos y notificaciones, necesitas iniciar sesión o crear una cuenta.
+      </p>
+      <div style="display: flex; gap: 1rem;">
+        <a href="{% url 'login' %}" class="btn-primary" style="text-decoration: none; display: inline-block; padding: 0.8rem 1.6rem; background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%); color: white; border-radius: 8px; font-weight: bold;">
+          Iniciar Sesión
+        </a>
+        <a href="{% url 'tienda' %}" class="btn-secondary" style="text-decoration: none; display: inline-block; padding: 0.8rem 1.6rem; background: #e5e7eb; color: #1a1a1a; border-radius: 8px; font-weight: bold;">
+          Volver a la Tienda
+        </a>
+      </div>
+    </div>
+    {% else %}
 
     <!-- Información Personal -->
     <div class="content-card">
@@ -1132,6 +1148,7 @@
         <button type="submit" class="btn-primary">Crear mi cuenta ahora</button>
       </form>
     </div>
+    {% endif %}
     {% endif %}
 
     <footer>

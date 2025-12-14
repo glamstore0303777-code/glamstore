@@ -22,6 +22,12 @@ def fix_column_names(apps, schema_editor):
         ('usuarios', 'reset_token', 'reset_token'),
         ('usuarios', 'reset_token_expires', 'reset_token_expires'),
         ('usuarios', 'ultimoacceso', 'ultimoacceso'),
+        # DetallePedido table columns
+        ('detallepedido', 'precioUnitario', 'precio_unitario'),
+        ('detallepedido', 'idDetallepedido', 'iddetallepedido'),
+        ('detallepedido', 'idPedido', 'idpedido'),
+        ('detallepedido', 'idProducto', 'idproducto'),
+        ('detallepedido', 'margenGanancia', 'margen_ganancia'),
     ]
     
     for table, old_col, new_col in renames:

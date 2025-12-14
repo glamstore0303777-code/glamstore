@@ -24,47 +24,10 @@ from datetime import timedelta, date
 # ✅ Función auxiliar: filtra productos que no están vencidos
 def filtrar_productos_no_vencidos(productos_queryset):
     """
-    Filtra productos que tienen stock disponible.
-    - Si tiene lotes: muestra si hay lotes no vencidos con cantidad_disponible > 0
-    - Si NO tiene lotes: muestra si stock > 0 (productos sin sistema de lotes)
+    Retorna todos los productos del queryset.
+    Simplificado para mostrar todos los productos en la tienda.
     """
-    from core.models.lotes import LoteProducto
-    from django.db.models import Q, Sum
-    
-    productos_validos = []
-    hoy = date.today()
-    
-    for producto in productos_queryset:
-        # Verificar si el producto tiene lotes
-        tiene_lotes = LoteProducto.objects.filter(producto=producto).exists()
-        
-        if tiene_lotes:
-            # Si tiene lotes, verificar que haya lotes no vencidos con stock disponible
-            lotes_validos = LoteProducto.objects.filter(
-                producto=producto,
-                cantidad_disponible__gt=0
-            ).filter(
-                Q(fecha_vencimiento__isnull=True) | Q(fecha_vencimiento__gt=hoy)
-            )
-            
-            if lotes_validos.exists():
-                # Calcular stock disponible real basado en lotes válidos
-                stock_valido = lotes_validos.aggregate(
-                    total=Sum('cantidad_disponible')
-                )['total'] or 0
-                
-                if stock_valido > 0:
-                    producto.stock_real = stock_valido
-                    productos_validos.append(producto)
-        else:
-            # Si NO tiene lotes, mostrar si tiene stock > 0
-            # Estos son productos sin sistema de lotes (stock simple)
-            if producto.stock > 0:
-                # Usar el stock como stock_real
-                producto.stock_real = producto.stock
-                productos_validos.append(producto)
-    
-    return productos_validos
+    return list(productos_queryset)
 
 # ✅ Función auxiliar: obtiene el carrito actual desde sesión
 def obtener_carrito_actual(request):
@@ -83,6 +46,11 @@ def tienda(request):
         categorias = Categoria.objects.all()
         productos_query = Producto.objects.all().order_by('-idProducto')[:12]
         productos_destacados = filtrar_productos_no_vencidos(productos_query)
+        
+        # Asegurar que cada producto tenga precio_venta calculado
+        for producto in productos_destacados:
+            if not producto.precio_venta or producto.precio_venta == 0:
+                producto.precio_venta = producto.calcular_precio_venta()
     except Exception as e:
         import logging
         logger = logging.getLogger(__name__)
@@ -92,6 +60,11 @@ def tienda(request):
             categorias = Categoria.objects.all()
             productos_query = Producto.objects.all().order_by('-idProducto')[:12]
             productos_destacados = list(productos_query)
+            
+            # Calcular precio_venta para productos de fallback
+            for producto in productos_destacados:
+                if not producto.precio_venta or producto.precio_venta == 0:
+                    producto.precio_venta = producto.calcular_precio_venta()
         except Exception as e2:
             logger.error(f"Error al cargar productos de fallback: {str(e2)}", exc_info=True)
             categorias = []
@@ -705,9 +678,11 @@ def simular_pago(request):
         request.session['carrito'] = {}
         print("13. Carrito limpiado")
         
-        # Guardar el ID del pedido en la sesión para permitir verlo sin login
+        # Guardar el ID del pedido y cliente en la sesión para permitir verlo sin login
         request.session['ultimo_pedido_id'] = pedido.idPedido
+        request.session['cliente_id'] = cliente.idCliente
         print(f"13. ID de pedido guardado en sesión: {pedido.idPedido}")
+        print(f"13.5. ID de cliente guardado en sesión: {cliente.idCliente}")
 
         print(f"14. Redirigiendo a pedido_confirmado con ID: {pedido.idPedido}")
         print("="*50)
