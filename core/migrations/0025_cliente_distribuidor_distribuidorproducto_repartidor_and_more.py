@@ -11,30 +11,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.CreateModel(
-            name='Distribuidor',
-            fields=[
-                ('idDistribuidor', models.AutoField(primary_key=True, serialize=False)),
-                ('nombreDistribuidor', models.CharField(max_length=30, null=True, db_column='nombredistribuidor')),
-                ('contacto', models.CharField(max_length=20, db_column='contacto')),
-            ],
-            options={
-                'db_table': 'distribuidores',
-                'managed': False,
-                'app_label': 'core',
-            },
-        ),
-        migrations.CreateModel(
-            name='DistribuidorProducto',
-            fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False)),
-                ('idDistribuidor', models.IntegerField(db_column='iddistribuidor')),
-                ('idProducto', models.CharField(max_length=30, db_column='idproducto')),
-            ],
-            options={
-                'db_table': 'distribuidor_producto',
-                'managed': False,
-                'app_label': 'core',
-            },
-        ),
+        # Repartidor, Distribuidor, and DistribuidorProducto already created in 0004
+        # This migration is a no-op placeholder
+        migrations.RunPython(lambda apps, schema_editor: None, migrations.RunPython.noop),
     ]
