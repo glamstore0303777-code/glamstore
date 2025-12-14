@@ -22,7 +22,7 @@ DEBUG = DEBUG_ENV.lower() in ('true', '1', 'yes')
 
 if DEBUG:
     ALLOWED_HOSTS = ['*']
-    CSRF_TRUSTED_ORIGINS = ['*']
+    CSRF_TRUSTED_ORIGINS = ['http://localhost', 'http://127.0.0.1']
 else:
     # En producción, permitir Render y localhost
     ALLOWED_HOSTS = [

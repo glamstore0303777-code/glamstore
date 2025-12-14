@@ -470,7 +470,8 @@ def simular_pago(request):
             print("   Creando nuevo cliente...")
             # Crear nuevo cliente
             cliente = Cliente.objects.create(
-                nombre=f"{nombre} {apellidos}",
+                nombre=nombre,
+                apellido=apellidos,
                 email=correo,
                 telefono=telefono,
                 direccion=direccion_completa
