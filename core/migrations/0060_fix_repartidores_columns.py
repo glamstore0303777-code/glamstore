@@ -1,11 +1,11 @@
-# Generated migration to fix repartidores column names
+# Generated migration to fix repartidores column names - SAFE VERSION
 
 from django.db import migrations
 from django.conf import settings
 
 
 def fix_repartidores_columns(apps, schema_editor):
-    """Renombrar columnas incorrectas en repartidores"""
+    """Renombrar columnas incorrectas en repartidores - versión segura"""
     from django.db import connection
     
     db_engine = settings.DATABASES['default']['ENGINE']
@@ -13,32 +13,42 @@ def fix_repartidores_columns(apps, schema_editor):
     with connection.cursor() as cursor:
         try:
             if 'postgresql' in db_engine:
-                # PostgreSQL - renombrar columnas
-                try:
-                    cursor.execute("""
-                        ALTER TABLE repartidores
-                        RENAME COLUMN "nomberepartidor" TO nombre;
-                    """)
-                except Exception as e:
-                    # Columna ya existe o no existe, ignorar
-                    pass
+                # PostgreSQL - verificar qué columnas existen PRIMERO
+                cursor.execute("""
+                    SELECT column_name 
+                    FROM information_schema.columns 
+                    WHERE table_name = 'repartidores'
+                    AND column_name IN ('nomberepartidor', 'nombre', 'telefonoRepartidor', 'telefono')
+                """)
+                existing_columns = {row[0] for row in cursor.fetchall()}
                 
-                try:
-                    cursor.execute("""
-                        ALTER TABLE repartidores
-                        RENAME COLUMN "telefonoRepartidor" TO telefono;
-                    """)
-                except Exception as e:
-                    # Columna ya existe o no existe, ignorar
-                    pass
+                # Solo hacer operaciones si es necesario
+                if 'nomberepartidor' in existing_columns and 'nombre' not in existing_columns:
+                    try:
+                        cursor.execute("""
+                            ALTER TABLE repartidores
+                            RENAME COLUMN nomberepartidor TO nombre;
+                        """)
+                    except Exception as e:
+                        # Ignorar si falla
+                        pass
+                
+                if 'telefonoRepartidor' in existing_columns and 'telefono' not in existing_columns:
+                    try:
+                        cursor.execute("""
+                            ALTER TABLE repartidores
+                            RENAME COLUMN "telefonoRepartidor" TO telefono;
+                        """)
+                    except Exception as e:
+                        # Ignorar si falla
+                        pass
             else:
                 # SQLite - copiar datos a las columnas correctas
                 cursor.execute("""
                     PRAGMA table_info(repartidores);
                 """)
-                columns = {row[1]: row for row in cursor.fetchall()}
+                columns = {row[1] for row in cursor.fetchall()}
                 
-                # Si existen las columnas incorrectas, copiar datos a las correctas
                 if 'nomberepartidor' in columns and 'nombre' in columns:
                     try:
                         cursor.execute("""
@@ -59,7 +69,7 @@ def fix_repartidores_columns(apps, schema_editor):
                     except:
                         pass
         except Exception as e:
-            # Ignorar errores
+            # Ignorar todos los errores
             pass
 
 

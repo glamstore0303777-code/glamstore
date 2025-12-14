@@ -1,11 +1,11 @@
-# Generated migration to fix NOT NULL constraints in repartidores
+# Generated migration to fix NOT NULL constraints - SAFE VERSION
 
 from django.db import migrations
 from django.conf import settings
 
 
 def fix_not_null_constraints(apps, schema_editor):
-    """Permitir NULL en columnas antiguas"""
+    """Permitir NULL en columnas antiguas - versión segura"""
     from django.db import connection
     
     db_engine = settings.DATABASES['default']['ENGINE']
@@ -29,39 +29,17 @@ def fix_not_null_constraints(apps, schema_editor):
                     """)
                 except:
                     pass
-            else:
-                # SQLite - recrear tabla sin NOT NULL
+                
                 try:
                     cursor.execute("""
-                        CREATE TABLE repartidores_temp AS
-                        SELECT * FROM repartidores;
-                    """)
-                    
-                    cursor.execute("""
-                        DROP TABLE repartidores;
-                    """)
-                    
-                    cursor.execute("""
-                        CREATE TABLE repartidores (
-                            idRepartidor INTEGER PRIMARY KEY AUTOINCREMENT,
-                            nomberepartidor VARCHAR(100),
-                            telefonoRepartidor VARCHAR(20),
-                            email VARCHAR(100),
-                            nombre VARCHAR(50),
-                            telefono VARCHAR(20)
-                        );
-                    """)
-                    
-                    cursor.execute("""
-                        INSERT INTO repartidores
-                        SELECT * FROM repartidores_temp;
-                    """)
-                    
-                    cursor.execute("""
-                        DROP TABLE repartidores_temp;
+                        ALTER TABLE pedidos
+                        ALTER COLUMN facturas_enviadas DROP NOT NULL;
                     """)
                 except:
                     pass
+            else:
+                # SQLite - no necesita hacer nada, ya se hizo en 0062
+                pass
         except:
             pass
 

@@ -1,11 +1,11 @@
-# Generated migration to fix facturas_enviadas column
+# Generated migration to fix facturas_enviadas column - SAFE VERSION
 
 from django.db import migrations
 from django.conf import settings
 
 
 def fix_facturas_enviadas(apps, schema_editor):
-    """Hacer nullable la columna facturas_enviadas"""
+    """Hacer nullable la columna facturas_enviadas - versión segura"""
     from django.db import connection
     
     db_engine = settings.DATABASES['default']['ENGINE']
@@ -13,14 +13,8 @@ def fix_facturas_enviadas(apps, schema_editor):
     with connection.cursor() as cursor:
         try:
             if 'postgresql' in db_engine:
-                # PostgreSQL
-                try:
-                    cursor.execute("""
-                        ALTER TABLE pedidos
-                        ALTER COLUMN facturas_enviadas DROP NOT NULL;
-                    """)
-                except:
-                    pass
+                # PostgreSQL - ya se hizo en 0061
+                pass
             else:
                 # SQLite - recrear tabla sin NOT NULL
                 try:
