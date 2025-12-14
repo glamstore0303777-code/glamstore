@@ -443,7 +443,6 @@ def dashboard_admin_view(request):
             'productos_por_vencer': productos_por_vencer,
             'error': error_msg
         })
-        return render(request, 'admin_dashboard.html', {'error': str(e)})
 # core/views.py
 
 # Panel Admin
