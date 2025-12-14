@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0066_fix_missing_tables_and_columns'),
+        ('core', '0069_add_correo_pendiente_model'),
     ]
 
     operations = [
