@@ -90,20 +90,22 @@ def create_tables(apps, schema_editor):
     schema_editor.execute("""
     CREATE TABLE IF NOT EXISTS movimientoproducto (
         idmovimiento SERIAL PRIMARY KEY,
-        idproducto BIGINT REFERENCES productos(idproducto),
+        idproducto BIGINT,
         tipo_movimiento VARCHAR(50),
         cantidad INTEGER,
         precio_unitario INTEGER,
         costo_unitario INTEGER,
         stock_anterior INTEGER,
         stock_nuevo INTEGER,
-        id_pedido INTEGER REFERENCES pedidos(idpedido),
+        id_pedido INTEGER,
         lote VARCHAR(100),
         fecha_vencimiento DATE,
         total_con_iva INTEGER,
         iva INTEGER,
         descripcion TEXT,
-        fecha_movimiento TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        fecha_movimiento TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (idproducto) REFERENCES productos(idproducto),
+        FOREIGN KEY (id_pedido) REFERENCES pedidos(idpedido)
     );
     """)
     
