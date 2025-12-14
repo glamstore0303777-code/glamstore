@@ -2,6 +2,45 @@
 Migration to fix ALL column case sensitivity issues across ALL tables.
 """
 from django.db import migrations
+from django.conf import settings
+
+
+def fix_all_tables_columns(apps, schema_editor):
+    """Fix column case sensitivity - database agnostic"""
+    from django.db import connection
+    
+    db_engine = settings.DATABASES['default']['ENGINE']
+    
+    # Only run for PostgreSQL
+    if 'postgresql' not in db_engine:
+        return
+    
+    with connection.cursor() as cursor:
+        tables = ['productos', 'categorias', 'subcategorias', 
+                  'pedidos', 'detallepedido', 'clientes', 
+                  'repartidores', 'usuarios', 'distribuidores',
+                  'pedidoproducto', 'movimientoproducto']
+        
+        for table in tables:
+            try:
+                # Get all columns with uppercase letters
+                cursor.execute(f"""
+                    SELECT attname 
+                    FROM pg_attribute 
+                    WHERE attrelid = '{table}'::regclass 
+                    AND attnum > 0 
+                    AND NOT attisdropped
+                    AND attname ~ '[A-Z]'
+                """)
+                
+                columns = cursor.fetchall()
+                for (col,) in columns:
+                    try:
+                        cursor.execute(f'ALTER TABLE {table} RENAME COLUMN "{col}" TO {col.lower()};')
+                    except:
+                        pass
+            except:
+                pass
 
 
 class Migration(migrations.Migration):
@@ -11,45 +50,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunSQL(
-            sql="""
-                DO $$
-                DECLARE
-                    col_record RECORD;
-                    tbl_record RECORD;
-                BEGIN
-                    -- Loop through all relevant tables
-                    FOR tbl_record IN 
-                        SELECT tablename FROM pg_tables 
-                        WHERE schemaname = 'public' 
-                        AND tablename IN ('productos', 'categorias', 'subcategorias', 
-                                          'pedidos', 'detallepedido', 'clientes', 
-                                          'repartidores', 'usuarios', 'distribuidores',
-                                          'pedidoproducto', 'movimientoproducto')
-                    LOOP
-                        -- For each table, check all columns
-                        FOR col_record IN 
-                            SELECT attname 
-                            FROM pg_attribute 
-                            WHERE attrelid = tbl_record.tablename::regclass 
-                            AND attnum > 0 
-                            AND NOT attisdropped
-                            AND attname ~ '[A-Z]'  -- Only columns with uppercase letters
-                        LOOP
-                            -- Rename column to lowercase
-                            BEGIN
-                                EXECUTE format('ALTER TABLE %I RENAME COLUMN %I TO %I', 
-                                    tbl_record.tablename, 
-                                    col_record.attname, 
-                                    lower(col_record.attname));
-                                RAISE NOTICE 'Renamed %.% to %', tbl_record.tablename, col_record.attname, lower(col_record.attname);
-                            EXCEPTION WHEN OTHERS THEN
-                                RAISE NOTICE 'Could not rename %.%: %', tbl_record.tablename, col_record.attname, SQLERRM;
-                            END;
-                        END LOOP;
-                    END LOOP;
-                END $$;
-            """,
-            reverse_sql="SELECT 1;",
-        ),
+        migrations.RunPython(fix_all_tables_columns, migrations.RunPython.noop),
     ]

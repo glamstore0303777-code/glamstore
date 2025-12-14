@@ -1080,6 +1080,38 @@ def reabastecimiento_view(request):
                         errores_lista.append(f"Fila {row_idx}: Cantidad inválida '{cantidad}'")
                         continue
                     
+                    # Limpiar y convertir precio unitario
+                    try:
+                        if isinstance(precio_unitario, str):
+                            precio_unitario = precio_unitario.replace('$', '').replace('.', '').replace(',', '').strip()
+                        precio_unitario = Decimal(str(precio_unitario))
+                    except (ValueError, TypeError):
+                        errores_lista.append(f"Fila {row_idx}: Precio unitario inválido '{precio_unitario}'")
+                        continue
+                    
+                    # Limpiar valores monetarios
+                    if total_con_iva:
+                        try:
+                            if isinstance(total_con_iva, str):
+                                total_con_iva = total_con_iva.replace('$', '').replace('.', '').replace(',', '').strip()
+                            if total_con_iva:
+                                total_con_iva = Decimal(str(total_con_iva))
+                            else:
+                                total_con_iva = None
+                        except (ValueError, TypeError):
+                            total_con_iva = None
+                    
+                    if iva_valor:
+                        try:
+                            if isinstance(iva_valor, str):
+                                iva_valor = iva_valor.replace('$', '').replace('.', '').replace(',', '').strip()
+                            if iva_valor:
+                                iva_valor = Decimal(str(iva_valor))
+                            else:
+                                iva_valor = None
+                        except (ValueError, TypeError):
+                            iva_valor = None
+                    
                     # Limpiar y convertir precio unitario (remover $, puntos, comas)
                     try:
                         if isinstance(precio_unitario, str):

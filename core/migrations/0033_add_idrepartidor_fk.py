@@ -7,48 +7,30 @@ import django.db.models.deletion
 def ensure_repartidor_exists(apps, schema_editor):
     """Ensure Repartidor table exists before adding ForeignKey"""
     from django.db import connection
+    from django.conf import settings
+    
+    db_engine = settings.DATABASES['default']['ENGINE']
+    
     with connection.cursor() as cursor:
-        # Check if repartidores table exists
-        cursor.execute("""
-            SELECT EXISTS (
-                SELECT 1 FROM information_schema.tables 
-                WHERE table_name = 'repartidores'
-            )
-        """)
-        table_exists = cursor.fetchone()[0]
-        
-        if table_exists:
-            # Check if idRepartidor column exists
-            cursor.execute("""
-                SELECT EXISTS (
-                    SELECT 1 FROM information_schema.columns 
-                    WHERE table_name = 'repartidores' AND column_name = 'idRepartidor'
-                )
-            """)
-            if not cursor.fetchone()[0]:
-                # Try to add the column if it doesn't exist
-                try:
-                    cursor.execute("""
-                        ALTER TABLE repartidores 
-                        ADD COLUMN "idRepartidor" SERIAL PRIMARY KEY
-                    """)
-                except Exception:
-                    # If it fails, the table might already have a primary key
-                    pass
-        else:
-            # Create the table if it doesn't exist
-            try:
-                cursor.execute("""
-                    CREATE TABLE repartidores (
-                        "idRepartidor" SERIAL PRIMARY KEY,
-                        "nomberepartidor" VARCHAR(100),
-                        "telefonoRepartidor" VARCHAR(20),
-                        "email" VARCHAR(100)
-                    )
-                """)
-            except Exception:
-                # Table might already exist, ignore
-                pass
+        try:
+            # Check if repartidores table exists (compatible with SQLite, PostgreSQL, MySQL)
+            if 'sqlite' in db_engine:
+                cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='repartidores'")
+                table_exists = cursor.fetchone() is not None
+            elif 'postgresql' in db_engine:
+                cursor.execute("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'repartidores')")
+                table_exists = cursor.fetchone()[0]
+            elif 'mysql' in db_engine:
+                cursor.execute("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'repartidores')")
+                table_exists = cursor.fetchone()[0]
+            else:
+                table_exists = False
+            
+            # If table doesn't exist, we don't need to do anything
+            # The model will create it during migration
+        except Exception:
+            # Ignore errors, the table might already exist
+            pass
 
 
 class Migration(migrations.Migration):
