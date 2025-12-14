@@ -54,6 +54,7 @@ def dashboard_admin_view(request):
     clientes_hace_2_semanas = 0
     pedidos_nuevos = []
     ventas_por_categoria = []
+    ventas_categoria_limpio = []
     categorias = []
     reabastecimientos_recientes = []
     hay_capacidad_repartidores = False
