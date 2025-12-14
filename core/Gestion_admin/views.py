@@ -447,34 +447,35 @@ def dashboard_admin_view(request):
             })
         
         # Retornar contexto con valores por defecto
-        return render(request, 'admin_dashboard.html', {
+        error_context = {
             'total_productos': total_productos,
             'total_clientes': total_clientes,
             'total_pedidos': total_pedidos,
             'ventas_totales': ventas_totales,
             'ganancias_totales': ganancias_totales,
             'margen_ganancia_global': margen_ganancia_global,
-            'productos_mas_vendidos': productos_mas_vendidos,
-            'producto_mas_vendido': producto_mas_vendido,
-            'productos_por_surtir': productos_por_surtir,
+            'productos_mas_vendidos': [],
+            'producto_mas_vendido': None,
+            'productos_por_surtir': [],
             'clientes_esta_semana': clientes_esta_semana,
             'clientes_semana_pasada': clientes_semana_pasada,
             'clientes_hace_2_semanas': clientes_hace_2_semanas,
-            'pedidos_nuevos': pedidos_nuevos,
-            'ventas_por_categoria': ventas_categoria_limpio,
-            'categorias': categorias,
-            'reabastecimientos_recientes': reabastecimientos_recientes,
-            'hay_capacidad_repartidores': hay_capacidad_repartidores,
-            'pedidos_sin_asignar': pedidos_sin_asignar,
-            'repartidores_disponibles': repartidores_disponibles,
-            'calificaciones_recientes': calificaciones_recientes,
-            'repartidor_estrella': repartidor_estrella,
+            'pedidos_nuevos': [],
+            'ventas_por_categoria': [],
+            'categorias': [],
+            'reabastecimientos_recientes': [],
+            'hay_capacidad_repartidores': False,
+            'pedidos_sin_asignar': 0,
+            'repartidores_disponibles': 0,
+            'calificaciones_recientes': [],
+            'repartidor_estrella': None,
             'total_notificaciones_no_leidas': total_notificaciones_no_leidas,
-            'pedidos_por_asignar': pedidos_por_asignar,
-            'productos_vencidos': productos_vencidos,
-            'productos_por_vencer': productos_por_vencer,
+            'pedidos_por_asignar': [],
+            'productos_vencidos': [],
+            'productos_por_vencer': [],
             'error': error_msg
-        })
+        }
+        return render(request, 'admin_dashboard.html', error_context)
 # core/views.py
 
 # Panel Admin
