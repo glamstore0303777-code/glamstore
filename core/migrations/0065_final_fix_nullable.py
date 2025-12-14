@@ -1,11 +1,11 @@
-# Generated migration to make columns nullable BEFORE renaming
+# Generated migration to ensure all columns are nullable
 
 from django.db import migrations
 from django.conf import settings
 
 
-def make_nullable_first(apps, schema_editor):
-    """Hacer nullable las columnas ANTES de cualquier operación"""
+def final_fix_nullable(apps, schema_editor):
+    """Asegurar que todas las columnas problemáticas sean nullable"""
     from django.db import connection
     
     db_engine = settings.DATABASES['default']['ENGINE']
@@ -13,7 +13,7 @@ def make_nullable_first(apps, schema_editor):
     with connection.cursor() as cursor:
         try:
             if 'postgresql' in db_engine:
-                # PostgreSQL - hacer nullable primero
+                # PostgreSQL - hacer nullable todas las columnas problemáticas
                 try:
                     cursor.execute("""
                         ALTER TABLE repartidores
@@ -44,9 +44,9 @@ def make_nullable_first(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0059_add_repartidores_columns'),
+        ('core', '0064_smart_fix_repartidores'),
     ]
 
     operations = [
-        migrations.RunPython(make_nullable_first, migrations.RunPython.noop),
+        migrations.RunPython(final_fix_nullable, migrations.RunPython.noop),
     ]
