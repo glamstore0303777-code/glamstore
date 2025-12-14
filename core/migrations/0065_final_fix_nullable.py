@@ -10,34 +10,33 @@ def final_fix_nullable(apps, schema_editor):
     
     db_engine = settings.DATABASES['default']['ENGINE']
     
-    with connection.cursor() as cursor:
+    if 'postgresql' in db_engine:
+        # PostgreSQL - hacer nullable todas las columnas problemáticas
         try:
-            if 'postgresql' in db_engine:
-                # PostgreSQL - hacer nullable todas las columnas problemáticas
-                try:
-                    cursor.execute("""
-                        ALTER TABLE repartidores
-                        ALTER COLUMN nomberepartidor DROP NOT NULL;
-                    """)
-                except:
-                    pass
-                
-                try:
-                    cursor.execute("""
-                        ALTER TABLE repartidores
-                        ALTER COLUMN "telefonoRepartidor" DROP NOT NULL;
-                    """)
-                except:
-                    pass
-                
-                try:
-                    cursor.execute("""
-                        ALTER TABLE pedidos
-                        ALTER COLUMN facturas_enviadas DROP NOT NULL;
-                    """)
-                except:
-                    pass
-        except:
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    ALTER TABLE repartidores
+                    ALTER COLUMN nomberepartidor DROP NOT NULL;
+                """)
+        except Exception:
+            pass
+        
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    ALTER TABLE repartidores
+                    ALTER COLUMN "telefonoRepartidor" DROP NOT NULL;
+                """)
+        except Exception:
+            pass
+        
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    ALTER TABLE pedidos
+                    ALTER COLUMN facturas_enviadas DROP NOT NULL;
+                """)
+        except Exception:
             pass
 
 

@@ -10,27 +10,37 @@ def make_nullable(apps, schema_editor):
     
     db_engine = settings.DATABASES['default']['ENGINE']
     
-    with connection.cursor() as cursor:
-        try:
-            if 'postgresql' in db_engine:
-                # PostgreSQL - hacer nullable primero
-                try:
+    if 'postgresql' in db_engine:
+        # PostgreSQL - hacer nullable primero
+        with connection.cursor() as cursor:
+            # Verificar qué columnas existen
+            cursor.execute("""
+                SELECT column_name 
+                FROM information_schema.columns 
+                WHERE table_name = 'repartidores'
+            """)
+            columns = {row[0] for row in cursor.fetchall()}
+        
+        # Hacer cada operación en su propia transacción
+        if 'nomberepartidor' in columns:
+            try:
+                with connection.cursor() as cursor:
                     cursor.execute("""
                         ALTER TABLE repartidores
                         ALTER COLUMN nomberepartidor DROP NOT NULL;
                     """)
-                except:
-                    pass
-                
-                try:
+            except Exception:
+                pass
+        
+        if 'telefonoRepartidor' in columns:
+            try:
+                with connection.cursor() as cursor:
                     cursor.execute("""
                         ALTER TABLE repartidores
                         ALTER COLUMN "telefonoRepartidor" DROP NOT NULL;
                     """)
-                except:
-                    pass
-        except:
-            pass
+            except Exception:
+                pass
 
 
 class Migration(migrations.Migration):
