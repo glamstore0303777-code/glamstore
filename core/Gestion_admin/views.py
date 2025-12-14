@@ -1142,7 +1142,6 @@ def reabastecimiento_view(request):
                         stock_nuevo=stock_nuevo,
                         descripcion=descripcion_completa,
                         lote=lote if lote else None,
-                        fecha_vencimiento=fecha_vencimiento if fecha_vencimiento else None,
                         iva=iva_valor,
                         total_con_iva=total_con_iva
                     )
@@ -1173,6 +1172,12 @@ def reabastecimiento_view(request):
         except Exception as e:
             messages.error(request, f"Error al procesar el archivo: {str(e)}")
             return render(request, 'reabastecimiento.html', {'categorias': categorias, 'proveedores': proveedores})
+    
+    # Limpiar la sesión después de mostrar los resultados
+    if 'productos_reabastecidos' in request.session:
+        del request.session['productos_reabastecidos']
+    if 'errores_reabastecimiento' in request.session:
+        del request.session['errores_reabastecimiento']
     
     return render(request, 'reabastecimiento.html', {
         'categorias': categorias,
