@@ -12,6 +12,9 @@ services:
         value: true
 
   - type: cron
-    name: send-pending-emails
+    name: enviar-correos-pendientes
     schedule: "*/5 * * * *"
     command: "python manage.py enviar_correos_pendientes"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.4
