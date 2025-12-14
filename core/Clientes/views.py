@@ -79,9 +79,15 @@ def obtener_carrito_actual(request):
 
 # ✅ Vista principal de la tienda
 def tienda(request):
-    categorias = Categoria.objects.all()
-    productos_query = Producto.objects.all().order_by('-idProducto')[:12]
-    productos_destacados = filtrar_productos_no_vencidos(productos_query)
+    try:
+        categorias = Categoria.objects.all()
+        productos_query = Producto.objects.all().order_by('-idProducto')[:12]
+        productos_destacados = filtrar_productos_no_vencidos(productos_query)
+    except Exception as e:
+        # Si hay error, mostrar productos sin filtrar
+        categorias = Categoria.objects.all()
+        productos_query = Producto.objects.all().order_by('-idProducto')[:12]
+        productos_destacados = list(productos_query)
     
     return render(request, 'tienda.html', {
         'categorias': categorias,
