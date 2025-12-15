@@ -17,4 +17,14 @@ class Migration(migrations.Migration):
             field=models.DateTimeField(auto_now_add=True, db_column='fechareporte', default=django.utils.timezone.now),
             preserve_default=False,
         ),
+        migrations.AddField(
+            model_name='notificacionproblema',
+            name='respuesta_admin',
+            field=models.TextField(null=True, blank=True, db_column='respuesta_admin'),
+        ),
+        migrations.AddField(
+            model_name='notificacionproblema',
+            name='fecha_respuesta',
+            field=models.DateTimeField(null=True, blank=True, db_column='fecha_respuesta'),
+        ),
     ]
