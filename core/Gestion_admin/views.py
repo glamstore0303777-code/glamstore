@@ -921,36 +921,48 @@ def ajustar_stock_view(request, id):
         if tipo_ajuste == 'entrada':
             # Convertir costo a decimal (no a int para evitar overflow)
             try:
-                costo_a_registrar = Decimal(costo_unitario) if costo_unitario else Decimal('0')
-            except:
-                costo_a_registrar = Decimal('0')
+                if costo_unitario:
+                    # Limpiar formato: reemplazar coma por punto si es necesario
+                    costo_limpio = str(costo_unitario).replace(',', '.')
+                    costo_a_registrar = Decimal(costo_limpio)
+                    # Validar que no exceda el máximo permitido (99,999,999.99)
+                    if costo_a_registrar > Decimal('99999999.99'):
+                        messages.error(request, "El costo unitario es demasiado grande.")
+                        return redirect('movimientos_producto', id=id)
+                else:
+                    costo_a_registrar = Decimal('0')
+            except Exception as e:
+                messages.error(request, f"Costo unitario inválido: {str(e)}")
+                return redirect('movimientos_producto', id=id)
             
             # Limpiar IVA y Total - mantener como Decimal
             iva_a_registrar = None
             if iva and str(iva).strip():
-                iva_limpio = str(iva).replace('.', '').replace(',', '').strip()
-                if iva_limpio and iva_limpio != '0':
-                    try:
-                        iva_a_registrar = Decimal(iva_limpio)
-                        # Validar que no exceda el máximo permitido (99,999,999.99)
-                        if iva_a_registrar > Decimal('99999999.99'):
-                            messages.error(request, "El IVA es demasiado grande.")
-                            return redirect('movimientos_producto', id=id)
-                    except:
-                        iva_a_registrar = None
+                try:
+                    # Limpiar formato: reemplazar coma por punto si es necesario
+                    iva_limpio = str(iva).replace(',', '.')
+                    iva_a_registrar = Decimal(iva_limpio)
+                    # Validar que no exceda el máximo permitido (99,999,999.99)
+                    if iva_a_registrar > Decimal('99999999.99'):
+                        messages.error(request, "El IVA es demasiado grande.")
+                        return redirect('movimientos_producto', id=id)
+                except Exception as e:
+                    messages.error(request, f"IVA inválido: {str(e)}")
+                    return redirect('movimientos_producto', id=id)
             
             total_con_iva_a_registrar = None
             if total_con_iva and str(total_con_iva).strip():
-                total_limpio = str(total_con_iva).replace('.', '').replace(',', '').strip()
-                if total_limpio and total_limpio != '0':
-                    try:
-                        total_con_iva_a_registrar = Decimal(total_limpio)
-                        # Validar que no exceda el máximo permitido (99,999,999.99)
-                        if total_con_iva_a_registrar > Decimal('99999999.99'):
-                            messages.error(request, "El total es demasiado grande.")
-                            return redirect('movimientos_producto', id=id)
-                    except:
-                        total_con_iva_a_registrar = None
+                try:
+                    # Limpiar formato: reemplazar coma por punto si es necesario
+                    total_limpio = str(total_con_iva).replace(',', '.')
+                    total_con_iva_a_registrar = Decimal(total_limpio)
+                    # Validar que no exceda el máximo permitido (99,999,999.99)
+                    if total_con_iva_a_registrar > Decimal('99999999.99'):
+                        messages.error(request, "El total es demasiado grande.")
+                        return redirect('movimientos_producto', id=id)
+                except Exception as e:
+                    messages.error(request, f"Total con IVA inválido: {str(e)}")
+                    return redirect('movimientos_producto', id=id)
             
             # Validar fecha de vencimiento
             fecha_venc_a_registrar = None
@@ -990,6 +1002,15 @@ def ajustar_stock_view(request, id):
                 # Entrada sin lote
                 precio_unitario_val = Decimal(str(producto.precio)) if producto.precio else Decimal('0')
                 
+                # Validar que iva y total_con_iva sean válidos
+                iva_final = None
+                if iva_a_registrar and iva_a_registrar > 0:
+                    iva_final = iva_a_registrar
+                
+                total_final = None
+                if total_con_iva_a_registrar and total_con_iva_a_registrar > 0:
+                    total_final = total_con_iva_a_registrar
+                
                 MovimientoProducto.objects.create(
                     producto=producto,
                     tipo_movimiento='AJUSTE_MANUAL_ENTRADA',
@@ -999,8 +1020,8 @@ def ajustar_stock_view(request, id):
                     descripcion=descripcion,
                     costo_unitario=costo_a_registrar,
                     precio_unitario=precio_unitario_val,
-                    iva=iva_a_registrar,
-                    total_con_iva=total_con_iva_a_registrar
+                    iva=iva_final,
+                    total_con_iva=total_final
                 )
                 producto.stock = stock_nuevo
                 producto.save()
@@ -1017,9 +1038,10 @@ def ajustar_stock_view(request, id):
                 
                 costo_unitario_val = Decimal(str(lote_obj.costo_unitario)) if lote_obj.costo_unitario else Decimal('0')
                 precio_venta_unitario = Decimal(str(producto.precio_venta)) if producto.precio_venta else Decimal('0')
+                cantidad_decimal = Decimal(str(cantidad))
                 
-                iva_total = costo_unitario_val * Decimal('0.19') * Decimal(str(cantidad))
-                total_con_iva_val = precio_venta_unitario * Decimal(str(cantidad))
+                iva_total = (costo_unitario_val * Decimal('0.19') * cantidad_decimal).quantize(Decimal('0.01'))
+                total_con_iva_val = (precio_venta_unitario * cantidad_decimal).quantize(Decimal('0.01'))
                 
                 # Validar que no excedan el máximo permitido
                 if iva_total > Decimal('99999999.99') or total_con_iva_val > Decimal('99999999.99'):
@@ -1050,9 +1072,10 @@ def ajustar_stock_view(request, id):
                 # Salida sin lote específico
                 costo_unitario_val = Decimal(str(producto.precio)) if producto.precio else Decimal('0')
                 precio_venta_unitario = Decimal(str(producto.precio_venta)) if producto.precio_venta else Decimal('0')
+                cantidad_decimal = Decimal(str(cantidad))
                 
-                iva_total = costo_unitario_val * Decimal('0.19') * Decimal(str(cantidad))
-                total_con_iva_val = precio_venta_unitario * Decimal(str(cantidad))
+                iva_total = (costo_unitario_val * Decimal('0.19') * cantidad_decimal).quantize(Decimal('0.01'))
+                total_con_iva_val = (precio_venta_unitario * cantidad_decimal).quantize(Decimal('0.01'))
                 
                 # Validar que no excedan el máximo permitido
                 if iva_total > Decimal('99999999.99') or total_con_iva_val > Decimal('99999999.99'):

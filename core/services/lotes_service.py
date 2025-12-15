@@ -33,8 +33,12 @@ class LotesService:
         from core.models import Producto
         try:
             producto_db = Producto.objects.get(idProducto=producto_id)
+            if not producto_db or not producto_db.idProducto:
+                raise ValueError(f"Producto cargado pero sin ID válido: {producto_db}")
         except Producto.DoesNotExist:
             raise ValueError(f"Producto con ID {producto_id} no existe en la BD")
+        except Exception as e:
+            raise ValueError(f"Error al cargar producto: {str(e)}")
         
         with transaction.atomic():
             # Buscar si ya existe un lote con el mismo código para este producto
@@ -61,6 +65,10 @@ class LotesService:
                 lote_existente.save()
                 lote = lote_existente
             else:
+                # Validar que producto_db sea válido antes de crear el lote
+                if not producto_db or not producto_db.idProducto:
+                    raise ValueError(f"No se puede crear lote: producto_db inválido o sin ID")
+                
                 # Crear nuevo lote - usar producto_db en lugar de producto
                 lote = LoteProducto.objects.create(
                     producto=producto_db,
