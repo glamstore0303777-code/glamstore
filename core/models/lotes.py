@@ -7,7 +7,7 @@ class LoteProducto(models.Model):
     Modelo para manejar lotes de productos con trazabilidad FIFO
     """
     idLote = models.AutoField(primary_key=True, db_column='idlote')
-    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='lotes', db_column='producto_id')
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='lotes', db_column='idproducto')
     codigo_lote = models.CharField(max_length=100, db_column='codigo_lote', help_text="Código único del lote")
     fecha_entrada = models.DateTimeField(auto_now_add=True, db_column='fecha_entrada')
     fecha_vencimiento = models.DateField(null=True, blank=True, db_column='fecha_vencimiento')
