@@ -656,21 +656,21 @@ def simular_pago(request):
         print("12. Encolando factura para envío...")
         try:
             from core.Gestion_admin.services_repartidores import generar_html_factura
-            from core.services.correos_service import encolar_correo
+            from core.services.brevo_service import enviar_correo_brevo
             
             # Generar HTML de la factura
             html_factura = generar_html_factura(pedido)
             
-            # Encolar el correo
-            if encolar_correo(
-                id_pedido=pedido.idPedido,
+            # Enviar con Brevo
+            asunto = f"Factura de tu Pedido #{pedido.idPedido} - Glam Store"
+            if enviar_correo_brevo(
                 destinatario=cliente.email,
-                asunto=f"Factura de tu Pedido #{pedido.idPedido} - Glam Store",
+                asunto=asunto,
                 contenido_html=html_factura
             ):
-                print("    Factura encolada para envío")
+                print("    Factura enviada exitosamente con Brevo")
             else:
-                print("    Error al encolar factura (pero el pedido se creó correctamente)")
+                print("    Error al enviar factura (pero el pedido se creó correctamente)")
         except Exception as e:
             print(f"    Error al encolar factura: {e}")
         
@@ -998,15 +998,17 @@ def recuperar_password(request):
             </html>
             """
             
-            send_mail(
-                subject="Recuperación de Contraseña — Glam Store",
-                message=f"Haz clic en el siguiente enlace para cambiar tu contraseña:\n{link}",
-                from_email="no-reply@glamstore.com",
-                recipient_list=[email],
-                html_message=html_message,
-            )
+            from core.services.brevo_service import enviar_correo_brevo
             
-            messages.success(request, "Te hemos enviado un enlace de recuperación a tu correo.")
+            # Enviar con Brevo
+            if enviar_correo_brevo(
+                destinatario=email,
+                asunto="Recuperación de Contraseña — Glam Store",
+                contenido_html=html_message
+            ):
+                messages.success(request, "Te hemos enviado un enlace de recuperación a tu correo.")
+            else:
+                messages.error(request, "Error al enviar el correo. Por favor, intenta más tarde.")
         except Usuario.DoesNotExist:
             messages.error(request, "Este correo no está registrado.")
             

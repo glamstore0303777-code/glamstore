@@ -186,7 +186,10 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Configuración para envío de correos con Gmail
+# Configuración para envío de correos con Brevo
+BREVO_API_KEY = os.getenv('BREVO_API_KEY')
+
+# Fallback a Gmail si Brevo no está configurado
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587

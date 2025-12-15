@@ -7,9 +7,47 @@ from django.utils import timezone
 from core.models.correos_pendientes import CorreoPendiente
 
 
+def enviar_correo_directo(destinatario, asunto, contenido_html):
+    """
+    Envía un correo directamente sin encolar
+    
+    Args:
+        destinatario: Email del destinatario
+        asunto: Asunto del correo
+        contenido_html: Contenido HTML del correo
+    
+    Returns:
+        True si se envió exitosamente, False si falló
+    """
+    try:
+        contenido_texto = strip_tags(contenido_html)
+        
+        email = EmailMultiAlternatives(
+            subject=asunto,
+            body=contenido_texto,
+            from_email='glamstore0303777@gmail.com',
+            to=[destinatario]
+        )
+        email.attach_alternative(contenido_html, "text/html")
+        
+        resultado = email.send()
+        
+        if resultado > 0:
+            print(f"[OK] Correo enviado directamente a {destinatario}")
+            return True
+        else:
+            print(f"[ERROR] No se pudo enviar correo a {destinatario}")
+            return False
+    except Exception as e:
+        print(f"[ERROR] Error al enviar correo a {destinatario}: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return False
+
+
 def encolar_correo(id_pedido, destinatario, asunto, contenido_html):
     """
-    Encola un correo para envío posterior
+    Encola un correo para envío posterior (fallback si el envío directo falla)
     
     Args:
         id_pedido: ID del pedido
