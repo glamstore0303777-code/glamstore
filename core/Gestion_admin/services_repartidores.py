@@ -192,12 +192,16 @@ def generar_html_factura(pedido):
     # Preparar lista de productos
     productos_html = ""
     for detalle in detalles:
+        # Formatear precios en pesos colombianos
+        precio_formateado = f"{int(detalle.precio_unitario):,}".replace(',', '.')
+        subtotal_formateado = f"{int(detalle.subtotal):,}".replace(',', '.')
+        
         productos_html += f"""
         <tr>
             <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">{detalle.idProducto.nombreProducto}</td>
             <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: center;">{detalle.cantidad}</td>
-            <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: right;">${detalle.precio_unitario:,.0f}</td>
-            <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: right;">${detalle.subtotal:,.0f}</td>
+            <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: right;">${precio_formateado}</td>
+            <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: right;">${subtotal_formateado}</td>
         </tr>
         """
     
@@ -217,11 +221,12 @@ def generar_html_factura(pedido):
     # Mensaje sobre pago de envío
     pago_envio_html = ""
     if debe_pagar_envio:
+        costo_envio_formateado = f"{int(costo_envio):,}".replace(',', '.')
         pago_envio_html = f"""
         <div style="background-color: #fef2f2; border: 2px solid #dc2626; padding: 15px; border-radius: 8px; margin: 20px 0;">
             <h3 style="color: #dc2626; margin: 0 0 10px 0;">IMPORTANTE: Pago Contra Entrega</h3>
             <p style="margin: 5px 0; color: #991b1b;">Tu pedido tiene <strong>Pago Parcial</strong>. Debes pagar el envío al repartidor:</p>
-            <p style="margin: 10px 0; font-size: 24px; font-weight: bold; color: #dc2626;">Total a pagar: ${costo_envio:,.0f}</p>
+            <p style="margin: 10px 0; font-size: 24px; font-weight: bold; color: #dc2626;">Total a pagar: ${costo_envio_formateado}</p>
         </div>
         """
     else:
@@ -279,19 +284,19 @@ def generar_html_factura(pedido):
                     <table style="width: 100%;">
                         <tr>
                             <td style="padding: 5px 0;"><strong>Subtotal:</strong></td>
-                            <td style="padding: 5px 0; text-align: right;">${subtotal_productos:,.0f}</td>
+                            <td style="padding: 5px 0; text-align: right;">${f"{int(subtotal_productos):,}".replace(',', '.')}</td>
                         </tr>
                         <tr>
                             <td style="padding: 5px 0;"><strong>IVA (19%):</strong></td>
-                            <td style="padding: 5px 0; text-align: right;">${iva:,.0f}</td>
+                            <td style="padding: 5px 0; text-align: right;">${f"{int(iva):,}".replace(',', '.')}</td>
                         </tr>
                         <tr>
                             <td style="padding: 5px 0;"><strong>Envío:</strong></td>
-                            <td style="padding: 5px 0; text-align: right;">${costo_envio:,.0f}</td>
+                            <td style="padding: 5px 0; text-align: right;">${f"{int(costo_envio):,}".replace(',', '.')}</td>
                         </tr>
                         <tr style="border-top: 2px solid #e5e7eb;">
                             <td style="padding: 10px 0; font-size: 18px;"><strong>TOTAL:</strong></td>
-                            <td style="padding: 10px 0; text-align: right; font-size: 18px; font-weight: bold; color: #7c3aed;">${subtotal_productos + iva + costo_envio:,.0f}</td>
+                            <td style="padding: 10px 0; text-align: right; font-size: 18px; font-weight: bold; color: #7c3aed;">${f"{int(subtotal_productos + iva + costo_envio):,}".replace(',', '.')}</td>
                         </tr>
                     </table>
                 </div>

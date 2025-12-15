@@ -1,5 +1,6 @@
 {% load static %}
 {% load humanize %}
+{% load formato_colombiano %}
 <!DOCTYPE html>
 <html lang="es">
 
@@ -620,7 +621,7 @@
         <div class="product-info">
           <h3>{{ producto.nombreProducto }}</h3>
           <p class="descripcion">{{ producto.descripcion|truncatechars:60 }}</p>
-          <span class="product-price">${{ producto.precio_venta|floatformat:0|intcomma }}</span>
+          <span class="product-price">{{ producto.precio_venta|pesos_colombianos }}</span>
 
           {% if producto.disponible > 0 %}
           <form method="POST" action="{% url 'agregar_al_carrito' %}" class="form-agregar" data-ajax-form>

@@ -1,5 +1,6 @@
 {% load static %}
 {% load humanize %}
+{% load formato_colombiano %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -150,8 +151,8 @@
               </td>
               <td style="padding: 1rem; color: #1a1a1a;">{{ detalle.idProducto.nombreProducto }}</td>
               <td style="padding: 1rem; text-align: center; color: #1a1a1a;">{{ detalle.cantidad }}</td>
-              <td style="padding: 1rem; text-align: right; color: #1a1a1a;">${{ detalle.precio_unitario|floatformat:0|intcomma }}</td>
-              <td style="padding: 1rem; text-align: right; color: #7c3aed; font-weight: 600;">${{ detalle.subtotal|floatformat:0|intcomma }}</td>
+              <td style="padding: 1rem; text-align: right; color: #1a1a1a;">{{ detalle.precio_unitario|pesos_colombianos }}</td>
+              <td style="padding: 1rem; text-align: right; color: #7c3aed; font-weight: 600;">{{ detalle.subtotal|pesos_colombianos }}</td>
             </tr>
             {% endfor %}
           </tbody>

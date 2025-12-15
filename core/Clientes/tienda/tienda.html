@@ -1,5 +1,6 @@
 {% load static %}
 {% load humanize %}
+{% load formato_colombiano %}
 <!DOCTYPE html>
 <html lang="es">
 
@@ -522,7 +523,7 @@
           {% if producto.descripcion %}
           <p class="product-description">{{ producto.descripcion }}</p>
           {% endif %}
-          <span class="product-price">${{ producto.precio_venta|floatformat:0|intcomma }}</span>
+          <span class="product-price">{{ producto.precio_venta|pesos_colombianos }}</span>
         </div>
       </a>
       {% endfor %}

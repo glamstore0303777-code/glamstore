@@ -1,4 +1,5 @@
 {% load static %}
+{% load formato_colombiano %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -318,8 +319,8 @@
             <tr style="border-bottom: 1px solid #e9d5ff;">
               <td style="padding: 0.8rem; color: #1a1a1a;">{{ item.producto.nombreProducto }}</td>
               <td style="padding: 0.8rem; text-align: center; color: #1a1a1a;">{{ item.cantidad }}</td>
-              <td class="precio-cell" style="padding: 0.8rem; text-align: right; color: #1a1a1a; font-weight: 600;">${{ item.producto.precio_venta|floatformat:0 }}</td>
-              <td class="precio-cell" style="padding: 0.8rem; text-align: right; color: #1a1a1a; font-weight: bold;">${{ item.subtotal|floatformat:0 }}</td>
+              <td class="precio-cell" style="padding: 0.8rem; text-align: right; color: #1a1a1a; font-weight: 600;">{{ item.producto.precio_venta|pesos_colombianos }}</td>
+              <td class="precio-cell" style="padding: 0.8rem; text-align: right; color: #1a1a1a; font-weight: bold;">{{ item.subtotal|pesos_colombianos }}</td>
             </tr>
             {% endfor %}
           </tbody>
@@ -328,7 +329,7 @@
         <div style="background: #ffffff; padding: 1.5rem; border-radius: 12px; border: 2px solid #e9d5ff;">
           <div style="display: flex; justify-content: space-between; margin-bottom: 0.8rem; padding-bottom: 0.8rem; border-bottom: 1px solid #e9d5ff;">
             <span style="color: #1a1a1a;">Sub Total:</span>
-            <strong class="precio-resumen" style="color: #1a1a1a; font-weight: 600;" id="base-liquida-valor">${{ total|floatformat:0 }}</strong>
+            <strong class="precio-resumen" style="color: #1a1a1a; font-weight: 600;" id="base-liquida-valor">{{ total|pesos_colombianos }}</strong>
           </div>
           
           <div style="display: flex; justify-content: space-between; margin-bottom: 0.8rem; padding-bottom: 0.8rem; border-bottom: 1px solid #e9d5ff;">
@@ -343,7 +344,7 @@
           
           <div style="display: flex; justify-content: space-between; padding-top: 0.8rem;">
             <span style="font-size: 1.1rem; font-weight: bold; color: #1a1a1a;">Total del Pedido:</span>
-            <strong class="precio-resumen" style="font-size: 1.2rem; color: #1a1a1a; font-weight: 700;" id="total-valor-resumen">${{ total|add:10000|floatformat:0 }}</strong>
+            <strong class="precio-resumen" style="font-size: 1.2rem; color: #1a1a1a; font-weight: 700;" id="total-valor-resumen">{{ total|add:10000|pesos_colombianos }}</strong>
           </div>
         </div>
 
