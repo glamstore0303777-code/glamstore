@@ -1014,9 +1014,10 @@
               <td class="col-lote">
                 {% if movimiento.lote %}
                   <div class="lote-info">
-                    <span class="lote-code">{{ movimiento.lote }}</span>
-                    {% if movimiento.lote_origen and movimiento.lote_origen.proveedor %}
-                      <span class="lote-provider">{{ movimiento.lote_origen.proveedor }}</span>
+                    {% if movimiento.lote %}
+                      <span class="lote-code">{{ movimiento.lote }}</span>
+                    {% else %}
+                      <span style="color: #ccc;">Sin lote</span>
                     {% endif %}
                   </div>
                 {% else %}

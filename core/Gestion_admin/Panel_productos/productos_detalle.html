@@ -624,13 +624,13 @@
           </div>
           <div class="stat-card">
             <div class="stat-number" style="font-size: 1.2rem;">
-              {% if lote_activo and lote_activo.proveedor %}
-                {{ lote_activo.proveedor }}
+              {% if lote_activo %}
+                Activo
               {% else %}
                 -
               {% endif %}
             </div>
-            <div class="stat-label">Proveedor</div>
+            <div class="stat-label">Estado Lote</div>
           </div>
         </div>
       </div>

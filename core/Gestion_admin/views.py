@@ -763,8 +763,27 @@ def producto_editar_view(request, id):
 
 def producto_eliminar_view(request, id):
     if request.method == 'POST':
-        producto = get_object_or_404(Producto, idProducto=id)
-        producto.delete()
+        try:
+            producto = get_object_or_404(Producto, idProducto=id)
+            nombre_producto = producto.nombreProducto
+            
+            # Eliminar movimientos relacionados
+            from core.models.movimientos import MovimientoProducto
+            MovimientoProducto.objects.filter(producto=producto).delete()
+            
+            # Eliminar lotes relacionados
+            from core.models import LoteProducto
+            LoteProducto.objects.filter(producto=producto).delete()
+            
+            # Eliminar el producto
+            producto.delete()
+            
+            messages.success(request, f"Producto '{nombre_producto}' eliminado correctamente.")
+        except Exception as e:
+            messages.error(request, f"Error al eliminar el producto: {str(e)}")
+            import traceback
+            traceback.print_exc()
+    
     return redirect('lista_productos')
 
 def movimientos_producto_view(request, id):
@@ -775,7 +794,7 @@ def movimientos_producto_view(request, id):
         from core.models.movimientos import MovimientoProducto
         movimientos = MovimientoProducto.objects.filter(
             producto=producto
-        ).select_related('id_pedido', 'lote_origen').order_by('-fecha')
+        ).select_related('id_pedido').order_by('-fecha')
         
         # Obtener lotes disponibles para el producto
         from core.models import LoteProducto
