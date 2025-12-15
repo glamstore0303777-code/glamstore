@@ -729,6 +729,11 @@ def producto_agregar_view(request):
             imagen=imagen
         )
         
+        # Calcular y guardar el precio de venta
+        nuevo_producto.precio_venta = nuevo_producto.calcular_precio_venta()
+        nuevo_producto.save()
+        
+        messages.success(request, f"Producto '{nombre}' agregado correctamente con precio de venta ${nuevo_producto.precio_venta:,}")
         return redirect('lista_productos')
 
     categorias = Categoria.objects.prefetch_related('subcategoria_set').all()
@@ -754,7 +759,11 @@ def producto_editar_view(request, id):
         if 'imagen' in request.FILES:
             producto.imagen = request.FILES['imagen']
         
+        # Recalcular precio de venta si el precio cambió
+        producto.precio_venta = producto.calcular_precio_venta()
+        
         producto.save()
+        messages.success(request, f"Producto '{producto.nombreProducto}' actualizado correctamente. Nuevo precio de venta: ${producto.precio_venta:,}")
         return redirect('lista_productos')
 
     categorias = Categoria.objects.all()
@@ -911,21 +920,38 @@ def ajustar_stock_view(request, id):
         
         # Procesar entrada
         if tipo_ajuste == 'entrada':
-            # Convertir costo a entero
-            costo_a_registrar = int(float(costo_unitario)) if costo_unitario else 0
+            # Convertir costo a decimal (no a int para evitar overflow)
+            try:
+                costo_a_registrar = Decimal(costo_unitario) if costo_unitario else Decimal('0')
+            except:
+                costo_a_registrar = Decimal('0')
             
-            # Limpiar IVA y Total
+            # Limpiar IVA y Total - mantener como Decimal
             iva_a_registrar = None
             if iva and str(iva).strip():
                 iva_limpio = str(iva).replace('.', '').replace(',', '').strip()
                 if iva_limpio and iva_limpio != '0':
-                    iva_a_registrar = Decimal(iva_limpio)
+                    try:
+                        iva_a_registrar = Decimal(iva_limpio)
+                        # Validar que no exceda el máximo permitido (99,999,999.99)
+                        if iva_a_registrar > Decimal('99999999.99'):
+                            messages.error(request, "El IVA es demasiado grande.")
+                            return redirect('movimientos_producto', id=id)
+                    except:
+                        iva_a_registrar = None
             
             total_con_iva_a_registrar = None
             if total_con_iva and str(total_con_iva).strip():
                 total_limpio = str(total_con_iva).replace('.', '').replace(',', '').strip()
                 if total_limpio and total_limpio != '0':
-                    total_con_iva_a_registrar = Decimal(total_limpio)
+                    try:
+                        total_con_iva_a_registrar = Decimal(total_limpio)
+                        # Validar que no exceda el máximo permitido (99,999,999.99)
+                        if total_con_iva_a_registrar > Decimal('99999999.99'):
+                            messages.error(request, "El total es demasiado grande.")
+                            return redirect('movimientos_producto', id=id)
+                    except:
+                        total_con_iva_a_registrar = None
             
             # Validar fecha de vencimiento
             fecha_venc_a_registrar = None
@@ -963,6 +989,8 @@ def ajustar_stock_view(request, id):
                 )
             else:
                 # Entrada sin lote
+                precio_unitario_val = Decimal(str(producto.precio)) if producto.precio else Decimal('0')
+                
                 MovimientoProducto.objects.create(
                     producto=producto,
                     tipo_movimiento='AJUSTE_MANUAL_ENTRADA',
@@ -971,7 +999,7 @@ def ajustar_stock_view(request, id):
                     stock_nuevo=stock_nuevo,
                     descripcion=descripcion,
                     costo_unitario=costo_a_registrar,
-                    precio_unitario=int(float(producto.precio)) if producto.precio else 0,
+                    precio_unitario=precio_unitario_val,
                     iva=iva_a_registrar,
                     total_con_iva=total_con_iva_a_registrar
                 )
@@ -988,11 +1016,16 @@ def ajustar_stock_view(request, id):
                     messages.error(request, f"Solo hay {lote_obj.cantidad_disponible} unidades disponibles.")
                     return redirect('movimientos_producto', id=id)
                 
-                costo_unitario_val = float(lote_obj.costo_unitario) if lote_obj.costo_unitario else 0
-                precio_venta_unitario = float(producto.precio_venta) if producto.precio_venta else 0
+                costo_unitario_val = Decimal(str(lote_obj.costo_unitario)) if lote_obj.costo_unitario else Decimal('0')
+                precio_venta_unitario = Decimal(str(producto.precio_venta)) if producto.precio_venta else Decimal('0')
                 
-                iva_total = int(costo_unitario_val * 0.19 * cantidad)
-                total_con_iva_val = int(precio_venta_unitario * cantidad)
+                iva_total = costo_unitario_val * Decimal('0.19') * Decimal(str(cantidad))
+                total_con_iva_val = precio_venta_unitario * Decimal(str(cantidad))
+                
+                # Validar que no excedan el máximo permitido
+                if iva_total > Decimal('99999999.99') or total_con_iva_val > Decimal('99999999.99'):
+                    messages.error(request, "Los valores calculados son demasiado grandes.")
+                    return redirect('movimientos_producto', id=id)
                 
                 MovimientoProducto.objects.create(
                     producto=producto,
@@ -1001,8 +1034,8 @@ def ajustar_stock_view(request, id):
                     stock_anterior=stock_anterior,
                     stock_nuevo=stock_nuevo,
                     descripcion=descripcion,
-                    costo_unitario=int(costo_unitario_val),
-                    precio_unitario=int(precio_venta_unitario),
+                    costo_unitario=costo_unitario_val,
+                    precio_unitario=precio_venta_unitario,
                     lote=lote_obj.codigo_lote,
                     fecha_vencimiento=lote_obj.fecha_vencimiento,
                     lote_origen=lote_obj,
@@ -1016,11 +1049,16 @@ def ajustar_stock_view(request, id):
                 producto.save()
             else:
                 # Salida sin lote específico
-                costo_unitario_val = float(producto.precio) if producto.precio else 0
-                precio_venta_unitario = float(producto.precio_venta) if producto.precio_venta else 0
+                costo_unitario_val = Decimal(str(producto.precio)) if producto.precio else Decimal('0')
+                precio_venta_unitario = Decimal(str(producto.precio_venta)) if producto.precio_venta else Decimal('0')
                 
-                iva_total = int(costo_unitario_val * 0.19 * cantidad)
-                total_con_iva_val = int(precio_venta_unitario * cantidad)
+                iva_total = costo_unitario_val * Decimal('0.19') * Decimal(str(cantidad))
+                total_con_iva_val = precio_venta_unitario * Decimal(str(cantidad))
+                
+                # Validar que no excedan el máximo permitido
+                if iva_total > Decimal('99999999.99') or total_con_iva_val > Decimal('99999999.99'):
+                    messages.error(request, "Los valores calculados son demasiado grandes.")
+                    return redirect('movimientos_producto', id=id)
                 
                 MovimientoProducto.objects.create(
                     producto=producto,
@@ -1029,8 +1067,8 @@ def ajustar_stock_view(request, id):
                     stock_anterior=stock_anterior,
                     stock_nuevo=stock_nuevo,
                     descripcion=descripcion,
-                    costo_unitario=int(costo_unitario_val),
-                    precio_unitario=int(precio_venta_unitario),
+                    costo_unitario=costo_unitario_val,
+                    precio_unitario=precio_venta_unitario,
                     iva=iva_total,
                     total_con_iva=total_con_iva_val
                 )
@@ -2507,8 +2545,9 @@ def enviar_factura_cliente_view(request, id_pedido):
 def enviar_facturas_multiples_view(request):
     """
     Vista para enviar facturas a múltiples clientes de una vez
+    Usa Brevo para envío rápido y confiable
     """
-    from .services_repartidores import enviar_factura_cliente
+    from core.services.brevo_service import enviar_factura_brevo
     
     if request.method == 'POST':
         pedido_ids = request.POST.getlist('pedido_ids_facturas')
@@ -2521,12 +2560,15 @@ def enviar_facturas_multiples_view(request):
             facturas_enviadas = 0
             errores = 0
             
+            # Limitar a máximo 50 facturas por solicitud para evitar timeouts
+            pedido_ids = pedido_ids[:50]
+            
             for pedido_id in pedido_ids:
                 try:
                     pedido = Pedido.objects.select_related('idCliente', 'idRepartidor').get(idPedido=pedido_id)
                     
-                    if enviar_factura_cliente(pedido):
-                        # Factura enviada exitosamente
+                    # Usar Brevo en lugar de Django email
+                    if enviar_factura_brevo(pedido):
                         facturas_enviadas += 1
                     else:
                         errores += 1
@@ -2546,6 +2588,9 @@ def enviar_facturas_multiples_view(request):
                 messages.warning(request, f"Hubo {errores} error(es) al enviar facturas.")
                 
         except Exception as e:
+            print(f"[ERROR] Error en enviar_facturas_multiples: {str(e)}")
+            import traceback
+            traceback.print_exc()
             messages.error(request, f"Error al enviar facturas: {str(e)}")
     
     return redirect('lista_repartidores')

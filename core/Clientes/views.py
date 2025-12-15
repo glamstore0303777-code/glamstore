@@ -11,7 +11,7 @@ from django.utils.crypto import get_random_string
 from django.contrib.auth.hashers import make_password
 from core.models import Pedido, Usuario
 from .forms import LoginForm
-from core.models import MovimientoProducto
+from core.models import MovimientoProducto, MensajeContacto
 from django.db import transaction
 from django.conf import settings
 from django.urls import reverse
@@ -1112,20 +1112,31 @@ from django.http import HttpResponse
 
 def contacto(request):
     if request.method == 'POST':
-        nombre = request.POST.get('nombre')
-        email = request.POST.get('email')
-        mensaje = request.POST.get('mensaje')
+        try:
+            nombre = request.POST.get('nombre', '').strip()
+            email = request.POST.get('email', '').strip()
+            mensaje = request.POST.get('mensaje', '').strip()
 
-        # Guardar el mensaje en la base de datos
-        from core.models import MensajeContacto
-        MensajeContacto.objects.create(
-            nombre=nombre,
-            email=email,
-            mensaje=mensaje
-        )
+            # Validar que los campos no estén vacíos
+            if not nombre or not email or not mensaje:
+                messages.error(request, "Por favor, completa todos los campos.")
+                return redirect('contacto')
 
-        messages.success(request, "Tu mensaje ha sido enviado. ¡Gracias por contactarnos!")
-        return redirect('contacto')
+            # Guardar el mensaje en la base de datos
+            MensajeContacto.objects.create(
+                nombre=nombre,
+                email=email,
+                mensaje=mensaje
+            )
+
+            messages.success(request, "Tu mensaje ha sido enviado. ¡Gracias por contactarnos!")
+            return redirect('contacto')
+        except Exception as e:
+            print(f"[ERROR] Error al guardar mensaje de contacto: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            messages.error(request, "Hubo un error al enviar tu mensaje. Por favor, intenta de nuevo.")
+            return redirect('contacto')
 
     return render(request, 'contacto.html')
 

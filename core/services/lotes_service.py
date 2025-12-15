@@ -21,10 +21,17 @@ class LotesService:
         if not hasattr(producto, 'idProducto') or not producto.idProducto:
             raise ValueError(f"Producto inválido o sin ID: {producto}")
         
+        # Recargar el producto desde la BD para asegurar que tiene ID válido
+        from core.models import Producto
+        try:
+            producto_db = Producto.objects.get(idProducto=producto.idProducto)
+        except Producto.DoesNotExist:
+            raise ValueError(f"Producto con ID {producto.idProducto} no existe en la BD")
+        
         with transaction.atomic():
             # Buscar si ya existe un lote con el mismo código para este producto
             lote_existente = LoteProducto.objects.filter(
-                producto=producto,
+                producto=producto_db,
                 codigo_lote=codigo_lote
             ).first()
             
@@ -46,9 +53,9 @@ class LotesService:
                 lote_existente.save()
                 lote = lote_existente
             else:
-                # Crear nuevo lote
+                # Crear nuevo lote - usar producto_db en lugar de producto
                 lote = LoteProducto.objects.create(
-                    producto=producto,
+                    producto=producto_db,
                     codigo_lote=codigo_lote,
                     fecha_vencimiento=fecha_vencimiento,
                     cantidad_inicial=cantidad,
@@ -60,12 +67,12 @@ class LotesService:
                     proveedor=proveedor
                 )
             
-            # Crear el movimiento de producto
-            stock_anterior = producto.stock
+            # Crear el movimiento de producto - usar producto_db
+            stock_anterior = producto_db.stock
             stock_nuevo = stock_anterior + cantidad
             
             movimiento = MovimientoProducto.objects.create(
-                producto=producto,
+                producto=producto_db,
                 tipo_movimiento='AJUSTE_MANUAL_ENTRADA',
                 cantidad=cantidad,
                 precio_unitario=costo_unitario,
@@ -78,9 +85,9 @@ class LotesService:
                 descripcion=descripcion
             )
             
-            # Actualizar stock del producto
-            producto.stock = stock_nuevo
-            producto.save()
+            # Actualizar stock del producto - usar producto_db
+            producto_db.stock = stock_nuevo
+            producto_db.save()
             
             return lote, movimiento
     
