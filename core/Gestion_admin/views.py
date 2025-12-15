@@ -889,6 +889,8 @@ def ajustar_stock_view(request, id):
         total_con_iva = request.POST.get('total_con_iva', 0)
         lote_seleccionado_id = request.POST.get('lote_seleccionado')
         proveedor = request.POST.get('proveedor', '')
+        
+        print(f"[DEBUG] Parámetros: cantidad={cantidad}, tipo={tipo_ajuste}, lote={lote}")
 
         if cantidad <= 0:
             messages.error(request, "La cantidad debe ser un número positivo.")
@@ -1055,8 +1057,14 @@ def ajustar_stock_view(request, id):
             producto.stock = stock_nuevo
             producto.save()
         messages.success(request, "El inventario ha sido ajustado correctamente.")
-    except (ValueError, TypeError):
+    except (ValueError, TypeError) as e:
+        print(f"[ERROR] Error de tipo: {str(e)}")
         messages.error(request, "Por favor, introduce una cantidad válida.")
+    except Exception as e:
+        print(f"[ERROR] Error en ajustar_stock: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        messages.error(request, f"Error al ajustar el stock: {str(e)}")
     
     return redirect('movimientos_producto', id=id)
 
