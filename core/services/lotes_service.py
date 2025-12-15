@@ -18,15 +18,23 @@ class LotesService:
         # Validar producto antes de hacer nada
         if not producto:
             raise ValueError("Producto no puede ser None")
-        if not hasattr(producto, 'idProducto') or not producto.idProducto:
+        
+        # Obtener el ID del producto de forma segura
+        producto_id = None
+        if hasattr(producto, 'idProducto'):
+            producto_id = producto.idProducto
+        elif hasattr(producto, 'id'):
+            producto_id = producto.id
+        
+        if not producto_id:
             raise ValueError(f"Producto inválido o sin ID: {producto}")
         
         # Recargar el producto desde la BD para asegurar que tiene ID válido
         from core.models import Producto
         try:
-            producto_db = Producto.objects.get(idProducto=producto.idProducto)
+            producto_db = Producto.objects.get(idProducto=producto_id)
         except Producto.DoesNotExist:
-            raise ValueError(f"Producto con ID {producto.idProducto} no existe en la BD")
+            raise ValueError(f"Producto con ID {producto_id} no existe en la BD")
         
         with transaction.atomic():
             # Buscar si ya existe un lote con el mismo código para este producto
