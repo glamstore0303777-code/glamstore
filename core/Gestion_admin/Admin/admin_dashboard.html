@@ -1368,8 +1368,17 @@
               <div class="pedido-item">
                 <div class="pedido-info">
                   <div class="pedido-id">Pedido #{{ pedido.idPedido }}</div>
-                  <div class="pedido-cliente">Cliente #{{ pedido.idCliente_id }}</div>
-                  <div class="pedido-fecha">{{ pedido.fechaCreacion|date:"d/m/Y" }} | ${{ pedido.total }}</div>
+                  <div class="pedido-cliente">Cliente: {{ pedido.idCliente.nombre }}</div>
+                  <div class="pedido-fecha">{{ pedido.fechaCreacion|date:"d/m/Y H:i" }} | ${{ pedido.total|floatformat:0|intcomma }}</div>
+                  {% if pedido.idRepartidor %}
+                    <div style="margin-top: 0.5rem; padding: 0.4rem 0.8rem; background: #e8f5e9; border-radius: 8px; font-size: 0.85rem; color: #2e7d32; font-weight: bold;">
+                      ✓ Repartidor: {{ pedido.idRepartidor.nombreRepartidor }} | {{ pedido.idRepartidor.telefono }}
+                    </div>
+                  {% else %}
+                    <div style="margin-top: 0.5rem; padding: 0.4rem 0.8rem; background: #fff3e0; border-radius: 8px; font-size: 0.85rem; color: #e65100; font-weight: bold;">
+                      ⚠ Sin repartidor asignado
+                    </div>
+                  {% endif %}
                 </div>
                 <div class="pedido-actions">
                   <a href="{% url 'detalle_pedido' pedido.idPedido %}" class="btn-pedido btn-details">Ver</a>

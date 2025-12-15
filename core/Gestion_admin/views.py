@@ -194,7 +194,7 @@ def dashboard_admin_view(request):
         # === PEDIDOS NUEVOS ===
         pedidos_nuevos = Pedido.objects.filter(
             fechaCreacion__gte=una_semana_atras
-        ).order_by('-fechaCreacion')[:10]
+        ).select_related('idCliente', 'idRepartidor').order_by('-fechaCreacion')[:10]
         
         # === VENTAS POR CATEGORÍA - COMPLETAMENTE DINÁMICO ===
         # Obtener TODAS las categorías que tienen productos (sin límite)
@@ -1755,9 +1755,9 @@ def asignar_pedido_repartidor_view(request):
             movimiento.descripcion = movimiento.descripcion.replace('Preparación', 'Venta')
             movimiento.save()
         
-        # Enviar factura al cliente
+        # Enviar factura al cliente CON INFORMACIÓN DEL REPARTIDOR
         if enviar_factura_cliente(pedido):
-            messages.success(request, f"Pedido #{pedido.idPedido} asignado. Factura enviada al cliente.")
+            messages.success(request, f"✓ Pedido #{pedido.idPedido} asignado a {repartidor.nombreRepartidor}. Factura con datos del repartidor enviada al cliente.")
         else:
             messages.warning(request, f"Pedido #{pedido.idPedido} asignado. No se pudo enviar la factura.")
 
