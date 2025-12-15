@@ -708,10 +708,26 @@ def producto_agregar_view(request):
     if request.method == 'POST':
         nombre = request.POST.get('nombreProducto')
         descripcion = request.POST.get('descripcion')
-        precio = request.POST.get('precio')
+        precio_str = request.POST.get('precio', '0').strip()
         id_categoria = request.POST.get('idCategoria')
         id_subcategoria = request.POST.get('idSubcategoria')
         imagen = request.FILES.get('imagen')
+
+        # Validar y convertir precio
+        try:
+            from decimal import Decimal
+            # Limpiar formato: reemplazar coma por punto si es necesario
+            precio_limpio = precio_str.replace(',', '.')
+            precio = Decimal(precio_limpio)
+            
+            if precio <= 0:
+                messages.error(request, "El precio debe ser mayor a 0.")
+                categorias = Categoria.objects.prefetch_related('subcategoria_set').all()
+                return render(request, 'productos_agregar.html', {'categorias': categorias})
+        except Exception as e:
+            messages.error(request, f"Precio inválido: {str(e)}")
+            categorias = Categoria.objects.prefetch_related('subcategoria_set').all()
+            return render(request, 'productos_agregar.html', {'categorias': categorias})
 
         categoria = get_object_or_404(Categoria, idCategoria=id_categoria)
         subcategoria = None
@@ -746,7 +762,24 @@ def producto_editar_view(request, id):
     if request.method == 'POST':
         producto.nombreProducto = request.POST.get('nombreProducto')
         producto.descripcion = request.POST.get('descripcion')
-        producto.precio = request.POST.get('precio')
+        
+        # Convertir precio correctamente
+        precio_str = request.POST.get('precio', '0').strip()
+        try:
+            from decimal import Decimal
+            precio_limpio = precio_str.replace(',', '.')
+            producto.precio = Decimal(precio_limpio)
+            
+            if producto.precio <= 0:
+                messages.error(request, "El precio debe ser mayor a 0.")
+                categorias = Categoria.objects.all()
+                subcategorias = Subcategoria.objects.all()
+                return render(request, 'productos_editar.html', {'producto': producto, 'categorias': categorias, 'subcategorias': subcategorias})
+        except Exception as e:
+            messages.error(request, f"Precio inválido: {str(e)}")
+            categorias = Categoria.objects.all()
+            subcategorias = Subcategoria.objects.all()
+            return render(request, 'productos_editar.html', {'producto': producto, 'categorias': categorias, 'subcategorias': subcategorias})
         
         # El stock no se edita aquí, solo en movimientos_producto
         

@@ -44,11 +44,12 @@ class Producto(models.Model):
         Redondea al múltiplo de 50 más cercano para precios limpios"""
         from decimal import Decimal
         
-        if self.precio:
+        if self.precio and self.precio > 0:
             precio_decimal = Decimal(str(self.precio)) if not isinstance(self.precio, Decimal) else self.precio
             margen = Decimal('10')
             factor_margen = Decimal('1') + (margen / Decimal('100'))
-            precio_calculado = float(precio_decimal * Decimal('1.19') * factor_margen)
-            precio_redondeado = round(precio_calculado / 50) * 50
-            return int(precio_redondeado)
-        return 0
+            precio_calculado = precio_decimal * Decimal('1.19') * factor_margen
+            # Redondear al múltiplo de 50 más cercano
+            precio_redondeado = (precio_calculado / Decimal('50')).quantize(Decimal('1')) * Decimal('50')
+            return precio_redondeado
+        return Decimal('0')
