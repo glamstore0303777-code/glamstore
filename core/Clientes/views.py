@@ -1627,11 +1627,15 @@ def notificaciones_cliente(request):
         return redirect('login')
     
     # Obtener notificaciones del cliente
+    notificaciones = []
     try:
         notificaciones = NotificacionProblema.objects.filter(
             idPedido__idCliente=cliente
         ).select_related('idPedido').order_by('-fechaReporte')
     except Exception as e:
+        print(f"[ERROR] Error al obtener notificaciones: {str(e)}")
+        import traceback
+        traceback.print_exc()
         notificaciones = []
     
     return render(request, 'notificaciones_cliente.html', {
