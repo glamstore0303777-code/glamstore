@@ -1609,6 +1609,8 @@ def notificaciones_cliente(request):
     usuario_id = request.session.get('usuario_id')
     cliente_id = request.session.get('cliente_id')
     
+    cliente = None
+    
     if usuario_id:
         try:
             usuario = Usuario.objects.get(idUsuario=usuario_id)
@@ -1616,30 +1618,51 @@ def notificaciones_cliente(request):
         except Usuario.DoesNotExist:
             messages.error(request, "Usuario no encontrado.")
             return redirect('login')
+        except Exception as e:
+            print(f"[ERROR] Error al obtener usuario: {str(e)}")
+            messages.error(request, "Error al obtener información del usuario.")
+            return redirect('login')
     elif cliente_id:
         try:
             cliente = Cliente.objects.get(idCliente=cliente_id)
         except Cliente.DoesNotExist:
             messages.error(request, "Cliente no encontrado.")
             return redirect('login')
+        except Exception as e:
+            print(f"[ERROR] Error al obtener cliente: {str(e)}")
+            messages.error(request, "Error al obtener información del cliente.")
+            return redirect('login')
     else:
         messages.error(request, "Debes iniciar sesión para ver tus notificaciones.")
+        return redirect('login')
+    
+    # Validar que cliente fue obtenido
+    if not cliente:
+        messages.error(request, "No se pudo obtener la información del cliente.")
         return redirect('login')
     
     # Obtener notificaciones del cliente
     notificaciones = []
     try:
+        # Usar try-except para cada paso
         notificaciones = NotificacionProblema.objects.filter(
             idPedido__idCliente=cliente
         ).select_related('idPedido').order_by('-fechaReporte')
+        
+        # Convertir a lista para asegurar que se ejecuta la query
+        notificaciones = list(notificaciones)
+        
     except Exception as e:
         print(f"[ERROR] Error al obtener notificaciones: {str(e)}")
         import traceback
         traceback.print_exc()
+        # Retornar lista vacía en lugar de fallar
         notificaciones = []
+        messages.warning(request, "No se pudieron cargar las notificaciones. Por favor, intenta más tarde.")
     
     return render(request, 'notificaciones_cliente.html', {
-        'notificaciones': notificaciones
+        'notificaciones': notificaciones,
+        'cliente': cliente
     })
 
 
