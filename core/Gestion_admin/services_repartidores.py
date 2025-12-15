@@ -618,36 +618,56 @@ def enviar_correo_repartidor_detallado(repartidor, fecha=None):
                 body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #faf8ff; margin: 0; padding: 0; }}
                 .container {{ max-width: 900px; margin: 20px auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden; }}
                 .header {{ background: linear-gradient(135deg, #e8d5ff 0%, #f0e6ff 100%); color: #6b46c1; padding: 30px; text-align: center; border-bottom: 3px solid #c4b5fd; }}
-                .logo {{ width: 80px; height: 80px; margin: 0 auto 15px; background: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(107, 70, 193, 0.2); }}
-                .logo-text {{ font-size: 24px; font-weight: bold; color: #6b46c1; }}
                 .header h1 {{ margin: 0; font-size: 28px; font-weight: 700; color: #6b46c1; }}
                 .header p {{ margin: 10px 0 0 0; font-size: 14px; opacity: 0.8; color: #7c3aed; }}
                 .content {{ padding: 30px; }}
                 .info-section {{ background-color: #f3f0ff; border-left: 5px solid #c4b5fd; padding: 20px; margin-bottom: 25px; border-radius: 6px; }}
                 .info-section h3 {{ color: #7c3aed; margin-top: 0; font-size: 16px; }}
-                .info-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }}
-                .info-item {{ font-size: 14px; color: #6b7280; }}
-                .info-item strong {{ color: #374151; }}
                 .pedidos-lista {{ margin: 20px 0; }}
-                .pedido-card {{ background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 15px; }}
-                .pedido-header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }}
-                .pedido-info {{ display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 12px; }}
-                .recomendaciones {{ background-color: #fef7ed; border-left: 5px solid #f97316; padding: 20px; margin-top: 25px; border-radius: 6px; }}
-                .recomendaciones h3 {{ color: #ea580c; margin-top: 0; font-size: 16px; }}
-                .recomendaciones ul {{ margin: 10px 0; padding-left: 20px; }}
-                .recomendaciones li {{ margin: 8px 0; color: #9a3412; font-size: 14px; }}
                 .footer {{ background-color: #faf8ff; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb; color: #9ca3af; font-size: 12px; }}
-                .resumen {{ background-color: #f3f0ff; border-left: 5px solid #c4b5fd; padding: 20px; margin-bottom: 25px; border-radius: 6px; }}
-                .resumen h3 {{ color: #7c3aed; margin-top: 0; font-size: 16px; }}
-                .resumen-grid {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 10px; }}
-                .resumen-item {{ text-align: center; }}
-                .resumen-numero {{ font-size: 24px; font-weight: bold; color: #7c3aed; }}
-                .resumen-label {{ font-size: 12px; color: #6b7280; margin-top: 5px; }}
             </style>
         </head>
         <body>
             <div class="container">
                 <div class="header">
+                    <h1>Glam Store</h1>
+                    <p>Plan de Entregas - {repartidor.nombreRepartidor}</p>
+                </div>
+                
+                <div class="content">
+                    <p>Hola <strong>{repartidor.nombreRepartidor}</strong>,</p>
+                    <p>Aquí está tu plan de entregas pendientes para este mes. Tienes <strong>{len(pedidos_con_info)} pedido(s)</strong> por entregar.</p>
+                    
+                    <div class="info-section">
+                        <h3>Resumen de Entregas</h3>
+                        <p><strong>Total de pedidos:</strong> {len(pedidos_con_info)}</p>
+                        <p><strong>Teléfono de contacto:</strong> {repartidor.telefono}</p>
+                    </div>
+                    
+                    <div class="pedidos-lista">
+                        {tabla_pedidos}
+                    </div>
+                </div>
+                
+                <div class="footer">
+                    <p><strong>Glam Store</strong></p>
+                    <p>Gracias por tu trabajo</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        # Enviar usando Brevo
+        from core.services.brevo_service import enviar_correo_brevo
+        return enviar_correo_brevo(repartidor.email, subject, html_message, strip_tags(html_message))
+        
+    except Exception as e:
+        logger.error(f"[ERROR] Error al enviar correo a repartidor: {str(e)}")
+        print(f"[ERROR] Error al enviar correo: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return Falseiv class="header">
                     <h1>Glam Store</h1>
                     <p>Ruta de Entregas - {fecha.strftime('%A, %d de %B de %Y')}</p>
                 </div>

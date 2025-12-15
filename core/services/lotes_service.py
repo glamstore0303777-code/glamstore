@@ -15,6 +15,12 @@ class LotesService:
         """
         Crea un nuevo lote o actualiza uno existente cuando hay una entrada de producto
         """
+        # Validar producto antes de hacer nada
+        if not producto:
+            raise ValueError("Producto no puede ser None")
+        if not hasattr(producto, 'idProducto') or not producto.idProducto:
+            raise ValueError(f"Producto inválido o sin ID: {producto}")
+        
         with transaction.atomic():
             # Buscar si ya existe un lote con el mismo código para este producto
             lote_existente = LoteProducto.objects.filter(

@@ -872,197 +872,178 @@ def actualizar_margen_global_view(request):
         return JsonResponse({'error': str(e)}, status=500)
 
 def ajustar_stock_view(request, id):
+    """Ajusta el stock de un producto (entrada o salida)"""
     if request.method != 'POST':
         return redirect('movimientos_producto', id=id)
 
     producto = get_object_or_404(Producto, idProducto=id)
     
     try:
-        print(f"[DEBUG] Iniciando ajuste de stock para producto {id}")
-        cantidad = int(request.POST.get('cantidad'))
-        tipo_ajuste = request.POST.get('tipo_ajuste')
-        costo_unitario = request.POST.get('costo_unitario', 0)
-        descripcion = request.POST.get('descripcion', 'Ajuste manual')
-        lote = request.POST.get('lote', '')
-        fecha_vencimiento = request.POST.get('fecha_vencimiento', '')
-        iva = request.POST.get('iva', 0)
-        total_con_iva = request.POST.get('total_con_iva', 0)
-        lote_seleccionado_id = request.POST.get('lote_seleccionado')
-        proveedor = request.POST.get('proveedor', '')
+        from datetime import datetime, date, timedelta
+        from core.services.lotes_service import LotesService
+        from core.models.lotes import LoteProducto
         
-        print(f"[DEBUG] Parámetros: cantidad={cantidad}, tipo={tipo_ajuste}, lote={lote}")
-
+        # Extraer parámetros
+        cantidad = int(request.POST.get('cantidad', 0))
+        tipo_ajuste = request.POST.get('tipo_ajuste', '').strip()
+        costo_unitario = request.POST.get('costo_unitario', '0').strip()
+        descripcion = request.POST.get('descripcion', 'Ajuste manual').strip()
+        lote = request.POST.get('lote', '').strip()
+        fecha_vencimiento = request.POST.get('fecha_vencimiento', '').strip()
+        iva = request.POST.get('iva', '0').strip()
+        total_con_iva = request.POST.get('total_con_iva', '0').strip()
+        lote_seleccionado_id = request.POST.get('lote_seleccionado')
+        proveedor = request.POST.get('proveedor', '').strip()
+        
+        # Validaciones básicas
         if cantidad <= 0:
             messages.error(request, "La cantidad debe ser un número positivo.")
             return redirect('movimientos_producto', id=id)
-
+        
+        if tipo_ajuste not in ['entrada', 'salida']:
+            messages.error(request, "Tipo de ajuste inválido.")
+            return redirect('movimientos_producto', id=id)
+        
+        # Calcular stock nuevo
         stock_anterior = producto.stock
         diferencia = cantidad if tipo_ajuste == 'entrada' else -cantidad
         stock_nuevo = stock_anterior + diferencia
-
-        tipo_movimiento = 'AJUSTE_MANUAL_ENTRADA' if tipo_ajuste == 'entrada' else 'AJUSTE_MANUAL_SALIDA'
-
-        costo_a_registrar = 0
-        iva_a_registrar = None
-        total_con_iva_a_registrar = None
-        fecha_venc_a_registrar = None
-        lote_a_registrar = None
-
+        
+        # Procesar entrada
         if tipo_ajuste == 'entrada':
-            # Convertir a entero (sin decimales) para pesos colombianos
+            # Convertir costo a entero
             costo_a_registrar = int(float(costo_unitario)) if costo_unitario else 0
-            # Limpiar valores de IVA y Total (remover puntos de separador de miles)
+            
+            # Limpiar IVA y Total
+            iva_a_registrar = None
             if iva and str(iva).strip():
                 iva_limpio = str(iva).replace('.', '').replace(',', '').strip()
                 if iva_limpio and iva_limpio != '0':
                     iva_a_registrar = Decimal(iva_limpio)
+            
+            total_con_iva_a_registrar = None
             if total_con_iva and str(total_con_iva).strip():
                 total_limpio = str(total_con_iva).replace('.', '').replace(',', '').strip()
                 if total_limpio and total_limpio != '0':
                     total_con_iva_a_registrar = Decimal(total_limpio)
-            lote_a_registrar = lote if lote else None
             
             # Validar fecha de vencimiento
+            fecha_venc_a_registrar = None
             if fecha_vencimiento:
-                from datetime import datetime, date, timedelta
                 try:
-                    # Convertir la fecha string a objeto date
-                    if isinstance(fecha_vencimiento, str):
-                        fecha_venc_obj = datetime.strptime(fecha_vencimiento, '%Y-%m-%d').date()
-                    else:
-                        fecha_venc_obj = fecha_vencimiento
+                    fecha_venc_obj = datetime.strptime(fecha_vencimiento, '%Y-%m-%d').date()
+                    fecha_minima = date.today() + timedelta(days=90)
                     
-                    # Calcular fecha mínima (hoy + 3 meses)
-                    fecha_minima = date.today() + timedelta(days=90)  # 3 meses = 90 días
-                    
-                    # Verificar que no esté vencida
                     if fecha_venc_obj <= date.today():
-                        messages.error(request, f"La fecha de vencimiento ({fecha_venc_obj.strftime('%d/%m/%Y')}) ya está vencida o es hoy. No se puede agregar stock con productos vencidos.")
+                        messages.error(request, f"La fecha de vencimiento ya está vencida.")
                         return redirect('movimientos_producto', id=id)
                     
-                    # Verificar que tenga al menos 3 meses de caducidad
                     if fecha_venc_obj < fecha_minima:
-                        messages.error(request, f"La fecha de vencimiento ({fecha_venc_obj.strftime('%d/%m/%Y')}) debe tener al menos 3 meses de caducidad. Fecha mínima permitida: {fecha_minima.strftime('%d/%m/%Y')}")
+                        messages.error(request, f"La fecha debe tener al menos 3 meses de caducidad.")
                         return redirect('movimientos_producto', id=id)
                     
                     fecha_venc_a_registrar = fecha_vencimiento
                 except ValueError:
-                    messages.error(request, "Formato de fecha de vencimiento inválido.")
+                    messages.error(request, "Formato de fecha inválido.")
                     return redirect('movimientos_producto', id=id)
-            else:
-                fecha_venc_a_registrar = None
-
-        from core.services import LotesService
-        from core.models import LoteProducto
-        
-        if tipo_ajuste == 'entrada' and lote_a_registrar:
-            # Usar el servicio de lotes para entradas con lote
-            proveedor_a_registrar = proveedor if proveedor else None
-            LotesService.crear_lote_entrada(
-                producto=producto,
-                codigo_lote=lote_a_registrar,
-                cantidad=cantidad,
-                costo_unitario=costo_a_registrar,
-                fecha_vencimiento=fecha_venc_a_registrar,
-                total_con_iva=total_con_iva_a_registrar,
-                iva=iva_a_registrar,
-                proveedor=proveedor_a_registrar,
-                descripcion=descripcion
-            )
-        elif tipo_ajuste == 'salida' and lote_seleccionado_id:
-            # Salida con lote específico seleccionado
-            lote = get_object_or_404(LoteProducto, idLote=lote_seleccionado_id)
             
-            if cantidad > lote.cantidad_disponible:
-                messages.error(request, f"Solo hay {lote.cantidad_disponible} unidades disponibles en este lote.")
-                return redirect('movimientos_producto', id=id)
-            
-            # Calcular IVA para la salida
-            costo_unitario = float(lote.costo_unitario) if lote.costo_unitario else 0
-            precio_venta_unitario = float(producto.precio_venta) if producto.precio_venta else 0
-            
-            # IVA = costo × 0.19
-            iva_por_unidad = costo_unitario * 0.19
-            iva_total = iva_por_unidad * cantidad
-            
-            # Total con IVA = precio_venta × cantidad
-            total_con_iva = precio_venta_unitario * cantidad
-            
-            # Crear movimiento de salida
-            MovimientoProducto.objects.create(
-                producto=producto, 
-                tipo_movimiento='AJUSTE_MANUAL_SALIDA', 
-                cantidad=cantidad,
-                stock_anterior=stock_anterior, 
-                stock_nuevo=stock_nuevo, 
-                descripcion=descripcion,
-                costo_unitario=int(costo_unitario), 
-                precio_unitario=int(precio_venta_unitario),
-                lote=lote.codigo_lote,
-                fecha_vencimiento=lote.fecha_vencimiento,
-                lote_origen=lote,
-                total_con_iva=int(total_con_iva),
-                iva=int(iva_total)
-            )
-            
-            # Actualizar lote y producto
-            lote.cantidad_disponible -= cantidad
-            lote.save()
-            producto.stock = stock_nuevo
-            producto.save()
-        else:
-            # Lógica anterior para entradas/salidas sin lote específico
-            # Si es salida, calcular IVA
-            if tipo_ajuste == 'salida':
-                costo_unitario = float(producto.precio) if producto.precio else 0
-                precio_venta_unitario = float(producto.precio_venta) if producto.precio_venta else 0
-                
-                # IVA = costo × 0.19
-                iva_por_unidad = costo_unitario * 0.19
-                iva_total = iva_por_unidad * cantidad
-                
-                # Total con IVA = precio_venta × cantidad
-                total_con_iva_calc = precio_venta_unitario * cantidad
-                
-                MovimientoProducto.objects.create(
-                    producto=producto, 
-                    tipo_movimiento=tipo_movimiento, 
+            # Crear lote si se proporciona código
+            if lote:
+                proveedor_a_registrar = proveedor if proveedor else None
+                LotesService.crear_lote_entrada(
+                    producto=producto,
+                    codigo_lote=lote,
                     cantidad=cantidad,
-                    stock_anterior=stock_anterior, 
-                    stock_nuevo=stock_nuevo, 
-                    descripcion=descripcion,
-                    costo_unitario=int(costo_unitario), 
-                    precio_unitario=int(precio_venta_unitario),
-                    lote=lote_a_registrar,
+                    costo_unitario=costo_a_registrar,
                     fecha_vencimiento=fecha_venc_a_registrar,
-                    iva=int(iva_total),
-                    total_con_iva=int(total_con_iva_calc)
+                    total_con_iva=total_con_iva_a_registrar,
+                    iva=iva_a_registrar,
+                    proveedor=proveedor_a_registrar,
+                    descripcion=descripcion
                 )
             else:
-                # Entrada
+                # Entrada sin lote
                 MovimientoProducto.objects.create(
-                    producto=producto, 
-                    tipo_movimiento=tipo_movimiento, 
+                    producto=producto,
+                    tipo_movimiento='AJUSTE_MANUAL_ENTRADA',
                     cantidad=cantidad,
-                    stock_anterior=stock_anterior, 
-                    stock_nuevo=stock_nuevo, 
+                    stock_anterior=stock_anterior,
+                    stock_nuevo=stock_nuevo,
                     descripcion=descripcion,
-                    costo_unitario=costo_a_registrar, 
+                    costo_unitario=costo_a_registrar,
                     precio_unitario=int(float(producto.precio)) if producto.precio else 0,
-                    lote=lote_a_registrar,
-                    fecha_vencimiento=fecha_venc_a_registrar,
                     iva=iva_a_registrar,
                     total_con_iva=total_con_iva_a_registrar
                 )
-            producto.stock = stock_nuevo
-            producto.save()
+                producto.stock = stock_nuevo
+                producto.save()
+        
+        # Procesar salida
+        else:
+            if lote_seleccionado_id:
+                # Salida con lote específico
+                lote_obj = get_object_or_404(LoteProducto, idLote=lote_seleccionado_id)
+                
+                if cantidad > lote_obj.cantidad_disponible:
+                    messages.error(request, f"Solo hay {lote_obj.cantidad_disponible} unidades disponibles.")
+                    return redirect('movimientos_producto', id=id)
+                
+                costo_unitario_val = float(lote_obj.costo_unitario) if lote_obj.costo_unitario else 0
+                precio_venta_unitario = float(producto.precio_venta) if producto.precio_venta else 0
+                
+                iva_total = int(costo_unitario_val * 0.19 * cantidad)
+                total_con_iva_val = int(precio_venta_unitario * cantidad)
+                
+                MovimientoProducto.objects.create(
+                    producto=producto,
+                    tipo_movimiento='AJUSTE_MANUAL_SALIDA',
+                    cantidad=cantidad,
+                    stock_anterior=stock_anterior,
+                    stock_nuevo=stock_nuevo,
+                    descripcion=descripcion,
+                    costo_unitario=int(costo_unitario_val),
+                    precio_unitario=int(precio_venta_unitario),
+                    lote=lote_obj.codigo_lote,
+                    fecha_vencimiento=lote_obj.fecha_vencimiento,
+                    lote_origen=lote_obj,
+                    total_con_iva=total_con_iva_val,
+                    iva=iva_total
+                )
+                
+                lote_obj.cantidad_disponible -= cantidad
+                lote_obj.save()
+                producto.stock = stock_nuevo
+                producto.save()
+            else:
+                # Salida sin lote específico
+                costo_unitario_val = float(producto.precio) if producto.precio else 0
+                precio_venta_unitario = float(producto.precio_venta) if producto.precio_venta else 0
+                
+                iva_total = int(costo_unitario_val * 0.19 * cantidad)
+                total_con_iva_val = int(precio_venta_unitario * cantidad)
+                
+                MovimientoProducto.objects.create(
+                    producto=producto,
+                    tipo_movimiento='AJUSTE_MANUAL_SALIDA',
+                    cantidad=cantidad,
+                    stock_anterior=stock_anterior,
+                    stock_nuevo=stock_nuevo,
+                    descripcion=descripcion,
+                    costo_unitario=int(costo_unitario_val),
+                    precio_unitario=int(precio_venta_unitario),
+                    iva=iva_total,
+                    total_con_iva=total_con_iva_val
+                )
+                producto.stock = stock_nuevo
+                producto.save()
+        
         messages.success(request, "El inventario ha sido ajustado correctamente.")
-    except (ValueError, TypeError) as e:
-        print(f"[ERROR] Error de tipo: {str(e)}")
-        messages.error(request, "Por favor, introduce una cantidad válida.")
+    
+    except ValueError as e:
+        messages.error(request, "Por favor, introduce valores válidos.")
     except Exception as e:
-        print(f"[ERROR] Error en ajustar_stock: {str(e)}")
         import traceback
+        print(f"[ERROR] Error en ajustar_stock: {str(e)}")
         traceback.print_exc()
         messages.error(request, f"Error al ajustar el stock: {str(e)}")
     
@@ -1755,7 +1736,7 @@ def repartidor_eliminar_view(request, id):
     return redirect('lista_repartidores')
 
 def asignar_pedido_repartidor_view(request):
-    from .services_repartidores import enviar_factura_cliente
+    from core.services.brevo_service import enviar_factura_brevo
     
     if request.method == 'POST':
         pedido_id = request.POST.get('pedido_id')
@@ -1790,8 +1771,8 @@ def asignar_pedido_repartidor_view(request):
             movimiento.descripcion = movimiento.descripcion.replace('Preparación', 'Venta')
             movimiento.save()
         
-        # Enviar factura al cliente CON INFORMACIÓN DEL REPARTIDOR
-        if enviar_factura_cliente(pedido):
+        # Enviar factura al cliente CON INFORMACIÓN DEL REPARTIDOR usando Brevo
+        if enviar_factura_brevo(pedido):
             messages.success(request, f"✓ Pedido #{pedido.idPedido} asignado a {repartidor.nombreRepartidor}. Factura con datos del repartidor enviada al cliente.")
         else:
             messages.warning(request, f"Pedido #{pedido.idPedido} asignado. No se pudo enviar la factura.")
