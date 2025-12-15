@@ -878,6 +878,7 @@ def ajustar_stock_view(request, id):
     producto = get_object_or_404(Producto, idProducto=id)
     
     try:
+        print(f"[DEBUG] Iniciando ajuste de stock para producto {id}")
         cantidad = int(request.POST.get('cantidad'))
         tipo_ajuste = request.POST.get('tipo_ajuste')
         costo_unitario = request.POST.get('costo_unitario', 0)
