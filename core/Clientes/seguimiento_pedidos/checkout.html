@@ -249,13 +249,13 @@
           </select>
 
           <label>Dirección</label>
-          <input type="text" name="direccion" required placeholder="Ej: Calle 123 # 45-67" {% if cliente_datos.direccion %}value="{{ cliente_datos.direccion }}"{% endif %}>
+          <input type="text" name="direccion" required placeholder="Ej: Calle 123 # 45-67" {% if cliente_datos and cliente_datos.direccion %}value="{{ cliente_datos.direccion }}"{% endif %}>
 
           <label>Información adicional</label>
           <input type="text" name="info_adicional" placeholder="Ej: Apartamento 301, Torre B">
 
           <label>Nombre de quien recibe</label>
-          <input type="text" name="nombre_receptor" required {% if cliente_datos.nombre %}value="{{ cliente_datos.nombre }}"{% endif %}>
+          <input type="text" name="nombre_receptor" required {% if cliente_datos and cliente_datos.nombre %}value="{{ cliente_datos.nombre }}"{% endif %}>
 
           <h3>3. MÉTODO DE ENTREGA</h3>
 

@@ -651,6 +651,7 @@ def simular_pago(request):
                     print(f"   Stock actualizado sin lote: {producto.stock}")
 
         print("11. Transacción completada exitosamente")
+        print(f"    Pedido guardado en BD con ID: {pedido.idPedido}")
         
         # Encolar factura para envío asincrónico
         print("12. Encolando factura para envío...")
@@ -658,21 +659,27 @@ def simular_pago(request):
             from core.Gestion_admin.services_repartidores import generar_html_factura
             from core.services.brevo_service import enviar_correo_brevo
             
+            # Recargar el pedido desde la BD para asegurar que tiene el ID correcto
+            pedido_recargado = Pedido.objects.get(idPedido=pedido.idPedido)
+            print(f"    Pedido recargado desde BD: {pedido_recargado.idPedido}")
+            
             # Generar HTML de la factura
-            html_factura = generar_html_factura(pedido)
+            html_factura = generar_html_factura(pedido_recargado)
             
             # Enviar con Brevo
-            asunto = f"Factura de tu Pedido #{pedido.idPedido} - Glam Store"
+            asunto = f"Factura de tu Pedido #{pedido_recargado.idPedido} - Glam Store"
             if enviar_correo_brevo(
                 destinatario=cliente.email,
                 asunto=asunto,
                 contenido_html=html_factura
             ):
-                print("    Factura enviada exitosamente con Brevo")
+                print(f"    Factura enviada exitosamente con Brevo para pedido #{pedido_recargado.idPedido}")
             else:
-                print("    Error al enviar factura (pero el pedido se creó correctamente)")
+                print(f"    Error al enviar factura (pero el pedido #{pedido_recargado.idPedido} se creó correctamente)")
         except Exception as e:
             print(f"    Error al encolar factura: {e}")
+            import traceback
+            traceback.print_exc()
         
         # Limpiar carrito
         request.session['carrito'] = {}
@@ -870,7 +877,7 @@ def registro(request):
             messages.error(request, f"Error al crear la cuenta. Por favor intenta de nuevo.")
             return render(request, 'registrar_usuario.html', {'input': request.POST})
 
-    return render(request, 'registrar_usuario.html')
+    return render(request, 'registrar_usuario.html', {'input': {}, 'email_existe': False})
 
 
 

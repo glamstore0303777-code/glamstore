@@ -6,6 +6,7 @@ class Cliente(models.Model):
     apellido = models.CharField(max_length=100, default='', db_column='apellidocliente')
     email = models.EmailField(max_length=100, null=True, blank=True, db_column='emailcliente')
     telefono = models.CharField(max_length=20, null=True, blank=True, db_column='telefonocliente')
+    cedula = models.CharField(max_length=20, null=True, blank=True, db_column='cedula')
     direccion = models.TextField(null=True, blank=True, db_column='direccioncliente')
     ciudad = models.CharField(max_length=50, null=True, blank=True, db_column='ciudadcliente')
     departamento = models.CharField(max_length=50, null=True, blank=True, db_column='departamentocliente')

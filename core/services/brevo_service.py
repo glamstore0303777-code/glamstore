@@ -25,9 +25,15 @@ def enviar_correo_brevo(destinatario, asunto, contenido_html, contenido_texto=No
         True si se envió exitosamente, False si falló
     """
     try:
+        # Verificar que BREVO_API_KEY esté configurado
+        if not settings.BREVO_API_KEY:
+            logger.error("[ERROR] BREVO_API_KEY no está configurado en las variables de entorno")
+            print("[ERROR] BREVO_API_KEY no está configurado")
+            return False
+        
         # Configurar la API de Brevo
         configuration = sib_api_v3_sdk.Configuration()
-        configuration.api_key['api-key'] = settings.BREVO_API_KEY
+        configuration.api_key['api-key'] = settings.BREVO_API_KEY.strip()
         
         # Crear instancia del cliente
         api_instance = sib_api_v3_sdk.TransactionalEmailsApi(

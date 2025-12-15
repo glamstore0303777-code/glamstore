@@ -169,6 +169,9 @@ def generar_html_factura(pedido):
     Genera el HTML de la factura para un pedido
     Retorna el HTML como string
     """
+    if not pedido or not pedido.idPedido:
+        raise ValueError("Pedido inválido o sin ID")
+    
     cliente = pedido.idCliente
     
     # Obtener detalles del pedido
