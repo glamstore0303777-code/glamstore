@@ -790,11 +790,11 @@ def movimientos_producto_view(request, id):
     try:
         producto = get_object_or_404(Producto, idProducto=id)
         
-        # Obtener movimientos de forma segura
+        # Obtener movimientos de forma segura - NO cargar lote_origen para evitar errores de columnas
         from core.models.movimientos import MovimientoProducto
         movimientos = MovimientoProducto.objects.filter(
             producto=producto
-        ).select_related('id_pedido').order_by('-fecha')
+        ).select_related('id_pedido').defer('lote_origen').order_by('-fecha')
         
         # Obtener lotes disponibles para el producto
         from core.models import LoteProducto
@@ -1397,10 +1397,10 @@ def producto_detalle_view(request, id):
     try:
         producto = get_object_or_404(Producto, idProducto=id)
         
-        # Obtener movimientos recientes del producto
+        # Obtener movimientos recientes del producto - NO cargar lote_origen para evitar errores
         movimientos_recientes = MovimientoProducto.objects.filter(
             producto=producto
-        ).order_by('-fecha')[:5]
+        ).defer('lote_origen').order_by('-fecha')[:5]
         
         # Obtener el lote activo (el más antiguo con stock, según FIFO)
         from core.models import LoteProducto
@@ -2077,10 +2077,11 @@ def notificaciones_view(request):
         from core.models import NotificacionProblema
         
         # Obtener TODAS las notificaciones sin filtros, ordenadas por fecha
+        # Usar defer para no cargar campos que podrían no existir en Render
         notificaciones = NotificacionProblema.objects.select_related(
             'idPedido__idCliente',
             'idPedido__idRepartidor'
-        ).order_by('-fechaReporte')
+        ).defer('respuesta_admin', 'fecha_respuesta').order_by('-fechaReporte')
         
         # Contar notificaciones no leídas
         notificaciones_no_leidas = notificaciones.filter(leida=False).count()
@@ -2098,6 +2099,8 @@ def notificaciones_view(request):
         print(f"Error en notificaciones_view: {str(e)}")
         import traceback
         traceback.print_exc()
+        messages.error(request, f"Error al cargar notificaciones: {str(e)}")
+        return redirect('dashboard_admin')
         messages.error(request, f"Error al cargar notificaciones: {str(e)}")
         return redirect('dashboard_admin')
 
