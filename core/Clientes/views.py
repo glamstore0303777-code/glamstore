@@ -573,30 +573,31 @@ def simular_pago(request):
                         
                         # El precio_venta ya incluye IVA (19%) + Ganancia (6%)
                         # Necesitamos calcular solo el IVA sobre el costo
-                        costo_unitario = float(lote.costo_unitario) if lote.costo_unitario else 0
-                        precio_venta_unitario = float(producto.precio_venta) if producto.precio_venta else 0
+                        from decimal import Decimal
+                        costo_unitario = Decimal(str(lote.costo_unitario)) if lote.costo_unitario else Decimal('0')
+                        precio_venta_unitario = Decimal(str(producto.precio_venta)) if producto.precio_venta else Decimal('0')
                         
                         # IVA = costo × 0.19
-                        iva_por_unidad = costo_unitario * 0.19
-                        iva_total = iva_por_unidad * cantidad_a_tomar
+                        iva_por_unidad = costo_unitario * Decimal('0.19')
+                        iva_total = (iva_por_unidad * Decimal(str(cantidad_a_tomar))).quantize(Decimal('0.01'))
                         
                         # Total con IVA = precio_venta × cantidad
-                        total_con_iva = precio_venta_unitario * cantidad_a_tomar
+                        total_con_iva = (precio_venta_unitario * Decimal(str(cantidad_a_tomar))).quantize(Decimal('0.01'))
                         
                         MovimientoProducto.objects.create(
                             producto=producto,
                             tipo_movimiento='EN_PREPARACION_SALIDA',
                             cantidad=cantidad_a_tomar,
-                            precio_unitario=int(precio_venta_unitario),
-                            costo_unitario=int(costo_unitario),
+                            precio_unitario=precio_venta_unitario,
+                            costo_unitario=costo_unitario,
                             stock_anterior=stock_anterior,
                             stock_nuevo=stock_nuevo,
                             id_pedido=pedido,
                             lote=lote.codigo_lote,
                             fecha_vencimiento=lote.fecha_vencimiento,
                             lote_origen=lote,
-                            total_con_iva=int(total_con_iva),
-                            iva=int(iva_total),
+                            total_con_iva=total_con_iva,
+                            iva=iva_total,
                             descripcion=f'Pedido #{pedido.idPedido} - Preparación (apartado) - Lote {lote.codigo_lote}'
                         )
                         
@@ -622,27 +623,28 @@ def simular_pago(request):
                     
                     # El precio_venta ya incluye IVA (19%) + Ganancia (6%)
                     # Necesitamos calcular solo el IVA sobre el costo
-                    costo_unitario = float(producto.precio) if producto.precio else 0
-                    precio_venta_unitario = float(producto.precio_venta) if producto.precio_venta else 0
+                    from decimal import Decimal
+                    costo_unitario = Decimal(str(producto.precio)) if producto.precio else Decimal('0')
+                    precio_venta_unitario = Decimal(str(producto.precio_venta)) if producto.precio_venta else Decimal('0')
                     
                     # IVA = costo × 0.19
-                    iva_por_unidad = costo_unitario * 0.19
-                    iva_total = iva_por_unidad * cantidad_int
+                    iva_por_unidad = costo_unitario * Decimal('0.19')
+                    iva_total = (iva_por_unidad * Decimal(str(cantidad_int))).quantize(Decimal('0.01'))
                     
                     # Total con IVA = precio_venta × cantidad
-                    total_con_iva = precio_venta_unitario * cantidad_int
+                    total_con_iva = (precio_venta_unitario * Decimal(str(cantidad_int))).quantize(Decimal('0.01'))
                     
                     MovimientoProducto.objects.create(
                         producto=producto,
                         tipo_movimiento='EN_PREPARACION_SALIDA',
                         cantidad=cantidad_int,
-                        precio_unitario=int(precio_venta_unitario),
-                        costo_unitario=int(costo_unitario),
+                        precio_unitario=precio_venta_unitario,
+                        costo_unitario=costo_unitario,
                         stock_anterior=stock_anterior,
                         stock_nuevo=stock_nuevo,
                         id_pedido=pedido,
-                        total_con_iva=int(total_con_iva),
-                        iva=int(iva_total),
+                        total_con_iva=total_con_iva,
+                        iva=iva_total,
                         descripcion=f'Pedido #{pedido.idPedido} - Preparación (apartado) - Sin lote'
                     )
                     

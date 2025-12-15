@@ -2155,9 +2155,9 @@ def subcategoria_eliminar_view(request, id):
     return redirect('lista_subcategorias')
 
 def notificaciones_view(request):
-    """Vista para mostrar TODAS las notificaciones de problemas de entrega"""
+    """Vista para mostrar TODAS las notificaciones de problemas de entrega y mensajes de contacto"""
     try:
-        from core.models import NotificacionProblema
+        from core.models import NotificacionProblema, MensajeContacto
         
         # Obtener TODAS las notificaciones sin filtros, ordenadas por fecha
         # Usar defer para no cargar campos que podrían no existir en Render
@@ -2166,24 +2166,33 @@ def notificaciones_view(request):
             'idPedido__idRepartidor'
         ).defer('respuesta_admin', 'fecha_respuesta').order_by('-fechaReporte')
         
+        # Obtener mensajes de contacto ordenados por fecha descendente
+        try:
+            mensajes_contacto = MensajeContacto.objects.all().order_by('-fecha')
+        except Exception as e:
+            print(f"Error al obtener mensajes de contacto: {str(e)}")
+            mensajes_contacto = []
+        
         # Contar notificaciones no leídas
         notificaciones_no_leidas = notificaciones.filter(leida=False).count()
         
+        # Contar mensajes de contacto
+        total_mensajes_contacto = len(mensajes_contacto) if mensajes_contacto else 0
+        
         # Total de notificaciones no leídas
-        total_no_leidas = notificaciones_no_leidas
+        total_no_leidas = notificaciones_no_leidas + total_mensajes_contacto
         
         return render(request, 'notificaciones.html', {
             'notificaciones': notificaciones,
             'notificaciones_no_leidas': notificaciones_no_leidas,
-            'mensajes_contacto': [],
+            'mensajes_contacto': mensajes_contacto,
+            'total_mensajes_contacto': total_mensajes_contacto,
             'total_no_leidas': total_no_leidas
         })
     except Exception as e:
         print(f"Error en notificaciones_view: {str(e)}")
         import traceback
         traceback.print_exc()
-        messages.error(request, f"Error al cargar notificaciones: {str(e)}")
-        return redirect('dashboard_admin')
         messages.error(request, f"Error al cargar notificaciones: {str(e)}")
         return redirect('dashboard_admin')
 
@@ -3212,17 +3221,22 @@ def actualizar_iva_movimientos_view(request):
                         precio_venta = costo_unitario * 1.19 * 1.06
                     
                     # Calcular IVA (19% sobre el costo)
-                    iva_por_unidad = costo_unitario * 0.19
-                    iva_total = iva_por_unidad * movimiento.cantidad
+                    from decimal import Decimal
+                    iva_por_unidad = Decimal(str(costo_unitario)) * Decimal('0.19')
+                    iva_total = iva_por_unidad * Decimal(str(movimiento.cantidad))
                     
                     # Calcular total con IVA (precio de venta × cantidad)
-                    total_con_iva = precio_venta * movimiento.cantidad
+                    total_con_iva = Decimal(str(precio_venta)) * Decimal(str(movimiento.cantidad))
                     
-                    # Actualizar el movimiento
-                    movimiento.precio_unitario = int(precio_venta)
-                    movimiento.costo_unitario = int(costo_unitario)
-                    movimiento.iva = int(iva_total)
-                    movimiento.total_con_iva = int(total_con_iva)
+                    # Redondear a 2 decimales
+                    iva_total = iva_total.quantize(Decimal('0.01'))
+                    total_con_iva = total_con_iva.quantize(Decimal('0.01'))
+                    
+                    # Actualizar el movimiento - mantener como Decimal
+                    movimiento.precio_unitario = Decimal(str(precio_venta))
+                    movimiento.costo_unitario = Decimal(str(costo_unitario))
+                    movimiento.iva = iva_total
+                    movimiento.total_con_iva = total_con_iva
                     movimiento.save()
                     
                     actualizados += 1
