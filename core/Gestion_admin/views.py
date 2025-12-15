@@ -24,7 +24,6 @@ from django.utils import timezone
 from decimal import Decimal
 from .services_repartidores import (
     asignar_pedidos_automaticamente,
-    enviar_pdf_repartidor,
     verificar_capacidad_repartidores,
     obtener_pedidos_sin_asignar,
     obtener_repartidores_disponibles
