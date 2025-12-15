@@ -467,8 +467,8 @@
     </div>
 
     <div class="sidebar-user">
-      <p>{{ request.session.usuario_nombre }}</p>
-      <p class="rol">{{ request.session.usuario_rol }}</p>
+      <p>{{ request.session.usuario_nombre|default:"Usuario" }}</p>
+      <p class="rol">{{ request.session.usuario_rol|default:"Admin" }}</p>
     </div>
 
         <div class="sidebar-nav">

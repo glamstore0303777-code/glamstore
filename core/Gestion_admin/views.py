@@ -351,16 +351,33 @@ def dashboard_admin_view(request):
         ).order_by('-fechaCreacion')[:10]
         
         # === INFORMACIÓN DE VENCIMIENTOS ===
-        productos_vencidos = []
-        productos_por_vencer = []
+        productos_vencidos = {
+            'total_productos': 0,
+            'total_cantidad': 0,
+            'total_valor': 0,
+            'detalle': []
+        }
+        productos_por_vencer = {
+            'total_productos': 0,
+            'total_cantidad': 0,
+            'total_valor': 0,
+            'criticos': 0,
+            'altos': 0,
+            'medios': 0,
+            'detalle': []
+        }
         try:
             from core.services.vencimientos_service import VencimientosService
+            import traceback
             resumen_vencimientos = VencimientosService.obtener_resumen_vencimientos()
-            productos_vencidos = resumen_vencimientos['productos_vencidos']
-            productos_por_vencer = resumen_vencimientos['productos_por_vencer']
+            if resumen_vencimientos and isinstance(resumen_vencimientos, dict):
+                productos_vencidos = resumen_vencimientos.get('productos_vencidos', productos_vencidos)
+                productos_por_vencer = resumen_vencimientos.get('productos_por_vencer', productos_por_vencer)
         except Exception as e:
-            # Si hay error en vencimientos, continuar sin esa información
-            pass
+            # Si hay error en vencimientos, continuar con valores por defecto
+            import traceback
+            print(f"[ERROR] Error al obtener vencimientos: {e}")
+            print(traceback.format_exc())
         
         # === OBTENER TODAS LAS CATEGORÍAS ===
         categorias = Categoria.objects.all().order_by('nombreCategoria')
@@ -471,8 +488,21 @@ def dashboard_admin_view(request):
             'repartidor_estrella': None,
             'total_notificaciones_no_leidas': total_notificaciones_no_leidas,
             'pedidos_por_asignar': [],
-            'productos_vencidos': [],
-            'productos_por_vencer': [],
+            'productos_vencidos': {
+                'total_productos': 0,
+                'total_cantidad': 0,
+                'total_valor': 0,
+                'detalle': []
+            },
+            'productos_por_vencer': {
+                'total_productos': 0,
+                'total_cantidad': 0,
+                'total_valor': 0,
+                'criticos': 0,
+                'altos': 0,
+                'medios': 0,
+                'detalle': []
+            },
             'error': error_msg
         }
         return render(request, 'admin_dashboard.html', error_context)
@@ -2111,8 +2141,10 @@ def responder_notificacion_view(request, id_notificacion):
 
 
 def asignar_pedidos_multiples_view(request):
-    """Asigna múltiples pedidos a un repartidor de una vez"""
-    from .services_repartidores import enviar_factura_cliente
+    """Asigna múltiples pedidos a un repartidor de una vez (optimizado para evitar timeout)"""
+    from django.db import transaction
+    from django.core.mail import EmailMultiAlternatives
+    from django.utils.html import strip_tags
     
     if request.method == 'POST':
         pedido_ids = request.POST.getlist('pedido_ids')
@@ -2121,41 +2153,79 @@ def asignar_pedidos_multiples_view(request):
         if not pedido_ids or not repartidor_id:
             return redirect('lista_repartidores')
         
-        repartidor = get_object_or_404(Repartidor, idRepartidor=repartidor_id)
+        try:
+            repartidor = Repartidor.objects.get(idRepartidor=repartidor_id)
+        except Repartidor.DoesNotExist:
+            messages.error(request, "Repartidor no encontrado")
+            return redirect('lista_repartidores')
         
-        # Asignar todos los pedidos seleccionados
+        # Usar transacción para asegurar consistencia
         pedidos_asignados = 0
         facturas_enviadas = 0
-        for pedido_id in pedido_ids:
-            try:
-                pedido = Pedido.objects.get(idPedido=pedido_id)
-                pedido.idRepartidor = repartidor
-                pedido.estado_pedido = 'En Camino'
-                pedido.save()
-                pedidos_asignados += 1
+        errores = []
+        
+        try:
+            with transaction.atomic():
+                # Actualizar todos los pedidos de una vez (más rápido)
+                pedidos_a_actualizar = Pedido.objects.filter(idPedido__in=pedido_ids)
+                pedidos_a_actualizar.update(
+                    idRepartidor=repartidor,
+                    estado_pedido='En Camino'
+                )
+                pedidos_asignados = pedidos_a_actualizar.count()
                 
                 # Actualizar movimientos de "EN_PREPARACION_SALIDA" a "SALIDA_VENTA"
-                movimientos_preparacion = MovimientoProducto.objects.filter(
-                    id_pedido=pedido,
+                MovimientoProducto.objects.filter(
+                    id_pedido__in=pedidos_a_actualizar,
                     tipo_movimiento='EN_PREPARACION_SALIDA'
-                )
-                
-                for movimiento in movimientos_preparacion:
-                    movimiento.tipo_movimiento = 'SALIDA_VENTA'
-                    movimiento.descripcion = movimiento.descripcion.replace('Preparación', 'Venta')
-                    movimiento.save()
-                
-                # Enviar factura al cliente
-                if enviar_factura_cliente(pedido):
-                    facturas_enviadas += 1
-                    
-            except Pedido.DoesNotExist:
-                continue
+                ).update(tipo_movimiento='SALIDA_VENTA')
+        except Exception as e:
+            print(f"[ERROR] Error al asignar pedidos: {str(e)}")
+            messages.error(request, f"Error al asignar pedidos: {str(e)}")
+            return redirect('lista_repartidores')
         
-        # TODO: estado_turno no existe en la BD
-        # if pedidos_asignados > 0:
-        #     repartidor.estado_turno = 'En Ruta'
-        #     repartidor.save()
+        # Enviar facturas de forma asincrónica (sin bloquear la respuesta)
+        # Usar bulk_create para insertar registros de correos pendientes
+        from core.models import CorreoPendiente
+        from core.services.brevo_service import generar_html_factura
+        
+        try:
+            pedidos_actualizados = Pedido.objects.filter(idPedido__in=pedido_ids).select_related('idCliente')
+            
+            correos_pendientes = []
+            for pedido in pedidos_actualizados:
+                if pedido.idCliente and pedido.idCliente.email:
+                    try:
+                        html_factura = generar_html_factura(pedido)
+                        correos_pendientes.append(
+                            CorreoPendiente(
+                                destinatario=pedido.idCliente.email,
+                                asunto=f"Factura de tu Pedido #{pedido.idPedido} - Repartidor Asignado - Glam Store",
+                                contenido_html=html_factura,
+                                contenido_texto=f"Factura del Pedido #{pedido.idPedido}",
+                                idPedido=pedido.idPedido,
+                                intentos=0
+                            )
+                        )
+                    except Exception as e:
+                        print(f"[WARNING] Error al generar factura para pedido {pedido.idPedido}: {str(e)}")
+            
+            if correos_pendientes:
+                CorreoPendiente.objects.bulk_create(correos_pendientes, batch_size=100)
+                facturas_enviadas = len(correos_pendientes)
+                print(f"[OK] {facturas_enviadas} correos pendientes creados para envío asincrónico")
+        except Exception as e:
+            print(f"[WARNING] Error al crear correos pendientes: {str(e)}")
+        
+        # Mostrar mensaje de éxito
+        if pedidos_asignados > 0:
+            messages.success(
+                request, 
+                f"✓ Se asignaron {pedidos_asignados} pedido(s) a {repartidor.nombreRepartidor}. "
+                f"Se enviarán {facturas_enviadas} factura(s) por correo."
+            )
+        else:
+            messages.warning(request, "No se asignaron pedidos")
         
         return redirect('lista_repartidores')
     

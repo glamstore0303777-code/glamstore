@@ -77,9 +77,11 @@ def encolar_correo(id_pedido, destinatario, asunto, contenido_html):
 
 def enviar_correos_pendientes():
     """
-    Envía todos los correos pendientes
+    Envía todos los correos pendientes usando Brevo
     Debe ejecutarse periódicamente (ej: cada 5 minutos)
     """
+    from core.services.brevo_service import enviar_correo_brevo
+    
     correos_pendientes = CorreoPendiente.objects.filter(
         enviado=False,
         intentos__lt=3  # Máximo 3 intentos
@@ -87,26 +89,24 @@ def enviar_correos_pendientes():
     
     for correo in correos_pendientes:
         try:
-            email = EmailMultiAlternatives(
-                subject=correo.asunto,
-                body=correo.contenido_texto,
-                from_email='glamstore0303777@gmail.com',
-                to=[correo.destinatario]
+            # Intentar enviar con Brevo
+            resultado = enviar_correo_brevo(
+                correo.destinatario,
+                correo.asunto,
+                correo.contenido_html,
+                correo.contenido_texto
             )
-            email.attach_alternative(correo.contenido_html, "text/html")
             
-            resultado = email.send()
-            
-            if resultado > 0:
+            if resultado:
                 correo.enviado = True
                 correo.fecha_envio = timezone.now()
                 correo.save()
-                print(f"[OK] Correo enviado para pedido {correo.idPedido}: {correo.destinatario}")
+                print(f"[OK] Correo enviado con Brevo para pedido {correo.idPedido}: {correo.destinatario}")
             else:
                 correo.intentos += 1
-                correo.error = "No se pudo enviar el correo"
+                correo.error = "Fallo al enviar con Brevo"
                 correo.save()
-                print(f"[ERROR] Fallo al enviar correo para pedido {correo.idPedido}")
+                print(f"[WARNING] Fallo al enviar correo con Brevo para pedido {correo.idPedido}, reintentando...")
         except Exception as e:
             correo.intentos += 1
             correo.error = str(e)
