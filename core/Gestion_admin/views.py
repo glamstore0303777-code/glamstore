@@ -1394,38 +1394,45 @@ def pedido_detalle_view(request, id):
     })
 
 def producto_detalle_view(request, id):
-    producto = get_object_or_404(Producto, idProducto=id)
-    
-    # Obtener movimientos recientes del producto
-    movimientos_recientes = MovimientoProducto.objects.filter(
-        producto=producto
-    ).order_by('-fecha')[:5]
-    
-    # Obtener el lote activo (el más antiguo con stock, según FIFO)
-    from core.models import LoteProducto
-    lote_activo = LoteProducto.objects.filter(
-        producto=producto,
-        cantidad_disponible__gt=0
-    ).order_by('fecha_entrada').first()
-    
-    # Calcular estadísticas del producto
-    total_entradas = MovimientoProducto.objects.filter(
-        producto=producto,
-        tipo_movimiento__in=['ENTRADA_INICIAL', 'AJUSTE_MANUAL_ENTRADA']
-    ).aggregate(total=Sum('cantidad'))['total'] or 0
-    
-    total_salidas = MovimientoProducto.objects.filter(
-        producto=producto,
-        tipo_movimiento__in=['SALIDA_VENTA', 'AJUSTE_MANUAL_SALIDA']
-    ).aggregate(total=Sum('cantidad'))['total'] or 0
-    
-    return render(request, 'productos_detalle.html', {
-        'producto': producto,
-        'movimientos_recientes': movimientos_recientes,
-        'lote_activo': lote_activo,
-        'total_entradas': total_entradas,
-        'total_salidas': total_salidas
-    })
+    try:
+        producto = get_object_or_404(Producto, idProducto=id)
+        
+        # Obtener movimientos recientes del producto
+        movimientos_recientes = MovimientoProducto.objects.filter(
+            producto=producto
+        ).order_by('-fecha')[:5]
+        
+        # Obtener el lote activo (el más antiguo con stock, según FIFO)
+        from core.models import LoteProducto
+        lote_activo = LoteProducto.objects.filter(
+            producto=producto,
+            cantidad_disponible__gt=0
+        ).order_by('fecha_entrada').first()
+        
+        # Calcular estadísticas del producto
+        total_entradas = MovimientoProducto.objects.filter(
+            producto=producto,
+            tipo_movimiento__in=['ENTRADA_INICIAL', 'AJUSTE_MANUAL_ENTRADA']
+        ).aggregate(total=Sum('cantidad'))['total'] or 0
+        
+        total_salidas = MovimientoProducto.objects.filter(
+            producto=producto,
+            tipo_movimiento__in=['SALIDA_VENTA', 'AJUSTE_MANUAL_SALIDA']
+        ).aggregate(total=Sum('cantidad'))['total'] or 0
+        
+        return render(request, 'productos_detalle.html', {
+            'producto': producto,
+            'movimientos_recientes': movimientos_recientes,
+            'lote_activo': lote_activo,
+            'total_entradas': total_entradas,
+            'total_salidas': total_salidas
+        })
+    except Exception as e:
+        print(f"Error en producto_detalle_view: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        messages.error(request, f"Error al cargar detalle del producto: {str(e)}")
+        return redirect('lista_productos')
 
 def cliente_detalle_view(request, id):
     cliente = get_object_or_404(Cliente, idCliente=id)
