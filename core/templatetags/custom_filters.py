@@ -1,27 +1,16 @@
 from django import template
-from decimal import Decimal
 
 register = template.Library()
 
 @register.filter
-def precio_venta(precio):
-    """Calcula el precio de venta recomendado (precio + 15%)"""
-    try:
-        precio_decimal = Decimal(str(precio))
-        return precio_decimal * Decimal('1.15')
-    except:
-        return 0
-
-@register.filter
-def colombian_currency(value):
+def get_item(dictionary, key):
     """
-    Formatea un número como moneda colombiana con separadores de miles.
-    Ejemplo: 30000 -> 30.000
+    Obtiene un valor de un diccionario de forma segura
+    Uso: {{ request.GET|get_item:"repartidor" }}
     """
+    if dictionary is None:
+        return None
     try:
-        # Convertir a entero
-        value = int(float(value))
-        # Formatear con separadores de miles
-        return f"{value:,}".replace(",", ".")
-    except (ValueError, TypeError):
-        return value
+        return dictionary.get(key)
+    except (AttributeError, TypeError):
+        return None
