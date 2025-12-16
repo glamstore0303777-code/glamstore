@@ -808,12 +808,22 @@ def producto_eliminar_view(request, id):
             producto = get_object_or_404(Producto, idProducto=id)
             nombre_producto = producto.nombreProducto
             
-            # Eliminar movimientos relacionados
             from core.models.movimientos import MovimientoProducto
+            from core.models.lotes import LoteProducto, MovimientoLote
+            
+            # Primero eliminar MovimientoLote (que referencia a MovimientoProducto)
+            try:
+                movimientos = MovimientoProducto.objects.filter(producto=producto)
+                for movimiento in movimientos:
+                    MovimientoLote.objects.filter(movimiento_producto=movimiento).delete()
+            except Exception as e:
+                print(f"[ADVERTENCIA] Error al eliminar MovimientoLote: {str(e)}")
+                # Continuar de todas formas
+            
+            # Eliminar movimientos de producto
             MovimientoProducto.objects.filter(producto=producto).delete()
             
             # Eliminar lotes relacionados
-            from core.models import LoteProducto
             LoteProducto.objects.filter(producto=producto).delete()
             
             # Eliminar el producto
@@ -958,8 +968,8 @@ def ajustar_stock_view(request, id):
                     # Limpiar formato: reemplazar coma por punto si es necesario
                     costo_limpio = str(costo_unitario).replace(',', '.')
                     costo_a_registrar = Decimal(costo_limpio)
-                    # Validar que no exceda el máximo permitido (99,999,999.99)
-                    if costo_a_registrar > Decimal('99999999.99'):
+                    # Validar que no exceda el máximo permitido (999,999,999.99)
+                    if costo_a_registrar > Decimal('999999999.99'):
                         messages.error(request, "El costo unitario es demasiado grande.")
                         return redirect('movimientos_producto', id=id)
                 else:
@@ -975,8 +985,8 @@ def ajustar_stock_view(request, id):
                     # Limpiar formato: reemplazar coma por punto si es necesario
                     iva_limpio = str(iva).replace(',', '.')
                     iva_a_registrar = Decimal(iva_limpio)
-                    # Validar que no exceda el máximo permitido (99,999,999.99)
-                    if iva_a_registrar > Decimal('99999999.99'):
+                    # Validar que no exceda el máximo permitido (999,999,999.99)
+                    if iva_a_registrar > Decimal('999999999.99'):
                         messages.error(request, "El IVA es demasiado grande.")
                         return redirect('movimientos_producto', id=id)
                 except Exception as e:
@@ -989,8 +999,8 @@ def ajustar_stock_view(request, id):
                     # Limpiar formato: reemplazar coma por punto si es necesario
                     total_limpio = str(total_con_iva).replace(',', '.')
                     total_con_iva_a_registrar = Decimal(total_limpio)
-                    # Validar que no exceda el máximo permitido (99,999,999.99)
-                    if total_con_iva_a_registrar > Decimal('99999999.99'):
+                    # Validar que no exceda el máximo permitido (999,999,999.99)
+                    if total_con_iva_a_registrar > Decimal('999999999.99'):
                         messages.error(request, "El total es demasiado grande.")
                         return redirect('movimientos_producto', id=id)
                 except Exception as e:
@@ -1077,7 +1087,7 @@ def ajustar_stock_view(request, id):
                 total_con_iva_val = (precio_venta_unitario * cantidad_decimal).quantize(Decimal('0.01'))
                 
                 # Validar que no excedan el máximo permitido
-                if iva_total > Decimal('99999999.99') or total_con_iva_val > Decimal('99999999.99'):
+                if iva_total > Decimal('999999999.99') or total_con_iva_val > Decimal('999999999.99'):
                     messages.error(request, "Los valores calculados son demasiado grandes.")
                     return redirect('movimientos_producto', id=id)
                 
@@ -1111,7 +1121,7 @@ def ajustar_stock_view(request, id):
                 total_con_iva_val = (precio_venta_unitario * cantidad_decimal).quantize(Decimal('0.01'))
                 
                 # Validar que no excedan el máximo permitido
-                if iva_total > Decimal('99999999.99') or total_con_iva_val > Decimal('99999999.99'):
+                if iva_total > Decimal('999999999.99') or total_con_iva_val > Decimal('999999999.99'):
                     messages.error(request, "Los valores calculados son demasiado grandes.")
                     return redirect('movimientos_producto', id=id)
                 

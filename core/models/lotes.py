@@ -13,12 +13,12 @@ class LoteProducto(models.Model):
     fecha_vencimiento = models.DateField(null=True, blank=True, db_column='fecha_vencimiento')
     cantidad_inicial = models.IntegerField(db_column='cantidad_inicial', help_text="Cantidad inicial del lote")
     cantidad_disponible = models.IntegerField(db_column='cantidad_disponible', help_text="Cantidad disponible actual")
-    costo_unitario = models.DecimalField(max_digits=10, decimal_places=2, default=0, db_column='costo_unitario')
-    precio_venta = models.DecimalField(max_digits=10, decimal_places=2, default=0, db_column='precio_venta')
+    costo_unitario = models.DecimalField(max_digits=15, decimal_places=2, default=0, db_column='costo_unitario')
+    precio_venta = models.DecimalField(max_digits=15, decimal_places=2, default=0, db_column='precio_venta')
     
     # Campos de IVA
-    total_con_iva = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, db_column='total_con_iva')
-    iva = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, db_column='iva')
+    total_con_iva = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True, db_column='total_con_iva')
+    iva = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True, db_column='iva')
     
     # Información del proveedor
     proveedor = models.CharField(max_length=200, null=True, blank=True, db_column='proveedor')

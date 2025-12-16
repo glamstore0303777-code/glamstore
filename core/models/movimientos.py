@@ -16,8 +16,8 @@ class MovimientoProducto(models.Model):
         ('PERDIDA_VENCIMIENTO', 'Pérdida por Vencimiento'),
     ])
     cantidad = models.IntegerField(db_column='cantidad')
-    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2, default=0, db_column='precio_unitario')
-    costo_unitario = models.DecimalField(max_digits=10, decimal_places=2, default=0, db_column='costo_unitario', help_text="Costo por unidad para movimientos de entrada.")
+    precio_unitario = models.DecimalField(max_digits=15, decimal_places=2, default=0, db_column='precio_unitario')
+    costo_unitario = models.DecimalField(max_digits=15, decimal_places=2, default=0, db_column='costo_unitario', help_text="Costo por unidad para movimientos de entrada.")
     stock_anterior = models.IntegerField(db_column='stock_anterior')
     stock_nuevo = models.IntegerField(db_column='stock_nuevo')
     id_pedido = models.ForeignKey(Pedido, on_delete=models.SET_NULL, null=True, blank=True, db_column='idpedido')
@@ -26,8 +26,8 @@ class MovimientoProducto(models.Model):
     # Campos adicionales para reabastecimiento
     lote = models.CharField(max_length=100, blank=True, null=True, db_column='lote', help_text="Código del lote del producto")
     fecha_vencimiento = models.DateField(blank=True, null=True, db_column='fecha_vencimiento', help_text="Fecha de vencimiento del lote")
-    total_con_iva = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, db_column='total_con_iva', help_text="Total incluyendo IVA")
-    iva = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, db_column='iva', help_text="Valor del IVA (19%)")
+    total_con_iva = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True, db_column='total_con_iva', help_text="Total incluyendo IVA")
+    iva = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True, db_column='iva', help_text="Valor del IVA (19%)")
     
     # Campo para trazabilidad de lotes (para salidas)
     lote_origen = models.ForeignKey('LoteProducto', on_delete=models.SET_NULL, null=True, blank=True, db_column='lote_origen_id',

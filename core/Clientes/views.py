@@ -47,10 +47,12 @@ def tienda(request):
         productos_query = Producto.objects.all().order_by('-idProducto')[:12]
         productos_destacados = filtrar_productos_no_vencidos(productos_query)
         
-        # Asegurar que cada producto tenga precio_venta calculado
+        # Asegurar que cada producto tenga precio_venta calculado y guardado
         for producto in productos_destacados:
             if not producto.precio_venta or producto.precio_venta == 0:
-                producto.precio_venta = producto.calcular_precio_venta()
+                nuevo_precio = producto.calcular_precio_venta()
+                producto.precio_venta = nuevo_precio
+                producto.save()  # Guardar en BD
     except Exception as e:
         import logging
         logger = logging.getLogger(__name__)
@@ -64,7 +66,9 @@ def tienda(request):
             # Calcular precio_venta para productos de fallback
             for producto in productos_destacados:
                 if not producto.precio_venta or producto.precio_venta == 0:
-                    producto.precio_venta = producto.calcular_precio_venta()
+                    nuevo_precio = producto.calcular_precio_venta()
+                    producto.precio_venta = nuevo_precio
+                    producto.save()  # Guardar en BD
         except Exception as e2:
             logger.error(f"Error al cargar productos de fallback: {str(e2)}", exc_info=True)
             categorias = []
@@ -217,6 +221,12 @@ def productos_por_categoria(request, id_categoria):
     carrito_actual = obtener_carrito_actual(request)
 
     for producto in productos:
+        # Asegurar que cada producto tenga precio_venta calculado y guardado
+        if not producto.precio_venta or producto.precio_venta == 0:
+            nuevo_precio = producto.calcular_precio_venta()
+            producto.precio_venta = nuevo_precio
+            producto.save()  # Guardar en BD
+        
         en_carrito = int(carrito_actual.get(producto.idProducto, 0))
         producto.en_carrito = en_carrito
         # Usar el stock real calculado de lotes válidos
