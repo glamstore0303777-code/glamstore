@@ -1570,37 +1570,37 @@ def reportar_problema_entrega(request, idPedido):
     usuario_id = request.session.get('usuario_id')
     cliente_id = request.session.get('cliente_id')
     
-    cliente_autorizado = None
+    # Obtener el ID del cliente autorizado
+    cliente_autorizado_id = None
     
     if usuario_id:
         try:
-            usuario = get_object_or_404(Usuario, idUsuario=usuario_id)
+            usuario = Usuario.objects.get(idUsuario=usuario_id)
             # Obtener cliente del usuario o del pedido
             if usuario.idCliente:
-                cliente_autorizado = usuario.idCliente
+                cliente_autorizado_id = usuario.idCliente.idCliente
             else:
                 # Si el usuario no tiene cliente, obtener del pedido
-                cliente_autorizado = pedido.idCliente
+                cliente_autorizado_id = pedido.idCliente.idCliente
+        except Usuario.DoesNotExist:
+            messages.error(request, "Usuario no encontrado.")
+            return redirect('login')
         except Exception as e:
             print(f"[ERROR] Error al obtener usuario: {str(e)}")
             messages.error(request, "Error al verificar tu identidad.")
             return redirect('login')
     elif cliente_id:
-        try:
-            cliente_autorizado = Cliente.objects.get(idCliente=cliente_id)
-        except Cliente.DoesNotExist:
-            messages.error(request, "Cliente no encontrado.")
-            return redirect('login')
+        cliente_autorizado_id = cliente_id
     else:
         messages.error(request, "Debes iniciar sesión.")
         return redirect('login')
     
     # Verificar que el pedido pertenece al cliente autorizado
-    if not cliente_autorizado:
+    if not cliente_autorizado_id:
         messages.error(request, "No se pudo verificar tu identidad.")
         return redirect('login')
     
-    if pedido.idCliente.idCliente != cliente_autorizado.idCliente:
+    if pedido.idCliente.idCliente != cliente_autorizado_id:
         messages.error(request, "No tienes permiso para reportar este pedido.")
         return redirect('perfil')
     
