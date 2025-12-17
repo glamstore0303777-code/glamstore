@@ -1683,74 +1683,44 @@ def notificaciones_cliente(request):
     from core.models import NotificacionProblema
     
     usuario_id = request.session.get('usuario_id')
-    cliente_id = request.session.get('cliente_id')
     
-    cliente = None
-    
-    # Primero intentar obtener cliente_id de la sesión (para clientes invitados)
-    if cliente_id:
-        try:
-            cliente = Cliente.objects.get(idCliente=cliente_id)
-        except Cliente.DoesNotExist:
-            messages.error(request, "Cliente no encontrado.")
-            return redirect('login')
-        except Exception as e:
-            print(f"[ERROR] Error al obtener cliente: {str(e)}")
-            messages.error(request, "Error al obtener información del cliente.")
-            return redirect('login')
-    # Si no hay cliente_id, intentar obtener del usuario
-    elif usuario_id:
-        try:
-            usuario = Usuario.objects.get(idUsuario=usuario_id)
-            # Primero intentar obtener el cliente del usuario
-            if usuario.idCliente:
-                cliente = usuario.idCliente
-            else:
-                # Si el usuario no tiene cliente directo, obtener de sus pedidos
-                clientes_usuario = Cliente.objects.filter(
-                    pedido__isnull=False
-                ).distinct()
-                
-                if clientes_usuario.exists():
-                    # Si hay múltiples clientes, usar el primero
-                    cliente = clientes_usuario.first()
-                else:
-                    # Si no hay clientes, mostrar error
-                    cliente = None
-        except Usuario.DoesNotExist:
-            messages.error(request, "Usuario no encontrado.")
-            return redirect('login')
-        except Exception as e:
-            print(f"[ERROR] Error al obtener usuario: {str(e)}")
-            messages.error(request, "Error al obtener información del usuario.")
-            return redirect('login')
-    else:
+    if not usuario_id:
         messages.error(request, "Debes iniciar sesión para ver tus notificaciones.")
         return redirect('login')
     
-    # Validar que cliente fue obtenido
-    if not cliente:
-        messages.error(request, "No se pudo obtener la información del cliente.")
+    # Obtener el usuario
+    try:
+        usuario = Usuario.objects.get(idUsuario=usuario_id)
+    except Usuario.DoesNotExist:
+        messages.error(request, "Usuario no encontrado.")
         return redirect('login')
+    except Exception as e:
+        print(f"[ERROR] Error al obtener usuario: {str(e)}")
+        messages.error(request, "Error al obtener información del usuario.")
+        return redirect('login')
+    
+    # Obtener el cliente del usuario
+    cliente = usuario.idCliente
+    
+    if not cliente:
+        messages.error(request, "Tu cuenta no está vinculada a un cliente.")
+        return redirect('perfil')
     
     # Obtener notificaciones del cliente
     notificaciones = []
     try:
-        # Usar try-except para cada paso
         # Cargar explícitamente todos los campos para evitar lazy loading en Render
         queryset = NotificacionProblema.objects.filter(
             idPedido__idCliente=cliente
         ).select_related('idPedido', 'idPedido__idCliente').order_by('-fechaReporte')
         
         # Convertir a lista para asegurar que se ejecuta la query
-        # Esto fuerza la evaluación de la query y carga todos los campos
         notificaciones = list(queryset)
         
     except Exception as e:
         print(f"[ERROR] Error al obtener notificaciones: {str(e)}")
         import traceback
         traceback.print_exc()
-        # Retornar lista vacía en lugar de fallar
         notificaciones = []
         messages.warning(request, "No se pudieron cargar las notificaciones. Por favor, intenta más tarde.")
     
