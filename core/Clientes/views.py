@@ -1570,72 +1570,96 @@ def reportar_problema_entrega(request, idPedido):
     usuario_id = request.session.get('usuario_id')
     cliente_id = request.session.get('cliente_id')
     
+    cliente_autorizado = None
+    
     if usuario_id:
-        usuario = get_object_or_404(Usuario, idUsuario=usuario_id)
-        if pedido.idCliente.idCliente != usuario.idCliente:
-            messages.error(request, "No tienes permiso para reportar este pedido.")
-            return redirect('perfil')
+        try:
+            usuario = get_object_or_404(Usuario, idUsuario=usuario_id)
+            # Obtener cliente del usuario o del pedido
+            if usuario.idCliente:
+                cliente_autorizado = usuario.idCliente
+            else:
+                # Si el usuario no tiene cliente, obtener del pedido
+                cliente_autorizado = pedido.idCliente
+        except Exception as e:
+            print(f"[ERROR] Error al obtener usuario: {str(e)}")
+            messages.error(request, "Error al verificar tu identidad.")
+            return redirect('login')
     elif cliente_id:
-        if pedido.idCliente.idCliente != cliente_id:
-            messages.error(request, "No tienes permiso para reportar este pedido.")
-            return redirect('perfil')
+        try:
+            cliente_autorizado = Cliente.objects.get(idCliente=cliente_id)
+        except Cliente.DoesNotExist:
+            messages.error(request, "Cliente no encontrado.")
+            return redirect('login')
     else:
         messages.error(request, "Debes iniciar sesión.")
         return redirect('login')
     
+    # Verificar que el pedido pertenece al cliente autorizado
+    if cliente_autorizado and pedido.idCliente.idCliente != cliente_autorizado.idCliente:
+        messages.error(request, "No tienes permiso para reportar este pedido.")
+        return redirect('perfil')
+    
     if request.method == 'POST':
-        motivo = request.POST.get('motivo')
+        motivo = request.POST.get('motivo', '').strip()
         foto = request.FILES.get('foto')
         
         if not motivo:
             messages.error(request, "Por favor describe el problema.")
             return render(request, 'reportar_problema.html', {'pedido': pedido})
         
-        # Cambiar estado del pedido - Marcar como problema en entrega
-        pedido.estado_pedido = 'Completado'
-        pedido.estado_pago = 'Pago Completo'  # El pago se considera completo
-        pedido.estado = 'Problema en Entrega'  # Mantener referencia del problema
-        pedido.save()
-        
-        # Crear notificación de problema
-        notificacion = NotificacionProblema.objects.create(
-            idPedido=pedido,
-            motivo=motivo,
-            foto=foto,
-            leida=False
-        )
-        
-        # Enviar email al admin notificando del problema
         try:
-            from django.core.mail import send_mail
-            from django.conf import settings
+            # Cambiar estado del pedido - Marcar como problema en entrega
+            pedido.estado_pedido = 'Completado'
+            pedido.estado_pago = 'Pago Completo'  # El pago se considera completo
+            pedido.estado = 'Problema en Entrega'  # Mantener referencia del problema
+            pedido.save()
             
-            asunto = f"⚠️ Problema de Entrega - Pedido #{pedido.idPedido}"
-            mensaje = f"""
-            Se ha reportado un problema con la entrega del pedido.
-            
-            Detalles:
-            - Pedido: #{pedido.idPedido}
-            - Cliente: {pedido.idCliente.nombre}
-            - Email: {pedido.idCliente.email}
-            - Teléfono: {pedido.idCliente.telefono}
-            - Problema: {motivo}
-            
-            Por favor, revisa la notificación en el panel de administración.
-            """
-            
-            send_mail(
-                asunto,
-                mensaje,
-                settings.DEFAULT_FROM_EMAIL,
-                [settings.DEFAULT_FROM_EMAIL],
-                fail_silently=True
+            # Crear notificación de problema
+            notificacion = NotificacionProblema.objects.create(
+                idPedido=pedido,
+                motivo=motivo,
+                foto=foto,
+                leida=False
             )
+            
+            # Enviar email al admin notificando del problema
+            try:
+                from django.core.mail import send_mail
+                from django.conf import settings
+                
+                asunto = f"⚠️ Problema de Entrega - Pedido #{pedido.idPedido}"
+                mensaje = f"""
+                Se ha reportado un problema con la entrega del pedido.
+                
+                Detalles:
+                - Pedido: #{pedido.idPedido}
+                - Cliente: {pedido.idCliente.nombre}
+                - Email: {pedido.idCliente.email}
+                - Teléfono: {pedido.idCliente.telefono}
+                - Problema: {motivo}
+                
+                Por favor, revisa la notificación en el panel de administración.
+                """
+                
+                send_mail(
+                    asunto,
+                    mensaje,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [settings.DEFAULT_FROM_EMAIL],
+                    fail_silently=True
+                )
+            except Exception as e:
+                print(f"[ERROR] Error al enviar email de notificación: {str(e)}")
+            
+            messages.warning(request, f"Hemos registrado el problema con el pedido #{pedido.idPedido}. Nuestro equipo se pondrá en contacto contigo.")
+            return redirect('perfil')
         except Exception as e:
-            print(f"Error al enviar email de notificación: {str(e)}")
-        
-        messages.warning(request, f"Hemos registrado el problema con el pedido #{pedido.idPedido}. Nuestro equipo se pondrá en contacto contigo.")
-        return redirect('perfil')
+            print(f"[ERROR] Error al reportar problema: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            messages.error(request, "Error al registrar el problema. Por favor, intenta de nuevo.")
+            return render(request, 'reportar_problema.html', {'pedido': pedido})
     
     return render(request, 'reportar_problema.html', {'pedido': pedido})
 
