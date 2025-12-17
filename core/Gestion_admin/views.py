@@ -603,6 +603,7 @@ def cliente_editar_view(request, id):
 
 def cliente_eliminar_view(request, id):
     cliente = get_object_or_404(Cliente, idCliente=id)
+    nombre_cliente = cliente.nombre or f"Cliente {id}"
     
     if request.method == 'POST':
         try:
@@ -636,10 +637,14 @@ def cliente_eliminar_view(request, id):
                 # Los pedidos y sus detalles se eliminarán automáticamente por la restricción CASCADE
                 cliente.delete()
                 
-                mensaje = f"Cliente {cliente.nombre} y todos sus registros asociados han sido eliminados correctamente. {resumen}."
+                mensaje = f"✓ Cliente '{nombre_cliente}' y todos sus registros asociados han sido eliminados correctamente. {resumen}."
                 messages.success(request, mensaje)
+                print(f"[OK] Cliente {id} eliminado exitosamente")
                 
         except Exception as e:
+            print(f"[ERROR] Error al eliminar cliente {id}: {str(e)}")
+            import traceback
+            traceback.print_exc()
             messages.error(request, f"Error al eliminar el cliente: {str(e)}")
     
     return redirect("lista_clientes")
