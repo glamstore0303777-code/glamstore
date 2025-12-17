@@ -271,27 +271,52 @@
             </div>
             {% endif %}
             
-            <form method="POST" enctype="multipart/form-data">
+            <form method="POST" enctype="multipart/form-data" onsubmit="return validarFormulario()">
                 {% csrf_token %}
                 
                 <div class="form-group">
                     <label>¿Cómo calificarías la entrega?</label>
                     <div class="star-rating">
-                        <input type="radio" id="star5" name="calificacion" value="5" checked><label for="star5">★</label>
-                        <input type="radio" id="star4" name="calificacion" value="4"><label for="star4">★</label>
-                        <input type="radio" id="star3" name="calificacion" value="3"><label for="star3">★</label>
-                        <input type="radio" id="star2" name="calificacion" value="2"><label for="star2">★</label>
-                        <input type="radio" id="star1" name="calificacion" value="1"><label for="star1">★</label>
+                        <input type="radio" id="star5" name="calificacion" value="5" checked required><label for="star5">★</label>
+                        <input type="radio" id="star4" name="calificacion" value="4" required><label for="star4">★</label>
+                        <input type="radio" id="star3" name="calificacion" value="3" required><label for="star3">★</label>
+                        <input type="radio" id="star2" name="calificacion" value="2" required><label for="star2">★</label>
+                        <input type="radio" id="star1" name="calificacion" value="1" required><label for="star1">★</label>
                     </div>
+                    <small>Selecciona una calificación del 1 al 5</small>
                 </div>
                 
                 <div class="form-group">
                     <label for="comentario">Añade un comentario (opcional)</label>
-                    <textarea id="comentario" name="comentario" placeholder="Tu opinión nos ayuda a mejorar..."></textarea>
+                    <textarea id="comentario" name="comentario" placeholder="Tu opinión nos ayuda a mejorar..." maxlength="500"></textarea>
+                    <small id="charCount">0/500 caracteres</small>
                 </div>
                 
                 <button type="submit" class="btn-primary">Enviar Calificación</button>
             </form>
+            
+            <script>
+                function validarFormulario() {
+                    const calificacion = document.querySelector('input[name="calificacion"]:checked');
+                    if (!calificacion) {
+                        alert('Por favor, selecciona una calificación');
+                        return false;
+                    }
+                    
+                    const valor = parseInt(calificacion.value);
+                    if (valor < 1 || valor > 5) {
+                        alert('La calificación debe estar entre 1 y 5');
+                        return false;
+                    }
+                    
+                    return true;
+                }
+                
+                // Contador de caracteres
+                document.getElementById('comentario').addEventListener('input', function() {
+                    document.getElementById('charCount').textContent = this.value.length + '/500 caracteres';
+                });
+            </script>
             
             <a href="{% url 'perfil' %}" class="back-link">Volver al Perfil</a>
         </div>

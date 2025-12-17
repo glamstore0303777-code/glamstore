@@ -527,14 +527,14 @@
           {% csrf_token %}
           
           <div class="form-group required-field">
-            <label for="categoria_id">Categoría</label>
+            <label for="categoria_id">Categoría (Referencia)</label>
             <select id="categoria_id" name="categoria_id" required>
               <option value="">-- Seleccionar Categoría --</option>
               {% for categoria in categorias %}
                 <option value="{{ categoria.idCategoria }}">{{ categoria.nombreCategoria }}</option>
               {% endfor %}
             </select>
-            <small>Selecciona la categoría de los productos que vas a reabastecer</small>
+            <small>Selecciona una categoría como referencia. El sistema buscará los productos por nombre en toda la base de datos.</small>
           </div>
           
           <div class="form-group required-field">

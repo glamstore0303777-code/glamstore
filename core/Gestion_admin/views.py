@@ -320,7 +320,7 @@ def dashboard_admin_view(request):
                 'repartidor_id'
             ).annotate(
                 promedio_calificacion=Avg('calificacion'),
-                total_entregas=Count('idconfirmacion')
+                total_entregas=Count('idConfirmacion')
             ).order_by('-promedio_calificacion', '-total_entregas')
             
             if repartidores_calificados.exists():
@@ -333,6 +333,7 @@ def dashboard_admin_view(request):
                     'total_entregas': top_repartidor_data['total_entregas']
                 }
         except Exception as e:
+            print(f"[ERROR] Error al obtener repartidor estrella: {str(e)}")
             repartidor_estrella = None
 
         # === NOTIFICACIONES NO LEÍDAS ===
@@ -1249,14 +1250,20 @@ def reabastecimiento_view(request):
                         except (ValueError, TypeError):
                             iva_valor = None
                     
+                    # Buscar producto por nombre exacto (sin importar categoría)
                     producto = Producto.objects.filter(
-                        nombreProducto__iexact=nombre_producto,
-                        idCategoria=categoria
+                        nombreProducto__iexact=nombre_producto
                     ).first()
                     
+                    # Si no encuentra exacto, buscar por coincidencia parcial
                     if not producto:
                         producto = Producto.objects.filter(
-                            nombreProducto__icontains=nombre_producto,
+                            nombreProducto__icontains=nombre_producto
+                        ).first()
+                    
+                    # Si aún no encuentra, buscar en la categoría seleccionada
+                    if not producto:
+                        producto = Producto.objects.filter(
                             idCategoria=categoria
                         ).first()
                     

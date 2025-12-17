@@ -1651,18 +1651,8 @@ def notificaciones_cliente(request):
     
     cliente = None
     
-    if usuario_id:
-        try:
-            usuario = Usuario.objects.get(idUsuario=usuario_id)
-            cliente = usuario.idCliente
-        except Usuario.DoesNotExist:
-            messages.error(request, "Usuario no encontrado.")
-            return redirect('login')
-        except Exception as e:
-            print(f"[ERROR] Error al obtener usuario: {str(e)}")
-            messages.error(request, "Error al obtener información del usuario.")
-            return redirect('login')
-    elif cliente_id:
+    # Primero intentar obtener cliente_id de la sesión (para clientes invitados)
+    if cliente_id:
         try:
             cliente = Cliente.objects.get(idCliente=cliente_id)
         except Cliente.DoesNotExist:
@@ -1671,6 +1661,29 @@ def notificaciones_cliente(request):
         except Exception as e:
             print(f"[ERROR] Error al obtener cliente: {str(e)}")
             messages.error(request, "Error al obtener información del cliente.")
+            return redirect('login')
+    # Si no hay cliente_id, intentar obtener del usuario
+    elif usuario_id:
+        try:
+            usuario = Usuario.objects.get(idUsuario=usuario_id)
+            # Obtener todos los clientes de los pedidos del usuario
+            # (un usuario puede tener múltiples clientes si es un vendedor)
+            clientes_usuario = Cliente.objects.filter(
+                pedido__isnull=False
+            ).distinct()
+            
+            if clientes_usuario.exists():
+                # Si hay múltiples clientes, usar el primero
+                cliente = clientes_usuario.first()
+            else:
+                # Si no hay clientes, intentar obtener del usuario
+                cliente = usuario.idCliente
+        except Usuario.DoesNotExist:
+            messages.error(request, "Usuario no encontrado.")
+            return redirect('login')
+        except Exception as e:
+            print(f"[ERROR] Error al obtener usuario: {str(e)}")
+            messages.error(request, "Error al obtener información del usuario.")
             return redirect('login')
     else:
         messages.error(request, "Debes iniciar sesión para ver tus notificaciones.")
@@ -1732,8 +1745,15 @@ def calificar_entrega(request, idPedido):
         return redirect('login')
     
     if request.method == 'POST':
-        calificacion = int(request.POST.get('calificacion', 5))
-        comentario = request.POST.get('comentario', '')
+        try:
+            calificacion = int(request.POST.get('calificacion', 5))
+            # Validar que la calificación esté entre 1 y 5
+            if calificacion < 1 or calificacion > 5:
+                calificacion = 5
+        except (ValueError, TypeError):
+            calificacion = 5
+        
+        comentario = request.POST.get('comentario', '').strip()
         foto_entrega = request.FILES.get('foto_entrega')
         
         # Crear la confirmación de entrega
@@ -1746,7 +1766,7 @@ def calificar_entrega(request, idPedido):
         )
         
         # Actualizar estado del pedido a Entregado y Completado
-        pedido.estado_pedido = 'Completado'
+        pedido.estado_pedido = 'Entregado'
         pedido.estado = 'Entregado'
         # Marcar como pago completo cuando el cliente confirma la recepción
         pedido.estado_pago = 'Pago Completo'
