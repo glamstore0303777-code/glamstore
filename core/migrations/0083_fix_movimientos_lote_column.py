@@ -1,5 +1,39 @@
-from django.db import migrations, models
-import django.db.models.deletion
+from django.db import migrations
+from django.db import connection
+
+
+def add_column_if_not_exists(apps, schema_editor):
+    """Add column to movimientos_lote if it doesn't exist"""
+    with connection.cursor() as cursor:
+        db_vendor = connection.vendor
+        
+        if db_vendor == 'postgresql':
+            try:
+                cursor.execute("""
+                    ALTER TABLE movimientos_lote 
+                    ADD COLUMN IF NOT EXISTS movimiento_producto_id INTEGER;
+                """)
+            except Exception as e:
+                print(f"Column might already exist: {e}")
+        
+        elif db_vendor == 'sqlite':
+            # SQLite approach - check if column exists first
+            cursor.execute("PRAGMA table_info(movimientos_lote)")
+            columns = {row[1] for row in cursor.fetchall()}
+            
+            if 'movimiento_producto_id' not in columns:
+                try:
+                    cursor.execute("""
+                        ALTER TABLE movimientos_lote 
+                        ADD COLUMN movimiento_producto_id INTEGER;
+                    """)
+                except Exception as e:
+                    print(f"Error adding column: {e}")
+
+
+def reverse_column(apps, schema_editor):
+    """Reverse operation"""
+    pass
 
 
 class Migration(migrations.Migration):
@@ -9,8 +43,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunSQL(
-            sql="ALTER TABLE movimientos_lote ADD COLUMN IF NOT EXISTS movimiento_producto_id INTEGER;",
-            reverse_sql=migrations.RunSQL.noop,
-        ),
+        migrations.RunPython(add_column_if_not_exists, reverse_column),
     ]

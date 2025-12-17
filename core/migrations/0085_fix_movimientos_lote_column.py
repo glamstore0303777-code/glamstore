@@ -1,7 +1,61 @@
 # Generated migration to fix movimientos_lote.lote_id column
 
 from django.db import migrations, models
+from django.db import connection
 import django.db.models.deletion
+
+
+def fix_lote_id_column(apps, schema_editor):
+    """Fix lote_id column for both SQLite and PostgreSQL"""
+    with connection.cursor() as cursor:
+        db_vendor = connection.vendor
+        
+        if db_vendor == 'postgresql':
+            # PostgreSQL approach
+            try:
+                cursor.execute("""
+                    ALTER TABLE movimientos_lote 
+                    ADD COLUMN IF NOT EXISTS lote_id INTEGER;
+                """)
+            except Exception as e:
+                print(f"Column lote_id might already exist: {e}")
+            
+            try:
+                cursor.execute("""
+                    UPDATE movimientos_lote 
+                    SET lote_id = idlote 
+                    WHERE lote_id IS NULL AND idlote IS NOT NULL;
+                """)
+            except Exception as e:
+                print(f"Error updating lote_id: {e}")
+        
+        elif db_vendor == 'sqlite':
+            # SQLite approach
+            cursor.execute("PRAGMA table_info(movimientos_lote)")
+            columns = {row[1] for row in cursor.fetchall()}
+            
+            if 'lote_id' not in columns:
+                try:
+                    cursor.execute("""
+                        ALTER TABLE movimientos_lote 
+                        ADD COLUMN lote_id INTEGER;
+                    """)
+                except Exception as e:
+                    print(f"Error adding lote_id: {e}")
+            
+            try:
+                cursor.execute("""
+                    UPDATE movimientos_lote 
+                    SET lote_id = idlote 
+                    WHERE lote_id IS NULL AND idlote IS NOT NULL;
+                """)
+            except Exception as e:
+                print(f"Error updating lote_id: {e}")
+
+
+def reverse_fix(apps, schema_editor):
+    """Reverse operation"""
+    pass
 
 
 class Migration(migrations.Migration):
@@ -11,63 +65,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # Paso 1: Crear la columna lote_id si no existe
-        migrations.RunSQL(
-            sql="""
-            DO $$ 
-            BEGIN
-                IF NOT EXISTS (
-                    SELECT 1 FROM information_schema.columns 
-                    WHERE table_name = 'movimientos_lote' AND column_name = 'lote_id'
-                ) THEN
-                    ALTER TABLE movimientos_lote ADD COLUMN lote_id INTEGER;
-                END IF;
-            END $$;
-            """,
-            reverse_sql="-- Reverse not needed"
-        ),
-        
-        # Paso 2: Copiar datos de idlote a lote_id si existen
-        migrations.RunSQL(
-            sql="""
-            UPDATE movimientos_lote 
-            SET lote_id = idlote 
-            WHERE lote_id IS NULL AND idlote IS NOT NULL;
-            """,
-            reverse_sql="-- Reverse not needed"
-        ),
-        
-        # Paso 3: Eliminar constraint anterior si existe
-        migrations.RunSQL(
-            sql="""
-            DO $$ 
-            BEGIN
-                IF EXISTS (
-                    SELECT 1 FROM information_schema.table_constraints 
-                    WHERE table_name = 'movimientos_lote' AND constraint_name = 'movimientos_lote_lote_id_fkey'
-                ) THEN
-                    ALTER TABLE movimientos_lote DROP CONSTRAINT movimientos_lote_lote_id_fkey;
-                END IF;
-            END $$;
-            """,
-            reverse_sql="-- Reverse not needed"
-        ),
-        
-        # Paso 4: Agregar la foreign key constraint
-        migrations.RunSQL(
-            sql="""
-            DO $$ 
-            BEGIN
-                IF NOT EXISTS (
-                    SELECT 1 FROM information_schema.table_constraints 
-                    WHERE table_name = 'movimientos_lote' AND constraint_name = 'movimientos_lote_lote_id_fkey'
-                ) THEN
-                    ALTER TABLE movimientos_lote 
-                    ADD CONSTRAINT movimientos_lote_lote_id_fkey 
-                    FOREIGN KEY (lote_id) REFERENCES lotes_producto(idlote) ON DELETE CASCADE;
-                END IF;
-            END $$;
-            """,
-            reverse_sql="-- Reverse not needed"
-        ),
+        migrations.RunPython(fix_lote_id_column, reverse_fix),
     ]

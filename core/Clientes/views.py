@@ -1596,7 +1596,11 @@ def reportar_problema_entrega(request, idPedido):
         return redirect('login')
     
     # Verificar que el pedido pertenece al cliente autorizado
-    if cliente_autorizado and pedido.idCliente.idCliente != cliente_autorizado.idCliente:
+    if not cliente_autorizado:
+        messages.error(request, "No se pudo verificar tu identidad.")
+        return redirect('login')
+    
+    if pedido.idCliente.idCliente != cliente_autorizado.idCliente:
         messages.error(request, "No tienes permiso para reportar este pedido.")
         return redirect('perfil')
     
