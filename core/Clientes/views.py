@@ -140,22 +140,23 @@ def perfil(request):
     from django.utils import timezone
     from datetime import timedelta
     
-    # Buscar pedidos que están en camino (incluyendo los de pago parcial con repartidor)
-    pedidos_en_camino = Pedido.objects.filter(
+    # Buscar pedidos que están en camino o en preparación (incluyendo los de pago parcial con repartidor)
+    pedidos_en_transito = Pedido.objects.filter(
         idCliente=cliente.idCliente
     ).filter(
-        models.Q(estado='En Camino') | 
-        models.Q(estado='Pago Parcial', idRepartidor__isnull=False)
+        models.Q(estado_pedido='En Camino') | 
+        models.Q(estado_pedido='En Preparación') |
+        models.Q(estado_pago='Pago Parcial', idRepartidor__isnull=False)
     )
     
     ahora = timezone.now().date()
-    # NOTA: El campo fecha_vencimiento no existe en la BD
-    # for pedido in pedidos_en_camino:
-    #     # Usar la fecha de vencimiento guardada en el pedido
-    #     if pedido.fecha_vencimiento and ahora >= pedido.fecha_vencimiento:
-    #         # Si ya pasó la fecha de vencimiento, marcar como entregado
-    #         pedido.estado_pedido = 'Entregado'
-    #         pedido.save()
+    # Actualizar pedidos que han vencido su fecha de entrega estimada
+    for pedido in pedidos_en_transito:
+        # Usar la fecha de vencimiento guardada en el pedido
+        if pedido.fecha_vencimiento and ahora >= pedido.fecha_vencimiento:
+            # Si ya pasó la fecha de vencimiento, marcar como entregado
+            pedido.estado_pedido = 'Entregado'
+            pedido.save()
     
     # Obtener los pedidos del cliente determinado
     pedidos = Pedido.objects.filter(idCliente=cliente.idCliente).order_by('-fechaCreacion')
@@ -1590,25 +1591,52 @@ def reportar_problema_entrega(request, idPedido):
             messages.error(request, "Por favor describe el problema.")
             return render(request, 'reportar_problema.html', {'pedido': pedido})
         
-        # Cambiar estado del pedido - Completar el pago pero marcar como no entregado
+        # Cambiar estado del pedido - Marcar como problema en entrega
         pedido.estado_pedido = 'Completado'
         pedido.estado_pago = 'Pago Completo'  # El pago se considera completo
-        # Usar un campo personalizado para indicar que no fue entregado
-        # Como no tenemos un campo específico, usaremos el estado original para tracking
         pedido.estado = 'Problema en Entrega'  # Mantener referencia del problema
         pedido.save()
         
-        # Crear notificación
-        NotificacionProblema.objects.create(
+        # Crear notificación de problema
+        notificacion = NotificacionProblema.objects.create(
             idPedido=pedido,
             motivo=motivo,
-            foto=foto
+            foto=foto,
+            leida=False
         )
+        
+        # Enviar email al admin notificando del problema
+        try:
+            from django.core.mail import send_mail
+            from django.conf import settings
+            
+            asunto = f"⚠️ Problema de Entrega - Pedido #{pedido.idPedido}"
+            mensaje = f"""
+            Se ha reportado un problema con la entrega del pedido.
+            
+            Detalles:
+            - Pedido: #{pedido.idPedido}
+            - Cliente: {pedido.idCliente.nombre}
+            - Email: {pedido.idCliente.email}
+            - Teléfono: {pedido.idCliente.telefono}
+            - Problema: {motivo}
+            
+            Por favor, revisa la notificación en el panel de administración.
+            """
+            
+            send_mail(
+                asunto,
+                mensaje,
+                settings.DEFAULT_FROM_EMAIL,
+                [settings.DEFAULT_FROM_EMAIL],
+                fail_silently=True
+            )
+        except Exception as e:
+            print(f"Error al enviar email de notificación: {str(e)}")
         
         messages.warning(request, f"Hemos registrado el problema con el pedido #{pedido.idPedido}. Nuestro equipo se pondrá en contacto contigo.")
         return redirect('perfil')
     
-    return render(request, 'reportar_problema.html', {'pedido': pedido})
     return render(request, 'reportar_problema.html', {'pedido': pedido})
 
 

@@ -1368,16 +1368,15 @@ def pedido_editar_view(request, id):
                 pedido.fechaCreacion = datetime.fromisoformat(fecha_creacion.replace('T', ' '))
                 
                 # Recalcular fecha de vencimiento basada en la nueva fecha de creación
-                # NOTA: El campo fecha_vencimiento no existe en la BD, se calcula dinámicamente
-                # direccion_lower = (pedido.idCliente.direccion or "").lower()
-                # if 'soacha' in direccion_lower:
-                #     dias_entrega = 3
-                # elif 'bogota' in direccion_lower or 'bogotá' in direccion_lower:
-                #     dias_entrega = 2
-                # else:
-                #     dias_entrega = 3
-                # 
-                # pedido.fecha_vencimiento = (pedido.fechaCreacion + timedelta(days=dias_entrega)).date()
+                direccion_lower = (pedido.idCliente.direccion or "").lower()
+                if 'soacha' in direccion_lower:
+                    dias_entrega = 3
+                elif 'bogota' in direccion_lower or 'bogotá' in direccion_lower:
+                    dias_entrega = 2
+                else:
+                    dias_entrega = 3
+                
+                pedido.fecha_vencimiento = (pedido.fechaCreacion + timedelta(days=dias_entrega)).date()
             
             # Actualizar estados de forma independiente
             if estado_pago:
