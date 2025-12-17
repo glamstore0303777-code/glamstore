@@ -2178,7 +2178,7 @@ def subcategoria_eliminar_view(request, id):
 def notificaciones_view(request):
     """Vista para mostrar TODAS las notificaciones de problemas de entrega y mensajes de contacto"""
     try:
-        from core.models import NotificacionProblema, MensajeContacto
+        from core.models import NotificacionProblema
         
         # Obtener TODAS las notificaciones sin filtros, ordenadas por fecha
         notificaciones = NotificacionProblema.objects.select_related(
@@ -2187,11 +2187,8 @@ def notificaciones_view(request):
         ).order_by('-fechaReporte')
         
         # Obtener mensajes de contacto ordenados por fecha descendente
-        try:
-            mensajes_contacto = MensajeContacto.objects.all().order_by('-fecha')
-        except Exception as e:
-            print(f"Error al obtener mensajes de contacto: {str(e)}")
-            mensajes_contacto = []
+        # Nota: La tabla mensajes_contacto no existe en la BD, así que dejamos vacío
+        mensajes_contacto = []
         
         # Contar notificaciones no leídas
         notificaciones_no_leidas = notificaciones.filter(leida=False).count()
