@@ -2181,23 +2181,33 @@ def notificaciones_view(request):
         from core.models import NotificacionProblema
         
         # Obtener TODAS las notificaciones sin filtros, ordenadas por fecha
-        notificaciones = NotificacionProblema.objects.select_related(
+        notificaciones_queryset = NotificacionProblema.objects.select_related(
             'idPedido__idCliente',
             'idPedido__idRepartidor'
         ).order_by('-fechaReporte')
         
+        # Convertir a lista para forzar la evaluación del queryset
+        notificaciones = list(notificaciones_queryset)
+        
         # Obtener mensajes de contacto ordenados por fecha descendente
-        # Nota: La tabla mensajes_contacto no existe en la BD, así que dejamos vacío
         mensajes_contacto = []
+        try:
+            from core.models.mensajes import MensajeContacto
+            mensajes_contacto = list(MensajeContacto.objects.all().order_by('-fecha'))
+        except Exception as e:
+            print(f"[INFO] No se pudieron obtener mensajes de contacto: {str(e)}")
+            mensajes_contacto = []
         
         # Contar notificaciones no leídas
-        notificaciones_no_leidas = notificaciones.filter(leida=False).count()
+        notificaciones_no_leidas = sum(1 for n in notificaciones if not n.leida)
         
         # Contar mensajes de contacto
         total_mensajes_contacto = len(mensajes_contacto) if mensajes_contacto else 0
         
         # Total de notificaciones no leídas
         total_no_leidas = notificaciones_no_leidas + total_mensajes_contacto
+        
+        print(f"[DEBUG] notificaciones_view: {len(notificaciones)} notificaciones, {notificaciones_no_leidas} sin leer, {total_mensajes_contacto} mensajes contacto")
         
         return render(request, 'notificaciones.html', {
             'notificaciones': notificaciones,

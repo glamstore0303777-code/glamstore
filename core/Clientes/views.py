@@ -1694,18 +1694,21 @@ def notificaciones_cliente(request):
     elif usuario_id:
         try:
             usuario = Usuario.objects.get(idUsuario=usuario_id)
-            # Obtener todos los clientes de los pedidos del usuario
-            # (un usuario puede tener múltiples clientes si es un vendedor)
-            clientes_usuario = Cliente.objects.filter(
-                pedido__isnull=False
-            ).distinct()
-            
-            if clientes_usuario.exists():
-                # Si hay múltiples clientes, usar el primero
-                cliente = clientes_usuario.first()
-            else:
-                # Si no hay clientes, intentar obtener del usuario
+            # Primero intentar obtener el cliente del usuario
+            if usuario.idCliente:
                 cliente = usuario.idCliente
+            else:
+                # Si el usuario no tiene cliente directo, obtener de sus pedidos
+                clientes_usuario = Cliente.objects.filter(
+                    pedido__isnull=False
+                ).distinct()
+                
+                if clientes_usuario.exists():
+                    # Si hay múltiples clientes, usar el primero
+                    cliente = clientes_usuario.first()
+                else:
+                    # Si no hay clientes, mostrar error
+                    cliente = None
         except Usuario.DoesNotExist:
             messages.error(request, "Usuario no encontrado.")
             return redirect('login')
