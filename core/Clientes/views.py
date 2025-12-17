@@ -1578,15 +1578,20 @@ def reportar_problema_entrega(request, idPedido):
             usuario = Usuario.objects.get(idUsuario=usuario_id)
             # Obtener cliente del usuario o del pedido
             if usuario.idCliente:
-                cliente_autorizado_id = usuario.idCliente.idCliente
+                cliente_autorizado_id = usuario.idCliente.idCliente if hasattr(usuario.idCliente, 'idCliente') else usuario.idCliente
             else:
                 # Si el usuario no tiene cliente, obtener del pedido
-                cliente_autorizado_id = pedido.idCliente.idCliente
+                if pedido.idCliente:
+                    cliente_autorizado_id = pedido.idCliente.idCliente if hasattr(pedido.idCliente, 'idCliente') else pedido.idCliente
+                else:
+                    cliente_autorizado_id = None
         except Usuario.DoesNotExist:
             messages.error(request, "Usuario no encontrado.")
             return redirect('login')
         except Exception as e:
             print(f"[ERROR] Error al obtener usuario: {str(e)}")
+            import traceback
+            traceback.print_exc()
             messages.error(request, "Error al verificar tu identidad.")
             return redirect('login')
     elif cliente_id:
@@ -1600,7 +1605,10 @@ def reportar_problema_entrega(request, idPedido):
         messages.error(request, "No se pudo verificar tu identidad.")
         return redirect('login')
     
-    if pedido.idCliente.idCliente != cliente_autorizado_id:
+    # Obtener el ID del cliente del pedido
+    pedido_cliente_id = pedido.idCliente.idCliente if hasattr(pedido.idCliente, 'idCliente') else pedido.idCliente
+    
+    if pedido_cliente_id != cliente_autorizado_id:
         messages.error(request, "No tienes permiso para reportar este pedido.")
         return redirect('perfil')
     
