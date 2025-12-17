@@ -1722,12 +1722,14 @@ def notificaciones_cliente(request):
     notificaciones = []
     try:
         # Usar try-except para cada paso
-        notificaciones = NotificacionProblema.objects.filter(
+        # Cargar explícitamente todos los campos para evitar lazy loading en Render
+        queryset = NotificacionProblema.objects.filter(
             idPedido__idCliente=cliente
-        ).select_related('idPedido').order_by('-fechaReporte')
+        ).select_related('idPedido', 'idPedido__idCliente').order_by('-fechaReporte')
         
         # Convertir a lista para asegurar que se ejecuta la query
-        notificaciones = list(notificaciones)
+        # Esto fuerza la evaluación de la query y carga todos los campos
+        notificaciones = list(queryset)
         
     except Exception as e:
         print(f"[ERROR] Error al obtener notificaciones: {str(e)}")
