@@ -2181,11 +2181,10 @@ def notificaciones_view(request):
         from core.models import NotificacionProblema, MensajeContacto
         
         # Obtener TODAS las notificaciones sin filtros, ordenadas por fecha
-        # Usar defer para no cargar campos que podrían no existir en Render
         notificaciones = NotificacionProblema.objects.select_related(
             'idPedido__idCliente',
             'idPedido__idRepartidor'
-        ).defer('respuesta_admin', 'fecha_respuesta').order_by('-fechaReporte')
+        ).order_by('-fechaReporte')
         
         # Obtener mensajes de contacto ordenados por fecha descendente
         try:
